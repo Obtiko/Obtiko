@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>التذكير بالمكتسبات - اختبر معلوماتك في البكالوريا | BacOrbit</title>
+<link rel="stylesheet" href="style.css">
+<script src="script.js"></script>
+<meta name="description" content="العب واختبر معلوماتك في الرياضيات والفيزياء والكيمياء والعلوم الطبيعية واللغة الإنجليزية عبر لعبة تفاعلية من 50 سؤالاً مصممة لتلاميذ البكالوريا.">
+<meta name="keywords" content="لعبة البكالوريا, اختبار البكالوريا, مراجعة تفاعلية, أسئلة بكالوريا, BacOrbit">
+<meta name="robots" content="index, follow">
+<meta name="author" content="BacOrbit">
+<link rel="canonical" href="https://bacorbit.github.io/BacOrbit/play.html">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BacOrbit">
+<meta property="og:locale" content="ar_DZ">
+<meta property="og:title" content="التذكير بالمكتسبات - اختبر معلوماتك في البكالوريا | BacOrbit">
+<meta property="og:description" content="العب واختبر معلوماتك في الرياضيات والفيزياء والكيمياء والعلوم الطبيعية واللغة الإنجليزية عبر لعبة تفاعلية من 50 سؤالاً مصممة لتلاميذ البكالوريا.">
+<meta property="og:url" content="https://bacorbit.github.io/BacOrbit/play.html">
+<meta property="og:image" content="https://bacorbit.github.io/BacOrbit/assets/og-cover.png">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="التذكير بالمكتسبات - اختبر معلوماتك في البكالوريا | BacOrbit">
+<meta name="twitter:description" content="العب واختبر معلوماتك في الرياضيات والفيزياء والكيمياء والعلوم الطبيعية واللغة الإنجليزية عبر لعبة تفاعلية من 50 سؤالاً مصممة لتلاميذ البكالوريا.">
+<meta name="twitter:image" content="https://bacorbit.github.io/BacOrbit/assets/og-cover.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{"@type":"ListItem","position":1,"name":"الرئيسية","item":"https://bacorbit.github.io/BacOrbit/"},{"@type":"ListItem","position":2,"name":"التذكير بالمكتسبات","item":"https://bacorbit.github.io/BacOrbit/play.html"}]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Quiz",
+  "about": "مراجعة تفاعلية لمكتسبات البكالوريا في الرياضيات والفيزياء والعلوم الطبيعية واللغة الإنجليزية",
+  "educationalLevel": "الثالثة ثانوي - بكالوريا",
+  "inLanguage": "ar"
+}
+</script>
+
+<style>
+/* ══ إضافة صغيرة خاصة بزر «تخطي إلى مرحلة» في صفحة المكتسبات القبلية فقط
+   (تجميع بصري فقط عبر top-bar-right-group، وتُعاد استخدام كلاسات
+   nav-menu-wrap / nav-menu-panel / nav-menu-item الموجودة أصلًا في
+   style.css دون أي تكرار لتنسيقها) ══ */
+.top-bar-right-group{display:flex;align-items:center;gap:10px}
+.stage-skip-wrap{position:absolute;top:100%;right:16px;margin-top:10px}
+.stage-skip-btn{width:auto;padding:0 16px}
+.stage-skip-icon{font-size:13px;line-height:1;font-weight:bold;white-space:nowrap}
+</style>
+
+</head>
+
+<body>
+
+<div class="top-bar" id="topBar">
+
+    <div class="nav-menu-wrap">
+        <button id="navMenuBtn" class="nav-menu-btn" type="button" aria-label="فتح قائمة التنقل" aria-expanded="false" aria-controls="navMenuPanel">
+            <span class="nav-menu-icon">
+                <span class="nav-menu-bar"></span>
+                <span class="nav-menu-bar"></span>
+                <span class="nav-menu-bar"></span>
+            </span>
+        </button>
+
+        <div class="nav-menu-panel" id="navMenuPanel" role="menu" aria-hidden="true">
+            <a href="index.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">📚</span>الصفحة الرئيسية</a>
+            <a href="chat.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">📚</span>المنتدى</a>
+            <a href="library.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">📖</span>مكتبة الكتب</a>
+            <a href="guidance.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">💡</span>نصائح وتوجيهات</a>
+            <a href="calculator.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">🧮</span>حساب المعدل</a>
+            <a href="https://www.facebook.com/profile.php?id=61593220613025" class="nav-menu-item" role="menuitem" target="_blank" rel="noopener noreferrer"><span class="nav-menu-item-icon">🎧</span>الدعم</a>
+            <a href="privacy.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">🛡️</span>السياسة والخصوصية</a>
+        </div>
+    </div>
+
+    <div class="top-bar-right-group">
+
+        <div class="nav-menu-wrap stage-skip-wrap">
+            <button id="stageSkipBtn" class="nav-menu-btn stage-skip-btn" type="button" aria-label="تخطي المرحلة الحالية" title="تخطي المرحلة الحالية">
+         <span class="stage-skip-icon" style="color: #1aff66 !important;">تخطي المرحلة</span>         
+           </button>
+        </div>
+
+        <button id="themeToggle" class="theme-switch" aria-label="تبديل الوضع الداكن والفاتح" title="تبديل الوضع الداكن والفاتح">
+            <span class="theme-switch-track">
+                <span class="theme-switch-icon sun">☀️</span>
+                <span class="theme-switch-icon moon">🌙</span>
+            </span>
+            <span class="theme-switch-thumb"></span>
+        </button>
+
+    </div>
+
+</div>
+
+<header class="site-header">
+    <div class="logo">BacOrbit</div>
+</header>
+
+<section class="hero game-hero">
+<h1>🧠 التذكير بالمكتسبات</h1>
+<p>أربع مراحل: الرياضيات، الفيزياء والكيمياء، العلوم الطبيعية، واللغة الإنجليزية</p>
+</section>
+
+<div class="score-bar">
+<div id="stageLabel" dir="auto">المرحلة 1 من 4 · الرياضيات</div>
+<div id="progressLabel" dir="ltr">1 / 15</div>
+<div>النقاط: <span id="scoreVal" dir="ltr">0</span></div>
+</div>
+
+<div class="progress-track">
+<div class="progress-outer">
+<div class="progress-inner" id="progressInner"></div>
+</div>
+</div>
+
+<div class="quiz-wrap">
+
+<div class="quiz-card" id="quizCard">
+<div class="badge" id="subjectBadge">الرياضيات</div>
+<div class="question-text" id="questionText">...</div>
+<div class="options" id="optionsWrap"></div>
+</div>
+
+<div class="stage-complete" id="stageCompleteScreen" style="display:none;">
+
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="stage-complete-svg">
+<path class="theme-fill" opacity="0.9" d="M75 140 L58 195 L100 172 L142 195 L125 140 Z"/>
+<circle cx="100" cy="90" r="55" fill="#ffd24d" stroke="#c9a227" stroke-width="6"/>
+<path d="M100 58 l10 22 24 3 -18 17 5 24 -21 -12 -21 12 5 -24 -18 -17 24 -3 z" fill="#fff6da"/>
+<path class="sparkle s1" d="M35 60 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 z" fill="#ffffff"/>
+<path class="sparkle s2 theme-fill" d="M168 70 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 z"/>
+</svg>
+
+<h2 id="stageCompleteTitle">🎉 أحسنت! أنهيت المرحلة الأولى</h2>
+<p id="stageCompleteText">أجبت بشكل صحيح على 17 من 20 سؤالاً</p>
+<button class="restart-btn" id="stageContinueBtn">متابعة ⬅</button>
+
+</div>
+
+<div class="congrats" id="congratsScreen" style="display:none;">
+
+<svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" class="congrats-svg">
+<defs>
+<radialGradient id="glow" cx="50%" cy="45%" r="60%">
+<stop offset="0%" stop-color="#1aff66" stop-opacity="0.35" class="theme-stop"/>
+<stop offset="100%" stop-color="#1aff66" stop-opacity="0"/>
+</radialGradient>
+</defs>
+<ellipse cx="200" cy="120" rx="180" ry="120" fill="url(#glow)"/>
+
+<rect x="175" y="190" width="50" height="14" rx="4" fill="#8a6d1f"/>
+<rect x="190" y="170" width="20" height="24" fill="#c9a227"/>
+
+<path d="M155 90 Q155 150 200 150 Q245 150 245 90 Z" fill="#ffd24d" stroke="#c9a227" stroke-width="3"/>
+<path d="M155 95 Q125 95 130 120 Q135 140 158 138" fill="none" stroke="#c9a227" stroke-width="6" stroke-linecap="round"/>
+<path d="M245 95 Q275 95 270 120 Q265 140 242 138" fill="none" stroke="#c9a227" stroke-width="6" stroke-linecap="round"/>
+<rect x="150" y="80" width="100" height="14" rx="7" fill="#ffe083"/>
+<path d="M200 100 l6 13 14 2 -10 10 2 14 -12 -7 -12 7 2 -14 -10 -10 14 -2 z" fill="#fff6da"/>
+
+<g transform="rotate(20 65 45)"><rect class="confetti c1 theme-fill" x="60" y="40" width="10" height="10"/></g>
+<g transform="rotate(-15 325 65)"><rect class="confetti c2" x="320" y="60" width="10" height="10" fill="#ffd24d"/></g>
+<circle class="confetti c3" cx="90" cy="150" r="6" fill="#ffd24d"/>
+<circle class="confetti c4 theme-fill" cx="310" cy="160" r="6"/>
+<g transform="rotate(45 44 114)"><rect class="confetti c5" x="40" y="110" width="8" height="8" fill="#ffffff"/></g>
+<g transform="rotate(30 344 114)"><rect class="confetti c6 theme-fill" x="340" y="110" width="8" height="8"/></g>
+
+<path class="sparkle s1" d="M80 80 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 z" fill="#ffffff"/>
+<path class="sparkle s2 theme-fill" d="M330 190 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 z"/>
+<path class="sparkle s3" d="M60 190 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2 z" fill="#ffd24d"/>
+</svg>
+
+<h2>🎉 أحسنت! لقد أتممت المراجعة</h2>
+<p id="finalScoreText"></p>
+<button class="restart-btn" onclick="restartGame()">إعادة المحاولة من جديد</button>
+
+</div>
+
+</div>
+
+<a href="index.html" class="back">⬅ العودة إلى الصفحة الرئيسية</a>
+
+<footer>
+© 2026 BacOrbit
+</footer>
+
+<div class="banner-overlay">
+<div class="banner" id="banner"></div>
+</div>
+
+<script>
+
+const questions = [
+
+/* ---------- الرياضيات ---------- */
+{subject:"الرياضيات", q:"تحليل العبارة E(x) = (2x-3)² - 25 هو:", options:["(2x-8)(2x+8)", "(2x+2)(2x-8)", "(2x-3)(2x-5)"], correct: 1},
+{subject:"الرياضيات", q:"حلول المتباينة 2x - 5| ≤ 3| في ℝ هي:", options:["x ∈ ]-∞, 1] ∪ [4, +∞[", "x ∈ [-1, 4]", "x ∈ [1, 4]"], correct: 2},
+{subject:"الرياضيات", q:"مجموعة تعريف الدالة f(x) = √(x+2) / (x-1) هي:", options:["[-2, +∞[", "[-2, 1[ ∪ ]1, +∞[", "]-∞, 1[ ∪ ]1, +∞["], correct: 1},
+{subject:"الرياضيات", q:"إذا كانت f(x) = x² + 1 و g(x) = 2x - 3، فإن (f∘g)(x) تساوي:", options:["4x² - 12x + 10", "4x² - 6x + 2", "2x² - 1"], correct: 0},
+{subject:"الرياضيات", q:"معادلة المماس لمنحنى الدالة f(x) = x³ - 2x عند النقطة ذات الفاصلة x₀ = 1 هي:", options:["y = x + 1", "y = -x - 1", "y = x - 2"], correct: 2},
+{subject:"الرياضيات", q:"قيمة النهاية lim(x→2) [(x² - 4)/(x - 2)] تساوي:", options:["4", "غير موجودة (حالة عدم تعيين لا يمكن إزالتها)", "0"], correct: 0},
+{subject:"الرياضيات", q:"التفسير الهندسي للنهاية lim(x→+∞) [f(x) - (2x + 1)] = 0 هو:", options:["منحنى الدالة يتقاطع مع المستقيم y = 2x + 1 عند مالانهاية", "منحنى الدالة يملك مستقيماً مقارباً مائلاً معادلته y = 2x + 1 عند +∞", "منحنى الدالة يملك مستقيماً مقارباً أفقياً معادلته y = 2x + 1"], correct: 1},
+{subject:"الرياضيات", q:"منحنى الدالة g(x) = f(x-2) + 3 ينشأ انطلاقاً من منحنى الدالة f بالانسحاب الذي شعاعه:", options:["v(2, 3)", "v(2, -3)", "v(-2, 3)"], correct: 0},
+{subject:"الرياضيات", q:"إذا كانت المتتالية (uₙ) حسابية حيث u₂ = 7 و u₅ = 16، فإن أساسها r والحد الأول u₀ هما:", options:["r = 3 و u₀ = 1", "r = 4.5 و u₀ = -2", "r = 3 و u₀ = 3"], correct: 0},
+{subject:"الرياضيات", q:"مجموع الحدود S = u₀ + u₁ + ... + uₙ لمتتالية هندسية أساسها q ≠ 1 يعطى بالقانون:", options:["S = (n+1)(u₀ + uₙ) / 2", "S = u₀ × (1 - qⁿ) / (1 - q)", "S = u₀ × (1 - q^(n+1)) / (1 - q)"], correct: 2},
+{subject:"الرياضيات", q:"إذا كان a و b و c حدوداً متوالية من متتالية هندسية موجبة، فإن:", options:["a + c = 2b", "a × c = b²", "a × b = c²"], correct: 1},
+{subject:"الرياضيات", q:"نسحب عشوائياً وفي آن واحد كريتين من كيس يحتوي على 4 كريات حمراء و 3 خضراء. عدد الحالات الكلية الممكنة هو:", options:["12", "42", "21"], correct: 2},
+{subject:"الرياضيات", q:"إذا كان X متغيراً عشوائياً حيث E(X) = 2.5 و E(X²) = 8.5، فإن التباين V(X) يساوي:", options:["2.25", "1.50", "6.00"], correct: 0},
+{subject:"الرياضيات", q:"المناقشة البيانية لعدد حلول المعادلة f(x) = m هي مناقشة:", options:["دورانية (حسب ميل المستقيمات المتوازية)", "مائلة (حسب دوران المستقيمات حول المبدأ)", "أفقية (حسب تقاطع Cf مع المستقيمات y = m)"], correct: 2},
+{subject:"الرياضيات", q:"مجموعة حلول المعادلة 2x² - 5x + 3 = 0 هي:", options:["S = {1, 3/2}", "S = {1, -3/2}", "S = {-1, -3/2}"], correct: 0},
+
+/* ---------- الفيزياء والكيمياء ---------- */
+{subject:"الفيزياء والكيمياء", q:"كمية المادة n لغاز مثالي في الشروط النظامية (Vm = 22.4 L/mol) حجمه V = 5.6 L هي:", options:["2.50 mol", "0.25 mol", "4.00 mol"], correct: 1},
+{subject:"الفيزياء والكيمياء", q:"العلاقة بين التركيز المولي C والتركيز الكتلي Cm لمحلول كتلة مذابه المولي M هي:", options:["Cm = C / M", "C = Cm × M", "Cm = C × M"], correct: 2},
+{subject:"الفيزياء والكيمياء", q:"قانون النقاوة P لعينة غير نقية هو:", options:["P = (mالتجارية / mالنقية) × 100", "P = (mالنقية / mالتجارية) × 100", "P = (mالنقية / V) × 100"], correct: 1},
+{subject:"الفيزياء والكيمياء", q:"في تفاعل الأكسدة والإرجاع، المؤكسد (Ox) هو كل فرد كيميائي قادر على:", options:["فقدان بروتون H⁺ أو أكثر", "اكتساب إلكترون أو أكثر", "فقدان إلكترون أو أكثر"], correct: 1},
+{subject:"الفيزياء والكيمياء", q:"يكون المزيج التفاعلي aA + bB → cC + dD في شروط ستوكيومترية إذا تحقق:", options:["n₀(A)/b = n₀(B)/a", "n₀(A) = n₀(B)", "n₀(A)/a = n₀(B)/b"], correct: 2},
+{subject:"الفيزياء والكيمياء", q:"المتفاعل المحدد في تفاعل تام هو المتفاعل الذي:", options:["يملك أقل كمية مادة ابتدائية مقدرة بـ mol", "ينفد أولاً وينتهي التفاعل عند نفاذه", "يملك أسرع سرعة تفاعل"], correct: 1},
+{subject:"الفيزياء والكيمياء", q:"العبارة الصحيحة لقانون الغاز المثالي هي:", options:["P·V = n·R·T (حيث T بـ Kelvin و P بـ Pascal)", "P·n = V·R·T", "P·V = n·R·θ (حيث θ بـ Celsius)"], correct: 0},
+{subject:"الفيزياء والكيمياء", q:"حسب القانون الثالث لنيوتن (مبدأ الفعلين المتبادلين):", options:["F(A/B) > F(B/A) عندما تكون كتلة A أكبر من كتلة B", "F⃗(A/B) = -F⃗(B/A)", "F⃗(A/B) = F⃗(B/A)"], correct: 1},
+{subject:"الفيزياء والكيمياء", q:"الطاقة الحركية Ec لجسم صلب كتلته m وسرعته v تعطى بالعبارة:", options:["Ec = ½·m·v²", "Ec = m·v²", "Ec = ½·m²·v"], correct: 0},
+{subject:"الفيزياء والكيمياء", q:"عند إسقاط قذيفة في الهواء وإهمال قوى الاحتكاك والدفع، تكون الحركة وفق المحور الأفقي (Ox):", options:["حركة منحنية متسارعة", "مستقيمة منتظمة (السرعة ثابتة)", "مستقيمة متغيرة بانتظام (التسارع ثابت وغير معدوم)"], correct: 1},
+{subject:"الفيزياء والكيمياء", q:"الحمض حسب برونشتد (Brönsted) هو كل فرد كيميائي قادر على:", options:["فقدان زوج إلكتروني", "اكتساب بروتون H⁺ أو أكثر", "فقدان بروتون H⁺ أو أكثر"], correct: 2},
+{subject:"الفيزياء والكيمياء", q:"الثنائية (حمض/أساس) المرافقة لمنح حمض HCl لبروتون في الماء هي:", options:["HCl / Cl⁻", "H₃O⁺ / Cl⁻", "HCl / H₃O⁺"], correct: 0},
+{subject:"الفيزياء والكيمياء", q:"النواة الذرية X، عددها الكتلي A وعددها الذري Z، تحتوي على:", options:["A بروتون و Z نيوترون", "Z نيوترون و (A - Z) بروتون", "Z بروتون و (A - Z) نيوترون"], correct: 2},
+{subject:"الفيزياء والكيمياء", q:"المجموعة الوظيفية التي تميز الكحولات هي:", options:["الكاربوكسيل (-COOH)", "الهيدروكسيل (-OH)", "الإستر (-COO-)"], correct: 1},
+{subject:"الفيزياء والكيمياء", q:"تفاعل الإسترة هو تفاعل بين:", options:["إستر وماء", "حمض كاربوكسيلي وكحول", "ألديهيد وكحول"], correct: 1},
+
+/* ---------- العلوم الطبيعية ---------- */
+{subject:"العلوم الطبيعية", q:"تتميز الخلية بدائية النواة (Prokaryote) بـ:", options:["وجود نواة حقيقية محاطة بغلاف ذي ثقوب", "احتواؤها على ميتوكوندريات وصانعات خضراء", "غياب الغلاف النووي والمادة الوراثية سابحة في الهيولى"], correct: 2},
+{subject:"العلوم الطبيعية", q:"العضية المسؤولة عن تركيب البروتين في الخلية هي:", options:["الريبوزوم", "الجسيم الحال (Lysosome)", "جهاز غولجي"], correct: 0},
+{subject:"العلوم الطبيعية", q:"النمط الظاهري (Phenotype) هو:", options:["التسلسل الدقيق للقواعد النيتروجينية في جزيئة ADN", "مجموع الصفات الظاهرة على الفرد على المستوى المورفولوجي والخلوي والجزيئي", "مجموع المورثات التي يحملها النمط الوراثي للفرد"], correct: 1},
+{subject:"العلوم الطبيعية", q:"الوحدة البنائية لجزيئة ADN هي:", options:["الأحماض الأمينية المتسلسلة بروابط ببتيدية", "النيوكليوزيدة (سكر ريبوز تام + قاعدة نيتروجينية)", "النيوكليوتيدة (سكر ريبوز منقوص الأكسجين + حمض الفوسفوريك + قاعدة نيتروجينية)"], correct: 2},
+{subject:"العلوم الطبيعية", q:"الطفرة الوراثية هي:", options:["خطأ مؤقت في استنساخ جزيئة ARNm", "تغير مفاجئ ووراثي في تسلسل نيوكليوتيدات ADN", "تغير في شكل البروتين بسبب العوامل البيئية فقط"], correct: 1},
+{subject:"العلوم الطبيعية", q:"تتميز عملية البلعمة بكونها:", options:["استجابة مناعية غير نوعية تنفذها المحببات/البلعميات", "استجابة مناعية نوعية خلوية بواسطة اللمفاويات LTc", "استجابة مناعية نوعية خلطية تنتج أجساماً مضادة"], correct: 0},
+{subject:"العلوم الطبيعية", q:"شخص فصيلة دمه O⁺، يحتوي مصل دمه بطبيعته على:", options:["أجسام مضادة ضد A وأجسام مضادة ضد B", "أجسام مضادة ضد Rh (Anti-D) بشكل طبيعي دون تعرض سابق", "مولدات الضد A و B على غشاء كرياته الحمراء"], correct: 0},
+{subject:"العلوم الطبيعية", q:"الجزيئات المسؤولة عن إنتاج الأجسام المضادة في الاستجابة المناعية الخلطية هي:", options:["اللمفاويات التائية السامة LT8 / LTc", "خلايا البلعمة الكبيرة (Macrophage)", "الخلايا البلازمية الناتجة عن تمايز اللمفاويات LB"], correct: 2},
+{subject:"العلوم الطبيعية", q:"تتحقق الاستجابة المناعية الخلوية عن طريق تخريب الخلايا المستهدفة بواسطة:", options:["إفراز البيرفورين والإنزيمات الحالّة بواسطة LTc", "تثبيت المتممة وتشكيل معقد هجوم غشائي دون خلايا", "إفراز الأجسام المضادة النوعية المترسبة"], correct: 0},
+{subject:"العلوم الطبيعية", q:"المنطقة التلامسية بين عصبون وعصبون آخر أو بين عصبون وعضلة تسمى:", options:["عقدة رانفييه (Node of Ranvier)", "المشبك (Synapse)", "المحور المحرك"], correct: 1},
+{subject:"العلوم الطبيعية", q:"الوسيط الكيميائي العصبي المسؤول عن نقل الرسالة المنبهة في المشابك المنبهة هو غالباً:", options:["الاستيل كولين (Acetylcholine)", "الغابا (GABA)", "الإنسولين"], correct: 0},
+{subject:"العلوم الطبيعية", q:"دخول شوارد الصوديوم (Na⁺) بكثرة إلى الهيولى بعد المشبكية يتسبب في:", options:["فرط استقطاب الغشاء وتشكيل كمون بعد مشبكي مثبط (PPSI)", "زوال استقطاب الغشاء وتشكيل كمون بعد مشبكي منبه (PPSE)", "استقطاب راحة ثنائي البؤرة"], correct: 1},
+{subject:"العلوم الطبيعية", q:"المشبك التثبيطي يعمل على إفراز الغابا (GABA) التي تؤدي إلى:", options:["انفتاح قنوات الكلور (Cl⁻) وظهور فرط استقطاب (PPSI)", "انفتاح قنوات الكالسيوم (Ca²⁺) وخروجها من الخلية", "انفتاح قنوات الصوديوم وتوليد كمون عمل سريع"], correct: 0},
+{subject:"العلوم الطبيعية", q:"الإدماج العصبي (Neural Integration) في العصبون بعد المشبكي يعني:", options:["نقل الرسالة العصبية في الاتجاهين معاً على طول المحور", "تحويل الرسالة الكيميائية إلى رسالة هرمونية في الدم", "تجميع المحصلة الفضائية والزمنية للكمونات المنبهة والمثبطة (PPSE و PPSI)"], correct: 2},
+{subject:"العلوم الطبيعية", q:"تتكون المادة الوراثية ARNm مقارنة بـ ADN من:", options:["خيط مفرد يحتوي على سكر ريبوز تام والقاعدة يوراسيل (U) بدلاً من الثيمين (T)", "خيط حلزوني مزدوج يحتوي على قاعدة الأدينين فقط", "خيط مضاعف يحتوي على سكر ريبوز منقوص الأكسجين والقاعدة يوراسيل (U)"], correct: 0},
+
+/* ---------- اللغة الإنجليزية ---------- */
+{subject:"اللغة الإنجليزية", q:"Which sentence correctly uses the Past Perfect tense?", options:["By the time the teacher had arrived, the students finished the exercise.", "By the time the teacher arrived, the students had finished the exercise.", "By the time the teacher arrived, the students have finished the exercise."], correct: 1},
+{subject:"اللغة الإنجليزية", q:"Convert to Indirect Speech: He said, \"I am studying for the exam.\"", options:["He said that I am studying for the exam.", "He said that he was studying for the exam.", "He said that he is studying for the exam."], correct: 1},
+{subject:"اللغة الإنجليزية", q:"Choose the correct Passive Voice form of: \"The company produces high-quality products.\"", options:["High-quality products are produced by the company.", "High-quality products were produced by the company.", "High-quality products are producing by the company."], correct: 0},
+{subject:"اللغة الإنجليزية", q:"Which conjunction expresses Concession correctly?", options:["Although it was raining heavily, they decided to go for a walk.", "Because it was raining heavily, they decided to go for a walk.", "As a result of the heavy rain, they decided to go for a walk."], correct: 0},
+{subject:"اللغة الإنجليزية", q:"How is the final /-ed/ pronounced in the word \"worked\"?", options:["/t/", "/d/", "/ɪd/"], correct: 0}
+
+];
+
+/* ---------- إعداد المراحل ---------- */
+
+const stagesDef = [
+{ label:"الرياضيات", range:[0,15] },
+{ label:"الفيزياء والكيمياء", range:[15,30] },
+{ label:"العلوم الطبيعية", range:[30,45] },
+{ label:"اللغة الإنجليزية", range:[45,50] }
+];
+
+const optionLetters = ["أ", "ب", "ج"];
+
+let stageIdx = 0;
+let queue = [];
+let posInQueue = 0;
+let stageScore = 0;
+let wrongIds = new Set();
+let reviewQueue = [];
+let mode = "main";
+let score = 0;
+let currentQid = null;
+let locked = false;
+let answerTimer = null;
+
+const quizCard = document.getElementById("quizCard");
+const congratsScreen = document.getElementById("congratsScreen");
+const stageCompleteScreen = document.getElementById("stageCompleteScreen");
+const subjectBadge = document.getElementById("subjectBadge");
+const questionText = document.getElementById("questionText");
+const optionsWrap = document.getElementById("optionsWrap");
+const banner = document.getElementById("banner");
+const stageLabel = document.getElementById("stageLabel");
+const progressLabel = document.getElementById("progressLabel");
+const scoreValEl = document.getElementById("scoreVal");
+const progressInner = document.getElementById("progressInner");
+const finalScoreText = document.getElementById("finalScoreText");
+const stageCompleteTitle = document.getElementById("stageCompleteTitle");
+const stageCompleteText = document.getElementById("stageCompleteText");
+const stageContinueBtn = document.getElementById("stageContinueBtn");
+const stageSkipBtn = document.getElementById("stageSkipBtn");
+
+let pendingAfterStageComplete = null;
+
+function shuffle(arr){
+const a = arr.slice();
+for(let i = a.length - 1; i > 0; i--){
+const j = Math.floor(Math.random() * (i + 1));
+[a[i], a[j]] = [a[j], a[i]];
+}
+return a;
+}
+
+function startStage(idx){
+stageIdx = idx;
+const [start, end] = stagesDef[idx].range;
+queue = shuffle(Array.from({length:end - start}, (_, i) => start + i));
+posInQueue = 0;
+stageScore = 0;
+mode = "main";
+loadNext();
+}
+
+function startReview(){
+mode = "review";
+reviewQueue = shuffle(Array.from(wrongIds));
+loadNext();
+}
+
+function loadNext(){
+
+if(mode === "main"){
+
+if(posInQueue >= queue.length){
+
+pendingAfterStageComplete = function(){
+if(stageIdx < stagesDef.length - 1){
+startStage(stageIdx + 1);
+}else if(wrongIds.size > 0){
+startReview();
+}else{
+showCongrats();
+}
+};
+
+showStageComplete();
+return;
+
+}
+
+currentQid = queue[posInQueue];
+renderQuestion(currentQid, false);
+
+}else{
+
+if(reviewQueue.length === 0){
+showCongrats();
+return;
+}
+
+currentQid = reviewQueue.shift();
+renderQuestion(currentQid, true);
+
+}
+
+}
+
+function updateHeader(){
+
+if(mode === "main"){
+stageLabel.textContent = "المرحلة " + (stageIdx + 1) + " من " + stagesDef.length + " · " + stagesDef[stageIdx].label;
+progressLabel.textContent = (posInQueue + 1) + " / " + queue.length;
+progressInner.style.width = Math.round((posInQueue / queue.length) * 100) + "%";
+}else{
+stageLabel.textContent = "مرحلة المراجعة";
+progressLabel.textContent = "متبقٍ " + (reviewQueue.length + 1);
+const totalWrong = wrongIds.size;
+const doneCount = totalWrong - reviewQueue.length - 1;
+progressInner.style.width = totalWrong > 0 ? Math.max(0, Math.round((doneCount / totalWrong) * 100)) + "%" : "100%";
+}
+
+}
+
+/* ---------- زر «تخطي المرحلة» (أعلى الصفحة) ----------
+   نقرة واحدة على الزر تنقل المستخدم مباشرة إلى المرحلة التالية،
+   دون أي قائمة منسدلة. إن كانت هذه آخر مرحلة رئيسية، ينتقل إلى
+   مرحلة مراجعة الأخطاء إن وجدت، وإلا يعرض شاشة الإنجاز مباشرة. */
+
+function skipCurrentStage(){
+clearTimeout(answerTimer);
+pendingAfterStageComplete = null;
+stageCompleteScreen.style.display = "none";
+congratsScreen.style.display = "none";
+quizCard.style.display = "block";
+
+if(mode === "main" && stageIdx < stagesDef.length - 1){
+startStage(stageIdx + 1);
+}else if(wrongIds.size > 0){
+startReview();
+}else{
+showCongrats();
+}
+}
+
+stageSkipBtn.addEventListener("click", skipCurrentStage);
+
+function renderQuestion(qid, isReview){
+
+locked = false;
+quizCard.classList.remove("flash-red", "flash-green", "shake");
+
+const item = questions[qid];
+
+subjectBadge.textContent = item.subject;
+subjectBadge.classList.toggle("review", isReview);
+
+questionText.textContent = item.q;
+questionText.setAttribute("dir", "auto");
+
+updateHeader();
+
+optionsWrap.innerHTML = "";
+
+item.options.forEach((opt, idx) => {
+
+const btn = document.createElement("button");
+btn.className = "option-btn";
+
+const letterSpan = document.createElement("span");
+letterSpan.className = "option-letter";
+letterSpan.textContent = optionLetters[idx];
+
+const textSpan = document.createElement("span");
+textSpan.className = "option-text";
+textSpan.textContent = opt;
+textSpan.setAttribute("dir", "auto");
+
+btn.appendChild(letterSpan);
+btn.appendChild(textSpan);
+
+btn.onclick = () => handleAnswer(idx, item, btn, qid, isReview);
+optionsWrap.appendChild(btn);
+
+});
+
+}
+
+function showBanner(text, type){
+banner.textContent = text;
+banner.className = "banner show " + type;
+setTimeout(() => {
+banner.classList.remove("show");
+}, 1100);
+}
+
+function handleAnswer(idx, item, btn, qid, isReview){
+
+if(locked) return;
+locked = true;
+
+const allBtns = optionsWrap.querySelectorAll(".option-btn");
+allBtns.forEach(b => b.disabled = true);
+
+if(idx === item.correct){
+
+if(!isReview){
+score++;
+stageScore++;
+}
+btn.classList.add("correct-answer");
+quizCard.classList.add("flash-green");
+showBanner("زعيييم، كمل فيها 💪", "win");
+
+}else{
+
+btn.classList.add("wrong-answer");
+quizCard.classList.add("flash-red", "shake");
+allBtns[item.correct].classList.add("correct-answer");
+showBanner("زير روحك 😅", "lose");
+
+if(isReview){
+reviewQueue.push(qid);
+}else{
+wrongIds.add(qid);
+}
+
+}
+
+scoreValEl.textContent = score;
+
+answerTimer = setTimeout(() => {
+if(mode === "main") posInQueue++;
+loadNext();
+}, 1500);
+
+}
+
+function showStageComplete(){
+
+quizCard.style.display = "none";
+
+const stageTotal = queue.length;
+stageCompleteTitle.textContent = "🎉 أحسنت! أنهيت مرحلة " + stagesDef[stageIdx].label;
+stageCompleteText.textContent = "أجبت بشكل صحيح على " + stageScore + " من " + stageTotal + " سؤالاً";
+
+stageCompleteScreen.style.display = "block";
+
+}
+
+stageContinueBtn.onclick = function(){
+stageCompleteScreen.style.display = "none";
+quizCard.style.display = "block";
+if(pendingAfterStageComplete){
+const action = pendingAfterStageComplete;
+pendingAfterStageComplete = null;
+action();
+}
+};
+
+function showCongrats(){
+quizCard.style.display = "none";
+congratsScreen.style.display = "block";
+progressInner.style.width = "100%";
+stageLabel.textContent = "اكتملت المراجعة";
+progressLabel.textContent = questions.length + " / " + questions.length;
+
+const percent = Math.round((score / questions.length) * 100);
+finalScoreText.textContent = "حصلت على " + score + " من " + questions.length + " إجابة صحيحة من أول محاولة (" + percent + "%)، وأتممت مراجعة كل الأخطاء بنجاح.";
+}
+
+function restartGame(){
+wrongIds = new Set();
+score = 0;
+scoreValEl.textContent = 0;
+quizCard.style.display = "block";
+congratsScreen.style.display = "none";
+startStage(0);
+}
+
+startStage(0);
+
+</script>
+
+</body>
+</html>

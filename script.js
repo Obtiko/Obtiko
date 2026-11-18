@@ -1,0 +1,2316 @@
+/* ============================================================
+   BacOrbit — script.js
+   الملف المركزي لكل التفاعلات: الثيم، الشريط العلوي، تأثير النبض،
+   الإشعارات، تنزيل المواضيع والدروس، وعارض تكبير/تنزيل الصور.
+   مصمم ليعمل بأمان على أي صفحة حتى لو كانت بعض العناصر غير موجودة.
+
+   ⚠️ القسم 0ب: إصلاح اختفاء أيقونة الموقع (favicon) في الصفحات
+   الداخلية عبر حقن وسم <link rel="icon"> بمسار مطلق إن لم يكن موجودًا.
+
+   ⚠️ القسم 8ج-1 (التعديل الحالي): توحيد قائمة التنقل ☰ في كل صفحات
+   الموقع دون استثناء. بدل الاعتماد على محتوى .nav-menu-panel المكتوب
+   يدويًا داخل كل ملف HTML (وهو ما كان يسبب اختلاف الترتيب وتكرار/
+   نقصان بعض الروابط بين الصفحات)، أصبح محتوى القائمة الآن يُبنى
+   بالكامل من مصدر واحد فقط هنا (BAC_NAV_ITEMS) عبر rebuildNavMenu()،
+   التي تُفرغ .nav-menu-panel وتعيد بناءه من الصفر في كل صفحة عند
+   التحميل، بنفس الترتيب والأسماء والأيقونات:
+   الصفحة الرئيسية، المنتدى، المكتبة، نصائح وتوجيهات، إضافة ملفات،
+   حساب المعدل، الدعم، السياسة والخصوصية. هذا لا يحذف أي صفحة أو
+   ميزة من الموقع (مثل play.html "المكتسبات القبلية" التي تبقى تُفتح
+   من بطاقتها في الصفحة الرئيسية كما هي)، فقط يوحّد ما يظهر داخل
+   قائمة ☰ نفسها في كل الصفحات.
+   ============================================================ */
+
+(function () {
+  'use strict';
+
+  /* ---------------------------------------------------------
+     0-أ. توجيه تلقائي فوري لأصحاب شعبة محفوظة عند دخول الصفحة الرئيسية
+     --------------------------------------------------------- */
+  (function redirectToSavedBranchIfHome() {
+    try {
+      var path = location.pathname;
+      var isHome = /(^|\/)index\.html$/.test(path) || /\/$/.test(path);
+      if (!isHome) return;
+      var raw = localStorage.getItem('bacorbit_saved_branch');
+      if (!raw) return;
+      var saved = JSON.parse(raw);
+      if (saved && saved.url) location.replace(saved.url);
+    } catch (e) { /* المتابعة بتحميل الصفحة الرئيسية عاديًا */ }
+  })();
+
+  /* ---------------------------------------------------------
+     0. أدوات مساعدة عامة
+     --------------------------------------------------------- */
+  function qs(sel, ctx)  { return (ctx || document).querySelector(sel); }
+  function qsa(sel, ctx) { return Array.from((ctx || document).querySelectorAll(sel)); }
+  function on(el, evt, fn, opts) { if (el) el.addEventListener(evt, fn, opts); }
+
+  function safeRun(fn, label) {
+    try { fn(); }
+    catch (err) { console.warn('[BacOrbit]', label || 'خطأ غير متوقع', err); }
+  }
+
+  /* ---------------------------------------------------------
+     0ج. تتبّع الصفحة السابقة داخل الموقع (مستقل عن document.referrer)
+     --------------------------------------------------------- */
+  var NAV_CUR_KEY = 'bacorbit_nav_cur';
+  var NAV_PREV_KEY = 'bacorbit_nav_prev';
+  var NAV_SCROLL_PREFIX = 'bacorbit_nav_scroll:';
+  var NAV_RESTORE_KEY = 'bacorbit_nav_restore';
+  var bacReturning = false;
+
+  function navPageId() { return location.pathname + location.search; }
+
+  (function trackNav() {
+    try {
+      var cur = navPageId();
+      var last = sessionStorage.getItem(NAV_CUR_KEY);
+      if (last && last !== cur) sessionStorage.setItem(NAV_PREV_KEY, last);
+      sessionStorage.setItem(NAV_CUR_KEY, cur);
+
+      /* هل وصلنا إلى هذه الصفحة عائدين من قارئ؟ */
+      if (sessionStorage.getItem(NAV_RESTORE_KEY) === cur) {
+        bacReturning = true;
+        sessionStorage.removeItem(NAV_RESTORE_KEY);
+      }
+
+      window.addEventListener('pagehide', function () {
+        try { sessionStorage.setItem(NAV_SCROLL_PREFIX + cur, String(window.scrollY || 0)); } catch (e) {}
+      });
+    } catch (e) {}
+  })();
+
+  function restoreReturnScroll() {
+    if (!bacReturning) return;
+    var y = 0;
+    try { y = parseInt(sessionStorage.getItem(NAV_SCROLL_PREFIX + navPageId()), 10) || 0; } catch (e) {}
+    if (!y) return;
+    try { history.scrollRestoration = 'manual'; } catch (e) {}
+    window.scrollTo(0, y);
+    window.requestAnimationFrame(function () { window.scrollTo(0, y); });
+    on(window, 'load', function () { window.scrollTo(0, y); });
+  }
+
+  /* ---------------------------------------------------------
+     0ب. ضمان ظهور أيقونة BacOrbit (favicon) في كل صفحة
+     --------------------------------------------------------- */
+  var SITE_ROOT = 'https://bacorbit.github.io/BacOrbit/';
+
+  var CURRENT_SCRIPT_SRC = (document.currentScript && document.currentScript.src) || '';
+  function siblingUrl(name) {
+    if (CURRENT_SCRIPT_SRC) {
+      return CURRENT_SCRIPT_SRC.replace(/script\.js(\?.*)?$/, '') + name;
+    }
+    return name;
+  }
+  function loadScriptTag(src) {
+    return new Promise(function (resolve, reject) {
+      var existing = document.querySelector('script[data-bac-src="' + src + '"]');
+      if (existing) {
+        if (existing.dataset.bacLoaded === '1') { resolve(); return; }
+        existing.addEventListener('load', function () { resolve(); });
+        existing.addEventListener('error', reject);
+        return;
+      }
+      var s = document.createElement('script');
+      s.src = src;
+      s.dataset.bacSrc = src;
+      s.onload = function () { s.dataset.bacLoaded = '1'; resolve(); };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  function ensureFavicon() {
+    if (document.querySelector('link[rel="icon"]')) return;
+
+    var icon = document.createElement('link');
+    icon.rel = 'icon';
+    icon.type = 'image/png';
+    icon.href = SITE_ROOT + 'favicon.png';
+    document.head.appendChild(icon);
+
+    if (!document.querySelector('link[rel="apple-touch-icon"]')) {
+      var apple = document.createElement('link');
+      apple.rel = 'apple-touch-icon';
+      apple.href = SITE_ROOT + 'icon-192.png';
+      document.head.appendChild(apple);
+    }
+  }
+
+  /* ---------------------------------------------------------
+     1. الوضع الداكن / الفاتح (Theme)
+     --------------------------------------------------------- */
+  const THEME_KEY = 'bacorbit_theme';
+
+  function applyStoredTheme() {
+    try {
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === 'light' || saved === 'dark') {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+    } catch (e) {}
+  }
+  applyStoredTheme();
+  safeRun(ensureFavicon, 'أيقونة الموقع (favicon)');
+
+  /* صفحات الدروس (L_*): يُفتح القارئ مباشرة، فنخفي قائمة الصور القديمة من البداية
+     حتى لا تظهر لحظة قبل القارئ. تُزال الفئة تلقائيًا إن تعذّر فتح القارئ. */
+  safeRun(function () {
+    if (!/\/L_[^\/]*\.html$/.test(location.pathname)) return;
+    document.documentElement.classList.add('bac-auto-reader');
+    var st = document.createElement('style');
+    st.id = 'bacAutoReaderStyle';
+    st.textContent = '.bac-auto-reader .lessons,.bac-auto-reader .download-all-section,.bac-auto-reader #bacLessonZoomBar{display:none!important}';
+    document.head.appendChild(st);
+  }, 'إخفاء واجهة الدروس القديمة');
+
+  function initThemeToggle() {
+    const btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    on(btn, 'click', function () {
+      const root = document.documentElement;
+      const isLight = root.getAttribute('data-theme') === 'light';
+      const next = isLight ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+    });
+  }
+
+  /* ---------------------------------------------------------
+     2. الشريط العلوي — إخفاء/إظهار عند التمرير
+     --------------------------------------------------------- */
+  function initTopBarScroll() {
+    const topBar = document.getElementById('topBar');
+    if (!topBar) return;
+
+    let lastY = window.scrollY || 0;
+    let ticking = false;
+
+    function update() {
+      const y = window.scrollY || 0;
+      topBar.classList.toggle('hide', y > lastY && y > 130);
+      lastY = y;
+      ticking = false;
+    }
+
+    on(window, 'scroll', function () {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+
+  /* ---------------------------------------------------------
+     4. إشعارات (Toast)
+     --------------------------------------------------------- */
+  let toastTimer = null;
+
+  function ensureToastStyles() {
+    if (document.getElementById('bacToastStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'bacToastStyles';
+    style.textContent =
+      '#bacToastHost{position:fixed;bottom:24px;left:0;right:0;display:flex;' +
+      'justify-content:center;z-index:4000;pointer-events:none;padding:0 14px}' +
+      '.bac-toast{background:var(--card-bg,#161616);border:2px solid var(--accent,#1aff66);' +
+      'color:var(--accent,#1aff66);padding:12px 22px;border-radius:14px;font-weight:bold;' +
+      'font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);opacity:0;transform:translateY(15px);' +
+      'transition:opacity .3s ease,transform .3s ease;max-width:92%;text-align:center;' +
+      'font-family:Arial,sans-serif}' +
+      '.bac-toast.show{opacity:1;transform:translateY(0)}' +
+      '.bac-toast.err{border-color:var(--danger,#ff4d4d);color:var(--danger,#ff4d4d)}';
+    document.head.appendChild(style);
+  }
+
+  function showToast(message, type) {
+    ensureToastStyles();
+    let host = document.getElementById('bacToastHost');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'bacToastHost';
+      const box = document.createElement('div');
+      box.className = 'bac-toast';
+      box.id = 'bacToastBox';
+      host.appendChild(box);
+      document.body.appendChild(host);
+    }
+    const box = document.getElementById('bacToastBox');
+    box.textContent = message;
+    box.classList.toggle('err', type === 'err');
+    box.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { box.classList.remove('show'); }, 3200);
+  }
+
+  /* ---------------------------------------------------------
+     5. تنزيل الملفات
+     --------------------------------------------------------- */
+  function triggerFileDownload(url, fileName) {
+    if (typeof fetch !== 'function') {
+      return Promise.reject(new Error('fetch غير مدعوم في هذا المتصفح'));
+    }
+    return fetch(url).then(function (res) {
+      if (!res.ok) throw new Error('missing-file');
+      return res.blob();
+    }).then(function (blob) {
+      const objUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objUrl;
+      a.download = fileName || '';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(objUrl); }, 4000);
+    });
+  }
+
+  window.downloadTopic = function (event, filePath, fileName) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    const btn = event ? event.currentTarget : null;
+    if (btn && btn.dataset.busy === '1') return;
+
+    const textEl = btn ? btn.querySelector('span') : null;
+    const originalText = textEl ? textEl.textContent : null;
+
+    if (btn) {
+      btn.dataset.busy = '1';
+      btn.disabled = true;
+      btn.classList.add('loading');
+      if (textEl) textEl.textContent = 'جارٍ التنزيل…';
+    }
+
+    triggerFileDownload(filePath, fileName).then(function () {
+      showToast('تم تنزيل: ' + (fileName || 'الملف') + ' ✅');
+      if (btn) {
+        btn.classList.remove('loading');
+        btn.classList.add('done');
+        if (textEl) textEl.textContent = 'تم التنزيل ✅';
+      }
+    }).catch(function () {
+      showToast('تعذّر تنزيل الملف، سيتم فتحه في نافذة جديدة', 'err');
+      if (btn) btn.classList.remove('loading');
+      safeRun(function () { window.open(filePath, '_blank'); });
+    }).finally(function () {
+      if (btn) {
+        setTimeout(function () {
+          btn.classList.remove('done');
+          btn.disabled = false;
+          btn.dataset.busy = '0';
+          if (textEl && originalText) textEl.textContent = originalText;
+        }, 1600);
+      }
+    });
+  };
+
+  window.downloadLessonFolder = function (button, folderName, fileNames, folderLabel) {
+    if (!button || button.dataset.busy === '1') return;
+    if (!Array.isArray(fileNames) || fileNames.length === 0) return;
+
+    const svgEl = button.querySelector('svg');
+    const labelEl = button.querySelector('.dl-label');
+    const originalSvgHTML = svgEl ? svgEl.outerHTML : '';
+    const originalLabelText = labelEl ? labelEl.textContent : '';
+
+    button.dataset.busy = '1';
+    button.disabled = true;
+    button.classList.add('loading');
+    if (svgEl) svgEl.outerHTML = '<span class="dl-spinner"></span>';
+
+    let done = 0, failed = 0;
+    const total = fileNames.length;
+
+    function updateLabel() {
+      if (labelEl) labelEl.textContent = 'جارٍ التنزيل… (' + (done + failed) + '/' + total + ')';
+    }
+    updateLabel();
+
+    (async function run() {
+      for (let i = 0; i < fileNames.length; i++) {
+        const name = fileNames[i];
+        const url = folderName + '/' + name;
+        try {
+          await triggerFileDownload(url, name);
+          done++;
+        } catch (e) {
+          failed++;
+        }
+        updateLabel();
+        await new Promise(function (r) { setTimeout(r, 220); });
+      }
+
+      button.classList.remove('loading');
+      button.classList.add('done');
+      const spinner = button.querySelector('.dl-spinner');
+      if (spinner) spinner.outerHTML = '<span class="dl-check">✔</span>';
+      if (labelEl) {
+        labelEl.textContent = failed
+          ? ('تم تنزيل ' + done + ' من ' + total)
+          : 'تم تنزيل جميع الدروس ✅';
+      }
+
+      if (failed) {
+        showToast('تعذّر تنزيل ' + failed + ' ملف من ' + (folderLabel || folderName), 'err');
+      } else {
+        showToast('تم تنزيل ' + (folderLabel || 'جميع الملفات') + ' بنجاح ✅');
+      }
+
+      setTimeout(function () {
+        const check = button.querySelector('.dl-check');
+        if (check) check.outerHTML = originalSvgHTML;
+        if (labelEl) labelEl.textContent = originalLabelText;
+        button.classList.remove('done');
+        button.disabled = false;
+        button.dataset.busy = '0';
+      }, 2600);
+    })();
+  };
+
+  /* ---------------------------------------------------------
+     6. عارض الصور
+     --------------------------------------------------------- */
+  const DOWNLOAD_SVG =
+    '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+
+  function baseName(path) {
+    const parts = String(path).split('/');
+    try { return decodeURIComponent(parts[parts.length - 1] || 'image'); }
+    catch (e) { return parts[parts.length - 1] || 'image'; }
+  }
+
+  let imageViewerEls = null;
+
+  function ensureImageViewer() {
+    if (imageViewerEls) return imageViewerEls;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'bacImageViewerOverlay';
+    overlay.className = 'bac-image-viewer-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+
+    const inner = document.createElement('div');
+    inner.className = 'bac-image-viewer-inner';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'bac-image-viewer-close';
+    closeBtn.setAttribute('aria-label', 'إغلاق المكبر');
+    closeBtn.innerHTML = '✕';
+
+    const img = document.createElement('img');
+    img.id = 'bacImageViewerImg';
+    img.alt = 'عرض مكبر للصورة';
+
+    const dlBtn = document.createElement('button');
+    dlBtn.type = 'button';
+    dlBtn.className = 'topic-download-btn bac-image-viewer-download';
+    dlBtn.innerHTML = DOWNLOAD_SVG + '<span>تنزيل الصورة</span>';
+
+    inner.appendChild(closeBtn);
+    inner.appendChild(img);
+    inner.appendChild(dlBtn);
+    overlay.appendChild(inner);
+    document.body.insertBefore(overlay, document.body.firstChild);
+
+    function close() {
+      overlay.classList.remove('open');
+      overlay.setAttribute('aria-hidden', 'true');
+      img.removeAttribute('src');
+    }
+
+    function openWith(src, name) {
+      img.setAttribute('src', src);
+      img.setAttribute('alt', name || 'صورة مكبرة');
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+    }
+
+    on(closeBtn, 'click', function (e) { e.stopPropagation(); close(); });
+    on(overlay, 'click', function (e) { if (e.target === overlay) close(); });
+    on(document, 'keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) close();
+    });
+    on(dlBtn, 'click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (dlBtn.dataset.busy === '1') return;
+      const src = img.getAttribute('src');
+      if (!src) return;
+      dlBtn.dataset.busy = '1';
+      const name = baseName(src);
+      triggerFileDownload(src, name).then(function () {
+        showToast('تم تنزيل الصورة ✅');
+      }).catch(function () {
+        showToast('تعذّر تنزيل الصورة، سيتم فتحها في نافذة جديدة', 'err');
+        safeRun(function () { window.open(src, '_blank'); });
+      }).finally(function () {
+        dlBtn.dataset.busy = '0';
+      });
+    });
+
+    imageViewerEls = { overlay: overlay, img: img, open: openWith, close: close };
+    return imageViewerEls;
+  }
+
+  function openImageViewer(src, name) {
+    ensureImageViewer().open(src, name);
+  }
+
+  /* ---------------------------------------------------------
+     6أ. القارئ الموحّد (reader.js) — يُحمَّل عند أول استعمال فقط
+     --------------------------------------------------------- */
+  function stripLead(t) { return String(t || '').replace(/^[^\u0600-\u06FFA-Za-z0-9]+/, '').replace(/\s+/g, ' ').trim(); }
+
+  window.bacOpenReader = function (opts) {
+    return loadScriptTag(siblingUrl('reader.js')).then(function () {
+      return window.BacReader.open(opts);
+    }).catch(function (err) {
+      console.warn('[BacOrbit] تعذّر تشغيل القارئ', err);
+      if (opts && opts.type === 'pdf' && opts.src) window.open(opts.src, '_blank');
+      return false;
+    });
+  };
+
+  /* العودة إلى الصفحة التي اختار منها المستخدم المحتوى (الرجوع في السجل).
+     إن دخل الصفحة مباشرة (بلا صفحة سابقة من الموقع) نعيده لشعبته المحفوظة أو للرئيسية. */
+  window.bacReturnToSource = function () {
+    var prev = null;
+    try { prev = sessionStorage.getItem(NAV_PREV_KEY); } catch (e) {}
+
+    var fromSite = false;
+    try {
+      fromSite = !!document.referrer && new URL(document.referrer).origin === location.origin;
+    } catch (e) {}
+
+    /* 1) الأفضل: الرجوع في السجل (يحفظ التمرير والبطاقات المفتوحة تلقائيًا) */
+    if ((fromSite || prev) && history.length > 1) { history.back(); return; }
+
+    /* 2) تبويب جديد بلا سجل: نفتح الصفحة السابقة ونعيد موضع التمرير */
+    if (prev) {
+      try { sessionStorage.setItem(NAV_RESTORE_KEY, prev); } catch (e) {}
+      location.href = prev;
+      return;
+    }
+
+    /* 3) لا توجد صفحة سابقة إطلاقًا: الشعبة المحفوظة أو الرئيسية */
+    var saved = bacLoadSavedBranch();
+    location.href = (saved && saved.url) ? bacResolveBranchUrl(saved.url) : bacHomeHrefFromCurrentPage();
+  };
+
+  function lessonReaderTitle() {
+    var h = qs('.hero h1');
+    var t = stripLead(h ? h.textContent : document.title);
+    var u = qs('[id$="Units"] .active');
+    return u ? t + ' — ' + stripLead(u.textContent) : t;
+  }
+
+  function openLessonReader(start, auto) {
+    var items = qsa('.lessons .lesson img').map(function (img) { return { src: img.src, alt: img.alt || '' }; });
+    if (!items.length) return null;
+    var title = lessonReaderTitle();
+    var opts = { type: 'images', title: title, sources: items, start: start || 0, fileName: title + '.pdf' };
+    if (auto) { opts.history = false; opts.onClose = window.bacReturnToSource; }
+    return window.bacOpenReader(opts);
+  }
+
+  /* صفحات الدروس (L_*): فتح القارئ مباشرة عند الدخول، وعند إغلاقه نعود لصفحة الشعبة. */
+  function initLessonAutoReader() {
+    var root = document.documentElement;
+    if (!root.classList.contains('bac-auto-reader')) return;
+    function reveal() { root.classList.remove('bac-auto-reader'); }
+    var p = openLessonReader(0, true);
+    if (!p) { reveal(); return; }
+    p.then(function (ok) { if (ok === false) reveal(); }, reveal);
+  }
+
+  /* صفحات الشعب (بطاقات المواد): عند الرجوع إليها من محتوى فُتح منها نعيد البطاقة
+     المفتوحة وموضع التمرير كما كانا. */
+  function initBranchStateMemory() {
+    var cards = qsa('.subjects > .card').filter(function (c) { return c.querySelector('.subject-content'); });
+    if (!cards.length) return;
+    var KEY = 'bacorbit_subjects_state:' + location.pathname;
+    var savedByClick = false;
+
+    function save() {
+      var open = [];
+      cards.forEach(function (c, i) {
+        var s = c.querySelector('.subject-content');
+        if (s && s.style.display === 'block') open.push(i);
+      });
+      try { sessionStorage.setItem(KEY, JSON.stringify({ open: open, y: window.scrollY || 0 })); } catch (e) {}
+    }
+    /* التقاط النقر قبل أن يُغلق toggleContent البطاقة (النقر يصعد من البطاقة الصغيرة إلى البطاقة الأم) */
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('.mini-card')) { savedByClick = true; save(); }
+    }, true);
+    on(window, 'pagehide', function () { if (!savedByClick) save(); });
+
+    var nav = null;
+    try { nav = performance.getEntriesByType('navigation')[0]; } catch (e) {}
+    if ((!nav || nav.type !== 'back_forward') && !bacReturning) return;
+    var st = null;
+    try { st = JSON.parse(sessionStorage.getItem(KEY)); } catch (e) {}
+    if (!st) return;
+    try { history.scrollRestoration = 'manual'; } catch (e) {}
+    (st.open || []).forEach(function (i) {
+      var s = cards[i] && cards[i].querySelector('.subject-content');
+      if (s) s.style.display = 'block';
+    });
+    var y = st.y || 0;
+    window.scrollTo(0, y);
+    window.requestAnimationFrame(function () { window.scrollTo(0, y); });
+    on(window, 'load', function () { window.scrollTo(0, y); });
+  }
+
+  /* بطاقات المواضيع (S_* / T_*): فتح ملف PDF داخل القارئ بدل تبويب جديد.
+     يبقى onclick الأصلي في HTML كما هو (تعتمد عليه «الدراسة لاحقًا»)،
+     ويُعترض النقر في مرحلة الالتقاط فقط عندما يكون الهدف ملف PDF. */
+  function initPdfCardReader() {
+    if (!qs('.topic-card')) return;
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (!t || !t.closest || t.closest('.topic-download-btn, .topic-visited-badge')) return;
+      var card = t.closest('.topic-card');
+      if (!card) return;
+      var m = (card.getAttribute('onclick') || '').match(/window\.open\(\s*(['"])(.+?)\1/);
+      if (!m || !/\.pdf$/i.test(m[2])) return;
+      e.stopPropagation();
+      e.preventDefault();
+      var h = qs('.hero h1'), c = card.querySelector('h2');
+      var title = [stripLead(h && h.textContent), stripLead(c && c.textContent)].filter(Boolean).join(' — ');
+      window.bacOpenReader({ type: 'pdf', src: m[2], title: title, fileName: title + '.pdf' });
+    }, true);
+  }
+
+  function preloadReader() {
+    if (!qs('.topic-card') && !qs('.lessons')) return;
+    var go = function () { loadScriptTag(siblingUrl('reader.js')).catch(function () {}); };
+    if (window.requestIdleCallback) window.requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 2000);
+  }
+
+  function enhanceLessonImages() {
+    qsa('.lesson > img').forEach(function (img) {
+      if (img.closest('.bac-img-frame')) return;
+
+      const frame = document.createElement('div');
+      frame.className = 'bac-img-frame';
+
+      const controls = document.createElement('div');
+      controls.className = 'bac-img-controls';
+
+      const dlBtn = document.createElement('button');
+      dlBtn.type = 'button';
+      dlBtn.className = 'topic-download-btn bac-side-download';
+      dlBtn.setAttribute('aria-label', 'تنزيل الصورة');
+      dlBtn.innerHTML = DOWNLOAD_SVG;
+
+      controls.appendChild(dlBtn);
+
+      img.parentNode.insertBefore(frame, img);
+      frame.appendChild(img);
+      frame.appendChild(controls);
+
+      on(img, 'click', function (e) {
+        e.preventDefault();
+        var all = qsa('.lessons .lesson img');
+        if (all.length) openLessonReader(Math.max(0, all.indexOf(img)));
+        else openImageViewer(img.getAttribute('src'), baseName(img.getAttribute('src')));
+      });
+
+      on(dlBtn, 'click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (dlBtn.dataset.busy === '1') return;
+        dlBtn.dataset.busy = '1';
+        const src = img.getAttribute('src');
+        const name = baseName(src);
+        triggerFileDownload(src, name).then(function () {
+          showToast('تم تنزيل الصورة ✅');
+        }).catch(function () {
+          showToast('تعذّر تنزيل الصورة، سيتم فتحها في نافذة جديدة', 'err');
+          safeRun(function () { window.open(src, '_blank'); });
+        }).finally(function () {
+          dlBtn.dataset.busy = '0';
+        });
+      });
+    });
+  }
+
+  window.bacEnhanceLessonImages = enhanceLessonImages;
+
+  /* ---------------------------------------------------------
+     6ب. شريط التحكم بحجم صور الدروس
+     --------------------------------------------------------- */
+  function initLessonZoomControl() {
+    var lessonsEl = document.querySelector('.lessons');
+    if (!lessonsEl || document.getElementById('bacLessonZoomBar')) return;
+    /* الصفحات التي تفتح القارئ مباشرة (التمارين I_ والفقرات P_) لا تحتوي صور دروس
+       ثابتة في الصفحة، فلا داعي لعرض شريط حجم الصور القديم قبل القارئ. */
+    if (!lessonsEl.querySelector('.lesson')) return;
+
+    var bar = document.createElement('div');
+    bar.id = 'bacLessonZoomBar';
+    bar.className = 'bac-zoom-bar';
+    bar.innerHTML =
+      '<span class="bac-zoom-label">🔍 حجم صور الدروس</span>' +
+      '<button type="button" class="bac-zoom-btn" id="bacZoomOut" aria-label="تصغير حجم الصور">−</button>' +
+      '<input type="range" id="bacZoomRange" class="bac-zoom-range" min="50" max="100" step="5" value="100" aria-label="التحكم بحجم صور الدروس">' +
+      '<button type="button" class="bac-zoom-btn" id="bacZoomIn" aria-label="تكبير حجم الصور">+</button>' +
+      '<button type="button" class="topic-download-btn" id="bacOpenReaderBtn" style="min-width:0;margin:0;padding:8px 14px"><span>📖 فتح القارئ</span></button>';
+
+    lessonsEl.parentNode.insertBefore(bar, lessonsEl);
+
+    var range = bar.querySelector('#bacZoomRange');
+    var btnOut = bar.querySelector('#bacZoomOut');
+    var btnIn = bar.querySelector('#bacZoomIn');
+
+    function applyZoom(val) {
+      val = Math.max(50, Math.min(100, val));
+      lessonsEl.style.setProperty('--bac-lesson-zoom', val + '%');
+      range.value = val;
+    }
+
+    on(range, 'input', function () { applyZoom(parseInt(range.value, 10)); });
+    on(btnOut, 'click', function () { applyZoom(parseInt(range.value, 10) - 10); });
+    on(btnIn, 'click', function () { applyZoom(parseInt(range.value, 10) + 10); });
+    on(bar.querySelector('#bacOpenReaderBtn'), 'click', function () { openLessonReader(0); });
+  }
+
+  /* ---------------------------------------------------------
+     6ج. تمييز المواضيع التي سبق للمستخدم الدخول إليها
+     --------------------------------------------------------- */
+  const VISITED_TOPICS_KEY = 'bacorbit_visited_topics';
+
+  function loadVisitedTopics() {
+    try {
+      const raw = localStorage.getItem(VISITED_TOPICS_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      return (parsed && typeof parsed === 'object') ? parsed : {};
+    } catch (e) { return {}; }
+  }
+
+  function saveVisitedTopics(map) {
+    try { localStorage.setItem(VISITED_TOPICS_KEY, JSON.stringify(map)); }
+    catch (e) {}
+  }
+
+  function topicCardKey(card) {
+    const openAttr = card.getAttribute('onclick') || '';
+    const m = openAttr.match(/window\.open\(\s*['"]([^'"]+)['"]/);
+    if (!m) return null;
+    return location.pathname + '|' + m[1];
+  }
+
+  function ensureVisitedBadge(card) {
+    if (card.querySelector('.topic-visited-badge')) return;
+    const badge = document.createElement('button');
+    badge.type = 'button';
+    badge.className = 'topic-visited-badge';
+    badge.textContent = '✓';
+    badge.setAttribute('aria-label', 'إزالة علامة الزيارة عن هذا الموضوع');
+    badge.title = 'إزالة علامة الزيارة';
+    on(badge, 'click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      unmarkTopicVisited(card);
+    });
+    card.appendChild(badge);
+  }
+
+  function removeVisitedBadge(card) {
+    const badge = card.querySelector('.topic-visited-badge');
+    if (badge) badge.remove();
+  }
+
+  function markTopicVisited(card) {
+    const key = topicCardKey(card);
+    if (!key) return;
+    card.classList.add('topic-visited');
+    ensureVisitedBadge(card);
+    const visited = loadVisitedTopics();
+    if (!visited[key]) {
+      visited[key] = 1;
+      saveVisitedTopics(visited);
+    }
+  }
+
+  function unmarkTopicVisited(card) {
+    card.classList.remove('topic-visited');
+    removeVisitedBadge(card);
+    const key = topicCardKey(card);
+    if (!key) return;
+    const visited = loadVisitedTopics();
+    if (visited[key]) {
+      delete visited[key];
+      saveVisitedTopics(visited);
+    }
+  }
+
+  function applyVisitedTopicsState() {
+    const cards = qsa('.topic-card');
+    if (!cards.length) return;
+    const visited = loadVisitedTopics();
+    cards.forEach(function (card) {
+      const key = topicCardKey(card);
+      if (key && visited[key]) {
+        card.classList.add('topic-visited');
+        ensureVisitedBadge(card);
+      }
+    });
+  }
+
+  function initVisitedTopicsTracking() {
+    if (!qs('.topic-card')) return;
+    applyVisitedTopicsState();
+    document.addEventListener('click', function (e) {
+      const card = e.target.closest ? e.target.closest('.topic-card') : null;
+      if (card) markTopicVisited(card);
+    }, true);
+  }
+
+  /* ---------------------------------------------------------
+     7. توافقية مستقبلية: toggleContent احتياطي
+     --------------------------------------------------------- */
+  function ensureToggleContentFallback() {
+    if (typeof window.toggleContent === 'function') return;
+    window.toggleContent = function (card) {
+      const content = card && card.querySelector('.subject-content');
+      if (!content) return;
+      content.style.display = (content.style.display === 'block') ? 'none' : 'block';
+    };
+  }
+
+  /* ---------------------------------------------------------
+     8. الخلفية التفاعلية (شبكة جسيمات) + تأثير النقر
+     --------------------------------------------------------- */
+  function readAccentColors() {
+    const styles = getComputedStyle(document.documentElement);
+    const dot = (styles.getPropertyValue('--bg-particle-dot') || styles.getPropertyValue('--accent') || '#1aff66').trim();
+    const line = (styles.getPropertyValue('--bg-particle-line') || styles.getPropertyValue('--accent-soft') || 'rgba(26,255,102,0.4)').trim();
+    const accent = (styles.getPropertyValue('--accent') || '#1aff66').trim();
+    return { dot: dot, line: line, accent: accent };
+  }
+
+  function isLightTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'light';
+  }
+
+  function getVisualParams() {
+    return isLightTheme()
+      ? { alpha: 0.30, fillAlpha: 0.05, mouseForce: 0 }
+      : { alpha: 0.28, fillAlpha: 0.03, mouseForce: 0 };
+  }
+
+  /* الخلفية التفاعلية: أدوات مدرسية (أقلام، كتاب، فرجار، مسطرة، مثلث) تسبح ببطء
+     بدل النقاط. ألوانها وخطوطها تُقرأ من متغيرات الثيم فتتبدّل مع الوضع الداكن/الفاتح.
+     الكتاب يقلب صفحته عند الضغط عليه (في المساحات الفارغة غير التفاعلية). */
+  function initInteractiveBackground() {
+    if (document.getElementById('bacBgCanvas')) return;
+    if (typeof window.matchMedia !== 'function') return;
+
+    const reduceMotionMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduceMotionMQ.matches) return;
+
+    const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'bacBgCanvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    document.body.insertBefore(canvas, document.body.firstChild);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let W = 0, H = 0;
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let tools = [];
+    let colors = readAccentColors();
+    let vp = getVisualParams();
+    const mouse = { x: -9999, y: -9999, active: false };
+    const smoothMouse = { x: -9999, y: -9999 };
+    let running = false;
+    let rafId = null;
+    let lastTs = 0;
+    const FLIP_MS = 800;
+
+    /* ---- رسم الأدوات (إحداثيات محلية مركزها (0,0)) ---- */
+    function paint() {
+      ctx.globalAlpha = vp.fillAlpha;
+      ctx.fillStyle = colors.accent;
+      ctx.fill();
+      ctx.globalAlpha = vp.alpha;
+      ctx.stroke();
+    }
+
+    function drawPencil(s) {
+      const L = s * 1.15, w = s * 0.16, xt = L * 0.45;
+      ctx.beginPath(); ctx.rect(-L, -w, xt + L, w * 2); paint();
+      ctx.beginPath(); ctx.rect(-L - w * 1.1, -w, w * 1.1, w * 2); paint();
+      ctx.beginPath(); ctx.moveTo(-L + w * 1.1, -w); ctx.lineTo(-L + w * 1.1, w); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xt, -w); ctx.lineTo(L, 0); ctx.lineTo(xt, w); ctx.closePath(); paint();
+      ctx.beginPath(); ctx.moveTo(L * 0.8, -w * 0.36); ctx.lineTo(L, 0); ctx.lineTo(L * 0.8, w * 0.36); ctx.closePath();
+      ctx.globalAlpha = vp.alpha; ctx.fillStyle = colors.dot; ctx.fill();
+      ctx.globalAlpha = vp.alpha * 0.55;
+      ctx.beginPath(); ctx.moveTo(-L + w * 1.5, 0); ctx.lineTo(xt - w * 0.5, 0); ctx.stroke();
+    }
+
+    function bookLines(side, w, h, seed, scaleLen) {
+      ctx.globalAlpha = vp.alpha * 0.5;
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const y = -h * 0.58 + i * h * 0.3;
+        const len = 0.45 + 0.4 * (((seed + i * 3) % 4) / 3);
+        const x0 = side * w * 0.14, x1 = side * w * (0.14 + len * 0.72 * scaleLen);
+        ctx.moveTo(x0, y); ctx.lineTo(x1, y);
+      }
+      ctx.stroke();
+    }
+
+    function pagePoly(side, w, h) {
+      ctx.beginPath();
+      ctx.moveTo(0, -h);
+      ctx.lineTo(side * w, -h * 0.9);
+      ctx.lineTo(side * w, h * 0.95);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+    }
+
+    function drawBook(s, t) {
+      const w = s * 0.82, h = s * 0.92;
+      ctx.beginPath();
+      ctx.moveTo(0, h * 1.1); ctx.lineTo(-w * 1.07, h * 1.03); ctx.lineTo(-w * 1.07, -h * 0.82);
+      ctx.moveTo(0, h * 1.1); ctx.lineTo(w * 1.07, h * 1.03); ctx.lineTo(w * 1.07, -h * 0.82);
+      ctx.globalAlpha = vp.alpha; ctx.stroke();
+      pagePoly(-1, w, h); paint();
+      pagePoly(1, w, h); paint();
+      bookLines(-1, w, h, t.page + 1, 1);
+      bookLines(1, w, h, t.page, 1);
+      if (t.flipping) {
+        const p = t.flipP;
+        const e = p < 0.5 ? 2 * p * p : 1 - 2 * (1 - p) * (1 - p);
+        const th = e * Math.PI, c = Math.cos(th), sn = Math.sin(th);
+        if (Math.abs(c) > 0.02) {
+          ctx.save();
+          ctx.scale(c, 1 - 0.07 * sn);
+          pagePoly(1, w, h);
+          ctx.globalAlpha = vp.fillAlpha * 2.4; ctx.fillStyle = colors.accent; ctx.fill();
+          ctx.globalAlpha = vp.alpha; ctx.stroke();
+          bookLines(1, w, h, c > 0 ? t.page : t.page + 1, 1);
+          ctx.restore();
+        }
+      }
+    }
+
+    function drawCompass(s) {
+      const hy = -s * 0.95, ly = s * 0.95, sp = s * 0.5;
+      ctx.globalAlpha = vp.alpha; ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.moveTo(0, hy); ctx.lineTo(-sp, ly); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, hy); ctx.lineTo(sp, ly - s * 0.2); ctx.stroke();
+      ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(-sp - s * 0.03, ly - s * 0.1); ctx.lineTo(-sp, ly + s * 0.12); ctx.lineTo(-sp + s * 0.03, ly - s * 0.1); ctx.closePath(); paint();
+      ctx.beginPath(); ctx.moveTo(sp - s * 0.06, ly - s * 0.32); ctx.lineTo(sp + s * 0.06, ly - s * 0.32); ctx.lineTo(sp, ly - s * 0.08); ctx.closePath(); paint();
+      ctx.beginPath(); ctx.arc(0, hy, s * 0.1, 0, Math.PI * 2); paint();
+      ctx.beginPath(); ctx.moveTo(0, hy - s * 0.1); ctx.lineTo(0, hy - s * 0.32); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, hy - s * 0.4, s * 0.08, 0, Math.PI * 2); ctx.stroke();
+      const yc = hy + (ly - hy) * 0.55;
+      ctx.globalAlpha = vp.alpha * 0.7;
+      ctx.beginPath(); ctx.moveTo(-sp * 0.55, yc); ctx.quadraticCurveTo(0, yc + s * 0.22, sp * 0.55, yc - s * 0.04); ctx.stroke();
+      ctx.lineWidth = 1.5;
+    }
+
+    function drawRuler(s) {
+      const L = s * 1.25, h = s * 0.28;
+      ctx.beginPath(); ctx.rect(-L, -h, L * 2, h * 2); paint();
+      ctx.globalAlpha = vp.alpha * 0.85;
+      ctx.beginPath();
+      for (let i = 0; i <= 14; i++) {
+        const x = -L + i * (2 * L / 14);
+        ctx.moveTo(x, -h); ctx.lineTo(x, -h + (i % 5 === 0 ? h * 0.95 : h * 0.5));
+      }
+      ctx.stroke();
+    }
+
+    function drawTriangle(s) {
+      const a = s * 0.7;
+      ctx.beginPath(); ctx.moveTo(-a, -a); ctx.lineTo(-a, a); ctx.lineTo(a, a); ctx.closePath(); paint();
+      ctx.globalAlpha = vp.alpha * 0.8;
+      ctx.beginPath(); ctx.moveTo(-a * 0.62, a * 0.62); ctx.lineTo(-a * 0.62, -a * 0.28); ctx.lineTo(a * 0.28, a * 0.62); ctx.closePath(); ctx.stroke();
+    }
+
+    const DRAW = { pencil: drawPencil, book: drawBook, compass: drawCompass, ruler: drawRuler, triangle: drawTriangle };
+    const TYPES = ['pencil', 'book', 'compass', 'book', 'pencil', 'ruler', 'triangle', 'pencil', 'book', 'compass', 'ruler', 'pencil', 'triangle', 'book', 'compass', 'pencil'];
+
+    function toolTarget() {
+      const base = Math.round(W * H / 70000);
+      return Math.max(4, Math.min(base, hasFinePointer ? 7 : 5));
+    }
+
+    function makeTool(i) {
+      const type = TYPES[i % TYPES.length];
+      const sway = type === 'book' || type === 'compass';
+      return {
+        type: type, sway: sway,
+        x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.12, vy: (Math.random() - 0.5) * 0.12,
+        rot: Math.random() * Math.PI * 2, base: (Math.random() - 0.5) * 0.6,
+        vr: (Math.random() - 0.5) * 0.0012,
+        s: 20 + Math.random() * 12, ph: Math.random() * Math.PI * 2,
+        flipping: false, flipP: 0, page: Math.floor(Math.random() * 5)
+      };
+    }
+
+    function resize() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = Math.floor(W * DPR);
+      canvas.height = Math.floor(H * DPR);
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+      const target = toolTarget();
+      while (tools.length < target) tools.push(makeTool(tools.length));
+      if (tools.length > target) tools.length = target;
+    }
+
+    function step(ts) {
+      if (!running) { rafId = null; return; }
+      if (lastTs && ts - lastTs < 30) { rafId = window.requestAnimationFrame(step); return; }
+      const dt = Math.min(48, lastTs ? ts - lastTs : 16.7);
+      lastTs = ts;
+      const k = dt / 16.7;
+      /* تخفيف سرعة حركة الأدوات قليلًا (1 = السرعة السابقة) */
+      const SPEED = 0.3;
+      const ks = k * SPEED;
+      const tsS = ts * SPEED;
+      ctx.clearRect(0, 0, W, H);
+
+      smoothMouse.x += (mouse.x - smoothMouse.x) * 0.06;
+      smoothMouse.y += (mouse.y - smoothMouse.y) * 0.06;
+      const mouseRadius = 130;
+
+      for (let i = 0; i < tools.length; i++) {
+        const t = tools[i];
+        /* سباحة هادئة: انجراف ثابت + تمايل جيبي بطيء */
+        t.x += (t.vx + Math.cos(tsS * 0.0004 + t.ph) * 0.05) * ks;
+        t.y += (t.vy + Math.sin(tsS * 0.0005 + t.ph) * 0.07) * ks;
+        if (t.sway) { t.rot = t.base + Math.sin(tsS * 0.0005 + t.ph) * 0.15; }
+        else { t.rot += t.vr * ks; }
+
+        const m = t.s * 2.4;
+        if (t.x < -m) t.x = W + m; else if (t.x > W + m) t.x = -m;
+        if (t.y < -m) t.y = H + m; else if (t.y > H + m) t.y = -m;
+
+        if (hasFinePointer && mouse.active && t.type !== 'book') {
+          const dx = t.x - smoothMouse.x, dy = t.y - smoothMouse.y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < mouseRadius && d > 0.01) {
+            const force = (1 - d / mouseRadius) * vp.mouseForce * k;
+            t.x += (dx / d) * force;
+            t.y += (dy / d) * force;
+          }
+        }
+
+        if (t.flipping) {
+          t.flipP += dt / FLIP_MS;
+          if (t.flipP >= 1) { t.flipping = false; t.flipP = 0; t.page++; }
+        }
+
+        ctx.save();
+        ctx.translate(t.x, t.y);
+        ctx.rotate(t.rot);
+        ctx.lineWidth = 1.5;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = colors.dot;
+        DRAW[t.type](t.s, t);
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+
+      rafId = window.requestAnimationFrame(step);
+    }
+
+    function start() {
+      if (!rafId) { running = true; lastTs = 0; rafId = window.requestAnimationFrame(step); }
+    }
+    function stop() {
+      running = false;
+      if (rafId) { window.cancelAnimationFrame(rafId); rafId = null; }
+    }
+
+    resize();
+    start();
+
+    let resizeTimer;
+    on(window, 'resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 150);
+    });
+
+    if (hasFinePointer) {
+      on(window, 'pointermove', function (e) {
+        mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true;
+      }, { passive: true });
+      on(window, 'blur', function () { mouse.active = false; });
+      on(document, 'mouseleave', function () { mouse.active = false; });
+    }
+
+    /* الضغط على كتاب في الخلفية يقلب صفحته (يُتجاهل إن كان الضغط على عنصر تفاعلي) */
+    on(document, 'pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && typeof e.button === 'number' && e.button !== 0) return;
+      const tg = e.target;
+      if (tg && tg.closest && tg.closest('a,button,input,textarea,select,label,summary,iframe,video,img,[onclick],[role="button"],[role="menuitem"],.card,.mini-card,.lesson,.post,.new-post,.nav-menu-panel,.bac-notif-panel,.bac-timer-widget,.pdf-reader-overlay,.bac-image-viewer-overlay')) return;
+      let best = null, bestD = Infinity;
+      for (let i = 0; i < tools.length; i++) {
+        const t = tools[i];
+        if (t.type !== 'book' || t.flipping) continue;
+        const d = Math.hypot(e.clientX - t.x, e.clientY - t.y);
+        if (d < t.s * 1.15 && d < bestD) { best = t; bestD = d; }
+      }
+      if (best) { best.flipping = true; best.flipP = 0; }
+    }, { passive: true });
+
+    on(document, 'visibilitychange', function () {
+      if (document.hidden) stop(); else start();
+    });
+
+    if (typeof MutationObserver === 'function') {
+      const themeObserver = new MutationObserver(function () {
+        colors = readAccentColors();
+        vp = getVisualParams();
+      });
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+      });
+    }
+
+    if (typeof reduceMotionMQ.addEventListener === 'function') {
+      reduceMotionMQ.addEventListener('change', function (e) {
+        if (e.matches) { stop(); canvas.style.display = 'none'; }
+      });
+    }
+  }
+
+  function initClickEffects() {
+    if (document.getElementById('bacClickFxCanvas')) return;
+    if (typeof window.matchMedia !== 'function') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'bacClickFxCanvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0, H = 0;
+    let ripples = [];
+    let rafId = null;
+
+    function resize() {
+      W = window.innerWidth; H = window.innerHeight;
+      canvas.width = Math.floor(W * DPR);
+      canvas.height = Math.floor(H * DPR);
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    }
+    resize();
+
+    let resizeTimer;
+    on(window, 'resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 150);
+    });
+
+    function spawnRipple(x, y) {
+      const accent = readAccentColors().dot;
+      const dots = [];
+      const dotCount = 5;
+      for (let i = 0; i < dotCount; i++) {
+        const angle = (Math.PI * 2 * i) / dotCount + Math.random() * 0.4;
+        const speed = 0.8 + Math.random() * 0.9;
+        dots.push({
+          x: x, y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1
+        });
+      }
+      ripples.push({ x: x, y: y, r: 0, life: 1, color: accent, dots: dots });
+      loop();
+    }
+
+    function frame() {
+      ctx.clearRect(0, 0, W, H);
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        const rp = ripples[i];
+        rp.r += 2.2;
+        rp.life -= 0.028;
+
+        ctx.beginPath();
+        ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+        ctx.strokeStyle = rp.color;
+        ctx.globalAlpha = Math.max(rp.life, 0) * 0.5;
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+
+        for (let d = 0; d < rp.dots.length; d++) {
+          const dot = rp.dots[d];
+          dot.x += dot.vx;
+          dot.y += dot.vy;
+          dot.life -= 0.03;
+          if (dot.life > 0) {
+            ctx.beginPath();
+            ctx.arc(dot.x, dot.y, 1.6, 0, Math.PI * 2);
+            ctx.fillStyle = rp.color;
+            ctx.globalAlpha = Math.max(dot.life, 0) * 0.7;
+            ctx.fill();
+          }
+        }
+        ctx.globalAlpha = 1;
+
+        if (rp.life <= 0) ripples.splice(i, 1);
+      }
+
+      if (ripples.length > 0) {
+        rafId = window.requestAnimationFrame(frame);
+      } else {
+        rafId = null;
+      }
+    }
+
+    function loop() {
+      if (!rafId) rafId = window.requestAnimationFrame(frame);
+    }
+
+    on(document, 'pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && typeof e.button === 'number' && e.button !== 0) return;
+      spawnRipple(e.clientX, e.clientY);
+    }, { passive: true });
+  }
+
+  /* ---------------------------------------------------------
+     8ب. قائمة التنقل المنسدلة (Hamburger Nav Menu) — التفاعل (فتح/إغلاق)
+     --------------------------------------------------------- */
+  function initNavMenu() {
+    const btn = document.getElementById('navMenuBtn');
+    const panel = document.getElementById('navMenuPanel');
+    if (!btn || !panel) return;
+
+    let navOpen = false;
+
+    function openMenu() {
+      if (navOpen) return;
+      navOpen = true;
+      btn.classList.add('open');
+      panel.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+      panel.setAttribute('aria-hidden', 'false');
+    }
+    function closeMenu() {
+      if (!navOpen) return;
+      navOpen = false;
+      btn.classList.remove('open');
+      panel.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      panel.setAttribute('aria-hidden', 'true');
+    }
+
+    on(btn, 'click', function (e) {
+      e.stopPropagation();
+      navOpen ? closeMenu() : openMenu();
+    });
+
+    on(document, 'click', function (e) {
+      if (!navOpen) return;
+      if (panel.contains(e.target) || btn.contains(e.target)) return;
+      closeMenu();
+    });
+
+    on(panel, 'click', function (e) {
+      if (e.target.closest('.nav-menu-item')) closeMenu();
+    });
+
+    on(document, 'keydown', function (e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+
+    let navResizeTimer;
+    on(window, 'resize', function () {
+      clearTimeout(navResizeTimer);
+      navResizeTimer = setTimeout(closeMenu, 120);
+    });
+  }
+
+  /* ---------------------------------------------------------
+     8ج-1. توحيد محتوى قائمة التنقل ☰ في كل صفحات الموقع
+     ------------------------------------------------------------
+     مصدر واحد فقط لكل روابط القائمة (BAC_NAV_ITEMS)، بنفس الترتيب
+     والأسماء والأيقونات في كل صفحة:
+       1) الصفحة الرئيسية   2) المنتدى   3) المكتبة
+       4) نصائح و توجيهات   5) المكتسبات القبلية   6) إضافة ملفات
+       7) حساب المعدل       8) الدعم   9) السياسة والخصوصية
+     rebuildNavMenu() تُفرّغ .nav-menu-panel الموجودة أصلاً في HTML كل
+     صفحة (بغض النظر عن محتواها القديم المختلف من صفحة لأخرى) وتُعيد
+     بناءها بالكامل من هذا المصدر الموحّد، بدل تعديل عشرات ملفات HTML
+     يدويًا وتكرار احتمال اختلاف الترتيب أو نسيان رابط أو تكرار آخر.
+     المسارات نسبية وتُحل تلقائيًا حسب عمق الصفحة (الجذر أو داخل
+     Branches/)، بنفس منطق "/Branches/" المستخدم أصلاً في بقية الملف.
+     لا يُحذف أي شيء آخر من الصفحة ولا أي صفحة من الموقع — رابط
+     "المكتسبات القبلية" (play.html) يبقى متاحًا كبطاقة مميزة في
+     الصفحة الرئيسية كما هو، فقط محتوى قائمة ☰ تحديدًا يُوحَّد الآن. */
+  var BAC_NAV_ITEMS = [
+    { label: 'الصفحة الرئيسية',   icon: '🏠', path: 'index.html' },
+    { label: 'المنتدى',           icon: '📚', path: 'chat.html' },
+    { label: 'المكتبة',           icon: '📖', path: 'library.html' },
+    { label: 'نصائح و توجيهات',   icon: '💡', path: 'guidance.html' },
+    { label: 'المكتسبات القبلية', icon: '🧠', path: 'play.html' },
+    { label: 'إضافة ملفات',       icon: '📤', path: 'add-files.html' },
+    { label: 'حساب المعدل',       icon: '🧮', path: 'calculator.html' },
+    { label: 'الدعم',             icon: '🎧', href: 'https://www.facebook.com/profile.php?id=61593220613025', external: true },
+    { label: 'السياسة والخصوصية', icon: '🛡️', path: 'privacy.html' }
+  ];
+
+  function bacNavPathPrefix() {
+    return location.pathname.indexOf('/Branches/') !== -1 ? '../' : '';
+  }
+
+  function rebuildNavMenu() {
+    var panel = document.querySelector('.nav-menu-panel');
+    if (!panel) return; // الصفحة لا تحتوي قائمة ☰ أصلًا — لا شيء لفعله
+
+    var prefix = bacNavPathPrefix();
+    panel.innerHTML = '';
+
+    BAC_NAV_ITEMS.forEach(function (item) {
+      var link = document.createElement('a');
+      link.className = 'nav-menu-item';
+      link.setAttribute('role', 'menuitem');
+
+      if (item.external) {
+        link.href = item.href;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+      } else {
+        link.href = prefix + item.path;
+      }
+
+      link.innerHTML = '<span class="nav-menu-item-icon">' + item.icon + '</span>' + item.label;
+      panel.appendChild(link);
+    });
+  }
+
+  /* ---------------------------------------------------------
+     8ج-2. الإشعارات (🔔) + "الدراسة لاحقًا" — ميزات Firebase اختيارية
+     --------------------------------------------------------- */
+  function pageManagesOwnFirebase() {
+    return !!document.querySelector('script[src*="firebase-firestore-compat"]');
+  }
+
+
+  /* ---------------------------------------------------------
+     8ج-3. تسجيل الزيارات للوحة الإدارة (بدون أي نظام موازٍ)
+     ------------------------------------------------------------
+     وثيقة واحدة لكل زائر في اليوم: visits/{yyyy-mm-dd}_{uid}
+     { date, uid, updatedAt, pages: { اسم_الصفحة: عدد المرات } }.
+     تُحسب الصفحة مرة واحدة لكل جلسة (sessionStorage) حتى لا تتضخم
+     الأرقام بإعادة التحميل. لا تُسجَّل صفحة admin.html. */
+  function bacVisitPageKey() {
+    var seg = location.pathname.split('/').filter(Boolean).pop() || 'index';
+    try { seg = decodeURIComponent(seg); } catch (e) {}
+    seg = seg.replace(/\.html$/, '');
+    if (seg === 'BacOrbit') seg = 'index';
+    return seg.replace(/[^\w\u0600-\u06FF\-]/g, '_') || 'index';
+  }
+
+  function bacRecordVisit(db, uid, firebaseNS) {
+    try {
+      if (!db || !uid) return;
+      var key = bacVisitPageKey();
+      var mark = 'bacorbit_visit_' + key;
+      try { if (sessionStorage.getItem(mark)) return; sessionStorage.setItem(mark, '1'); } catch (e) {}
+      var now = new Date();
+      var date = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
+      var FV = firebaseNS.firestore.FieldValue;
+      var pages = {}; pages[key] = FV.increment(1);
+      db.collection('visits').doc(date + '_' + uid)
+        .set({ date: date, uid: uid, updatedAt: FV.serverTimestamp(), pages: pages }, { merge: true })
+        .catch(function () {});
+    } catch (e) {}
+  }
+
+  /* الصفحات التي تُدير Firebase بنفسها (المنتدى...): ننتظر جاهزية الاتصال ثم نسجّل */
+  function bacTrackOwnFirebasePage() {
+    var tries = 0;
+    var timer = setInterval(function () {
+      tries++;
+      try {
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length &&
+            firebase.auth().currentUser) {
+          clearInterval(timer);
+          bacRecordVisit(firebase.firestore(), firebase.auth().currentUser.uid, firebase);
+          return;
+        }
+      } catch (e) {}
+      if (tries > 40) clearInterval(timer);
+    }, 500);
+  }
+
+  function initBacCloudFeatures() {
+    if (/admin\.html$/.test(location.pathname)) return;
+    if (pageManagesOwnFirebase()) { bacTrackOwnFirebasePage(); return; }
+
+    loadScriptTag(siblingUrl('firebase-shared.js'))
+      .then(function () {
+        /* كل ملف يُحمَّل باستقلال: فشل أحدهما لا يُعطّل الآخر */
+        return Promise.all([
+          loadScriptTag(siblingUrl('notifications.js')).catch(function (e) { console.warn('[BacOrbit] تعذّر تحميل notifications.js', e); }),
+          loadScriptTag(siblingUrl('study-later.js')).catch(function (e) { console.warn('[BacOrbit] تعذّر تحميل study-later.js', e); })
+        ]);
+      })
+      .then(function () { return window.BacFirebase.ready(); })
+      .then(function (ctx) {
+        if (ctx && ctx.me && ctx.me.banned) return;
+        bacRecordVisit(ctx && ctx.db, ctx && ctx.me && ctx.me.uid, ctx && ctx.firebase);
+        if (window.BacNotifications) window.BacNotifications.init(ctx);
+        if (window.BacStudyLater) window.BacStudyLater.init(ctx);
+      })
+      .catch(function (err) {
+        console.warn('[BacOrbit] تعذّر تفعيل الإشعارات/الدراسة لاحقًا (لن يؤثر على بقية الموقع)', err);
+      });
+  }
+
+  /* ---------------------------------------------------------
+     8ج. مؤقت الدراسة (Study Timer)
+     --------------------------------------------------------- */
+  const TIMER_KEY = 'bacorbit_timer_state_v1';
+  const TIMER_MIN_SEC = 60;
+  const TIMER_MAX_SEC = 180 * 60;
+  const TIMER_DEFAULT_SEC = 45 * 60;
+
+  function loadTimerState() {
+    try {
+      const raw = localStorage.getItem(TIMER_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && typeof parsed === 'object') {
+        return Object.assign({
+          totalSeconds: TIMER_DEFAULT_SEC, remaining: TIMER_DEFAULT_SEC,
+          running: false, endAt: null, hidden: true, finishedAlertShown: false
+        }, parsed);
+      }
+    } catch (e) {}
+    return {
+      totalSeconds: TIMER_DEFAULT_SEC, remaining: TIMER_DEFAULT_SEC,
+      running: false, endAt: null, hidden: true, finishedAlertShown: false
+    };
+  }
+  function saveTimerState(state) {
+    try { localStorage.setItem(TIMER_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function timerComputeRemaining(state) {
+    if (state.running && state.endAt) return Math.max(0, Math.ceil((state.endAt - Date.now()) / 1000));
+    return Math.max(0, Math.round(state.remaining));
+  }
+  function timerFormat(sec) {
+    sec = Math.max(0, Math.round(sec));
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    if (h > 0) {
+      return h + ':' + (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+    }
+    return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+  }
+  function initStudyTimer() {
+    const navWrap = document.querySelector('.nav-menu-wrap');
+    if (!navWrap || document.getElementById('bacTimerBtn')) return;
+
+    let state = loadTimerState();
+    let intervalId = null;
+    let audioCtx = null;
+    let isEditing = false;
+    let dragging = false, dragOffsetX = 0, dragOffsetY = 0;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'bacTimerBtn';
+    btn.className = 'bac-timer-btn';
+    btn.setAttribute('aria-label', 'مؤقت الدراسة');
+    btn.title = 'مؤقت الدراسة';
+    btn.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 2h6"/><path d="M12 2v3"/></svg>' +
+      '<span class="bac-timer-badge" id="bacTimerBadge"></span>';
+    navWrap.appendChild(btn);
+
+    const widget = document.createElement('div');
+    widget.id = 'bacTimerWidget';
+    widget.className = 'bac-timer-widget';
+    widget.setAttribute('role', 'region');
+    widget.setAttribute('aria-label', 'مؤقت الدراسة');
+    widget.innerHTML =
+      '<div class="bac-timer-head" id="bacTimerHead">' +
+        '<span class="bac-timer-drag-dots" aria-hidden="true">⠿⠿</span>' +
+        '<span class="bac-timer-title">⏱️ مؤقت الدراسة</span>' +
+        '<button type="button" class="bac-timer-close" id="bacTimerClose" aria-label="إخفاء المؤقت">✕</button>' +
+      '</div>' +
+      '<div class="bac-timer-body">' +
+        '<button type="button" class="bac-timer-adjust-btn" data-delta="-15">−15</button>' +
+        '<div class="bac-timer-display-wrap">' +
+          '<span class="bac-timer-display" id="bacTimerDisplay" tabindex="0" title="اضغط للتعديل">45:00</span>' +
+          '<input type="text" id="bacTimerEditInput" class="bac-timer-edit-input" inputmode="numeric" autocomplete="off">' +
+        '</div>' +
+        '<button type="button" class="bac-timer-adjust-btn" data-delta="15">+15</button>' +
+      '</div>' +
+      '<div class="bac-timer-controls">' +
+        '<button type="button" class="bac-timer-primary-btn" id="bacTimerToggle">▶ ابدأ</button>' +
+        '<button type="button" class="bac-timer-secondary-btn" id="bacTimerReset">↺</button>' +
+      '</div>' +
+      '<p class="bac-timer-hint">كل دقيقة دراسة تقرّبك من هدفك 🌟</p>';
+    document.body.appendChild(widget);
+
+    const badgeEl = btn.querySelector('#bacTimerBadge');
+    const displayEl = widget.querySelector('#bacTimerDisplay');
+    const editInput = widget.querySelector('#bacTimerEditInput');
+    const toggleBtn = widget.querySelector('#bacTimerToggle');
+    const resetBtn = widget.querySelector('#bacTimerReset');
+    const closeBtn = widget.querySelector('#bacTimerClose');
+    const headEl = widget.querySelector('#bacTimerHead');
+
+    function ensureAudio() {
+      if (audioCtx) return audioCtx;
+      try { const Ctx = window.AudioContext || window.webkitAudioContext; if (Ctx) audioCtx = new Ctx(); } catch (e) {}
+      return audioCtx;
+    }
+    function playChime() {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      try {
+        [0, 0.22, 0.44].forEach(function (delay, i) {
+          const osc = ctx.createOscillator(), gain = ctx.createGain();
+          osc.type = 'sine'; osc.frequency.value = i === 2 ? 880 : 660;
+          gain.gain.setValueAtTime(0.0001, ctx.currentTime + delay);
+          gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + delay + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + 0.35);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + delay); osc.stop(ctx.currentTime + delay + 0.4);
+        });
+      } catch (e) {}
+    }
+
+    let finishOverlay = null;
+    function ensureFinishOverlay() {
+      if (finishOverlay) return finishOverlay;
+      finishOverlay = document.createElement('div');
+      finishOverlay.className = 'bac-timer-finish-overlay';
+      finishOverlay.innerHTML =
+        '<div class="bac-timer-finish-card">' +
+          '<div class="bac-timer-finish-icon">⏰</div>' +
+          '<h3>انتهى وقت الدراسة!</h3>' +
+          '<p>أحسنت، خذ استراحة قصيرة ثم عد بحماس 💪</p>' +
+          '<button type="button" class="restart-btn" id="bacTimerFinishOk">حسنًا</button>' +
+        '</div>';
+      document.body.appendChild(finishOverlay);
+      finishOverlay.querySelector('#bacTimerFinishOk').addEventListener('click', hideFinishOverlay);
+      finishOverlay.addEventListener('click', function (e) { if (e.target === finishOverlay) hideFinishOverlay(); });
+      return finishOverlay;
+    }
+    let finishTitleTimer = null;
+    const originalTitle = document.title;
+    function showFinishOverlay() {
+      ensureFinishOverlay().classList.add('show');
+      playChime();
+      let blink = false;
+      clearInterval(finishTitleTimer);
+      finishTitleTimer = setInterval(function () {
+        document.title = blink ? originalTitle : '⏰ انتهى الوقت!';
+        blink = !blink;
+      }, 1200);
+    }
+    function hideFinishOverlay() {
+      if (finishOverlay) finishOverlay.classList.remove('show');
+      clearInterval(finishTitleTimer);
+      document.title = originalTitle;
+    }
+
+    function persist() { saveTimerState(state); }
+
+    function applyPosition() {
+      if (state.pos && typeof state.pos.left === 'number' && !dragging) {
+        const maxLeft = window.innerWidth - widget.offsetWidth - 6;
+        const maxTop = window.innerHeight - widget.offsetHeight - 6;
+        const left = Math.max(6, Math.min(state.pos.left, maxLeft));
+        const top = Math.max(6, Math.min(state.pos.top, maxTop));
+        widget.style.left = left + 'px';
+        widget.style.top = top + 'px';
+        widget.style.bottom = 'auto';
+        widget.style.right = 'auto';
+      }
+    }
+
+    function render() {
+      const rem = timerComputeRemaining(state);
+      if (!isEditing) {
+        displayEl.textContent = timerFormat(rem);
+        displayEl.classList.toggle('bac-timer-display-long', rem >= 3600);
+      }
+      toggleBtn.textContent = state.running ? '⏸ إيقاف' : (rem <= 0 ? '▶ ابدأ' : '▶ استئناف');
+      btn.classList.toggle('active', state.running);
+      badgeEl.textContent = state.running ? timerFormat(rem) : '';
+      widget.classList.toggle('open', !state.hidden);
+      btn.setAttribute('aria-expanded', state.hidden ? 'false' : 'true');
+      btn.title = state.running ? 'مؤقت الدراسة — ' + timerFormat(rem) + ' متبقية' : 'مؤقت الدراسة';
+      if (!state.hidden) applyPosition();
+    }
+
+    function tick() {
+      const rem = timerComputeRemaining(state);
+      if (state.running && rem <= 0 && !state.finishedAlertShown) {
+        state.running = false; state.endAt = null; state.remaining = 0; state.finishedAlertShown = true;
+        persist(); showFinishOverlay();
+      }
+      render();
+      manageInterval();
+    }
+    function manageInterval() {
+      const needsTick = state.running;
+      if (needsTick && !intervalId) intervalId = setInterval(tick, 500);
+      else if (!needsTick && intervalId) { clearInterval(intervalId); intervalId = null; }
+    }
+
+    function startTimer() {
+      const rem = timerComputeRemaining(state);
+      const startFrom = rem > 0 ? rem : state.totalSeconds;
+      state.remaining = startFrom;
+      state.endAt = Date.now() + startFrom * 1000;
+      state.running = true; state.finishedAlertShown = false;
+      hideFinishOverlay(); persist(); render(); manageInterval();
+    }
+    function pauseTimer() {
+      state.remaining = timerComputeRemaining(state);
+      state.running = false; state.endAt = null;
+      persist(); render(); manageInterval();
+    }
+    function resetTimer() {
+      state.running = false; state.endAt = null;
+      state.remaining = state.totalSeconds; state.finishedAlertShown = false;
+      hideFinishOverlay(); persist(); render(); manageInterval();
+    }
+    function adjustMinutes(deltaMin) {
+      const deltaSec = deltaMin * 60;
+      const rem = timerComputeRemaining(state);
+      if (state.running) {
+        const newRem = Math.max(0, Math.min(TIMER_MAX_SEC, rem + deltaSec));
+        state.totalSeconds = Math.max(TIMER_MIN_SEC, Math.min(TIMER_MAX_SEC, state.totalSeconds + deltaSec));
+        state.remaining = newRem;
+        state.endAt = Date.now() + newRem * 1000;
+      } else {
+        const newTotal = Math.max(TIMER_MIN_SEC, Math.min(TIMER_MAX_SEC, state.totalSeconds + deltaSec));
+        state.totalSeconds = newTotal; state.remaining = newTotal;
+      }
+      state.finishedAlertShown = false;
+      persist(); render();
+    }
+    function toggleWidget() { state.hidden = !state.hidden; persist(); render(); }
+    function hideWidget() { if (state.hidden) return; state.hidden = true; persist(); render(); }
+
+    function enterEditMode() {
+      if (isEditing) return;
+      isEditing = true;
+      const rem = timerComputeRemaining(state);
+      editInput.value = timerFormat(rem);
+      editInput.classList.toggle('long', rem >= 3600);
+      displayEl.classList.add('bac-timer-display-hidden');
+      editInput.classList.add('show');
+      editInput.focus();
+      editInput.select();
+    }
+    function exitEditMode(apply) {
+      if (!isEditing) return;
+      isEditing = false;
+      displayEl.classList.remove('bac-timer-display-hidden');
+      editInput.classList.remove('show');
+      if (apply) applyEditedValue(editInput.value);
+      else render();
+    }
+    function applyEditedValue(raw) {
+      raw = (raw || '').trim();
+      let totalSec = null;
+      if (/^\d{1,2}:\d{1,2}:\d{1,2}$/.test(raw)) {
+        const parts = raw.split(':');
+        const h = parseInt(parts[0], 10), m = Math.min(59, parseInt(parts[1], 10)), s = Math.min(59, parseInt(parts[2], 10));
+        if (!isNaN(h) && !isNaN(m) && !isNaN(s)) totalSec = h * 3600 + m * 60 + s;
+      } else if (/^\d{1,3}:\d{1,2}$/.test(raw)) {
+        const parts = raw.split(':');
+        const m = parseInt(parts[0], 10), s = Math.min(59, parseInt(parts[1], 10));
+        if (!isNaN(m) && !isNaN(s)) totalSec = m * 60 + s;
+      } else if (/^\d{1,3}$/.test(raw)) {
+        totalSec = parseInt(raw, 10) * 60;
+      }
+      if (totalSec === null || isNaN(totalSec) || totalSec <= 0) { render(); return; }
+      totalSec = Math.max(TIMER_MIN_SEC, Math.min(TIMER_MAX_SEC, totalSec));
+      state.totalSeconds = totalSec;
+      state.remaining = totalSec;
+      if (state.running) state.endAt = Date.now() + totalSec * 1000;
+      state.finishedAlertShown = false;
+      persist(); render();
+    }
+
+    function dragStart(clientX, clientY) {
+      dragging = true;
+      const rect = widget.getBoundingClientRect();
+      dragOffsetX = clientX - rect.left;
+      dragOffsetY = clientY - rect.top;
+      widget.classList.add('dragging');
+    }
+    function dragMove(clientX, clientY) {
+      if (!dragging) return;
+      let left = clientX - dragOffsetX;
+      let top = clientY - dragOffsetY;
+      const maxLeft = window.innerWidth - widget.offsetWidth - 6;
+      const maxTop = window.innerHeight - widget.offsetHeight - 6;
+      left = Math.max(6, Math.min(left, maxLeft));
+      top = Math.max(6, Math.min(top, maxTop));
+      widget.style.left = left + 'px';
+      widget.style.top = top + 'px';
+      widget.style.bottom = 'auto';
+      widget.style.right = 'auto';
+    }
+    function dragEnd() {
+      if (!dragging) return;
+      dragging = false;
+      widget.classList.remove('dragging');
+      const rect = widget.getBoundingClientRect();
+      state.pos = { left: rect.left, top: rect.top };
+      persist();
+    }
+
+    on(btn, 'click', toggleWidget);
+    on(closeBtn, 'click', hideWidget);
+    on(toggleBtn, 'click', function () { state.running ? pauseTimer() : startTimer(); });
+    on(resetBtn, 'click', resetTimer);
+    qsa('.bac-timer-adjust-btn', widget).forEach(function (b) {
+      on(b, 'click', function () { adjustMinutes(parseInt(b.dataset.delta, 10)); });
+    });
+
+    on(displayEl, 'click', enterEditMode);
+    on(displayEl, 'keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enterEditMode(); } });
+    on(editInput, 'keydown', function (e) {
+      e.stopPropagation();
+      if (e.key === 'Enter') { e.preventDefault(); exitEditMode(true); }
+      else if (e.key === 'Escape') { e.preventDefault(); exitEditMode(false); }
+    });
+    on(editInput, 'blur', function () { exitEditMode(true); });
+
+    on(headEl, 'mousedown', function (e) {
+      if (e.target.closest('.bac-timer-close')) return;
+      dragStart(e.clientX, e.clientY);
+    });
+    on(document, 'mousemove', function (e) { dragMove(e.clientX, e.clientY); });
+    on(document, 'mouseup', dragEnd);
+    on(headEl, 'touchstart', function (e) {
+      if (e.target.closest('.bac-timer-close')) return;
+      const t = e.touches[0]; dragStart(t.clientX, t.clientY);
+    }, { passive: true });
+    on(document, 'touchmove', function (e) { if (!dragging) return; const t = e.touches[0]; dragMove(t.clientX, t.clientY); }, { passive: true });
+    on(document, 'touchend', dragEnd);
+
+    on(document, 'keydown', function (e) {
+      if (state.hidden || isEditing) return;
+      const tag = (e.target && e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable)) return;
+      if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); state.running ? pauseTimer() : startTimer(); }
+      else if (e.key === 'r' || e.key === 'R') { resetTimer(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); adjustMinutes(e.shiftKey ? 15 : 1); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); adjustMinutes(e.shiftKey ? -15 : -1); }
+      else if (e.key === 'Escape') { hideWidget(); }
+    });
+
+    on(window, 'storage', function (e) {
+      if (e.key !== TIMER_KEY) return;
+      state = loadTimerState();
+      hideFinishOverlay(); render(); manageInterval();
+    });
+    on(window, 'resize', function () { applyPosition(); });
+
+    render();
+    manageInterval();
+  }
+ 
+  /* ---------------------------------------------------------
+     8د. العدّاد التنازلي (Flip Clock) لبكالوريا 2027
+     --------------------------------------------------------- */
+  var BAC_COUNTDOWN_TARGET_MS = Date.UTC(2027, 5, 6, 23, 0, 0);
+
+  function bacCountdownPad(n, len) {
+    var s = String(Math.max(0, n));
+    while (s.length < len) s = '0' + s;
+    return s;
+  }
+
+  function bacBuildFlipUnit(digitCount, label) {
+    var unit = document.createElement('div');
+    unit.className = 'bac-flip-unit';
+
+    var digitsWrap = document.createElement('div');
+    digitsWrap.className = 'bac-flip-digits';
+
+    var cards = [];
+    for (var i = 0; i < digitCount; i++) {
+      var card = document.createElement('div');
+      card.className = 'bac-flip-card';
+
+      var inner = document.createElement('div');
+      inner.className = 'bac-flip-card-inner';
+
+      var face1 = document.createElement('div');
+      face1.className = 'bac-flip-face bac-flip-face-front';
+      face1.textContent = '0';
+
+      var face2 = document.createElement('div');
+      face2.className = 'bac-flip-face bac-flip-face-back';
+      face2.textContent = '0';
+
+      inner.appendChild(face1);
+      inner.appendChild(face2);
+      card.appendChild(inner);
+      digitsWrap.appendChild(card);
+
+      cards.push({ inner: inner, face1: face1, face2: face2, toggled: false, current: '0' });
+    }
+
+    var labelEl = document.createElement('div');
+    labelEl.className = 'bac-flip-label';
+    labelEl.textContent = label;
+
+    unit.appendChild(digitsWrap);
+    unit.appendChild(labelEl);
+
+    return { el: unit, cards: cards };
+  }
+
+  function bacSetInitialFlip(unit, valueStr) {
+    for (var i = 0; i < unit.cards.length; i++) {
+      var card = unit.cards[i];
+      var digit = valueStr[i] || '0';
+      card.current = digit;
+      card.face1.textContent = digit;
+      card.face2.textContent = digit;
+    }
+  }
+
+  function bacUpdateFlipUnit(unit, valueStr) {
+    for (var i = 0; i < unit.cards.length; i++) {
+      var card = unit.cards[i];
+      var digit = valueStr[i] || '0';
+      if (digit === card.current) continue;
+      card.current = digit;
+      if (card.toggled) card.face1.textContent = digit;
+      else card.face2.textContent = digit;
+      card.toggled = !card.toggled;
+      card.inner.classList.toggle('bac-flip-rot', card.toggled);
+    }
+  }
+
+  function bacComputeCountdownParts() {
+    var diff = BAC_COUNTDOWN_TARGET_MS - Date.now();
+    if (diff <= 0) return null;
+    return {
+      days: bacCountdownPad(Math.floor(diff / 86400000), 3),
+      hours: bacCountdownPad(Math.floor((diff % 86400000) / 3600000), 2),
+      mins: bacCountdownPad(Math.floor((diff % 3600000) / 60000), 2),
+      secs: bacCountdownPad(Math.floor((diff % 60000) / 1000), 2)
+    };
+  }
+
+  function bacShowCountdownFinished(wrap) {
+    wrap.innerHTML = '';
+    var msg = document.createElement('div');
+    msg.className = 'bac-countdown-finished';
+    msg.textContent = 'انطلقت بكالوريا 2027 🎓';
+    wrap.appendChild(msg);
+  }
+
+  function initBacCountdown() {
+    var wrap = document.getElementById('bacFlipClock');
+    if (!wrap) return;
+
+    var initialParts = bacComputeCountdownParts();
+    if (!initialParts) { bacShowCountdownFinished(wrap); return; }
+
+    var daysUnit = bacBuildFlipUnit(3, 'أيام');
+    var hoursUnit = bacBuildFlipUnit(2, 'ساعات');
+    var minsUnit = bacBuildFlipUnit(2, 'دقائق');
+    var secsUnit = bacBuildFlipUnit(2, 'ثوانٍ');
+
+    wrap.appendChild(daysUnit.el);
+    wrap.appendChild(hoursUnit.el);
+    wrap.appendChild(minsUnit.el);
+    wrap.appendChild(secsUnit.el);
+
+    bacSetInitialFlip(daysUnit, initialParts.days);
+    bacSetInitialFlip(hoursUnit, initialParts.hours);
+    bacSetInitialFlip(minsUnit, initialParts.mins);
+    bacSetInitialFlip(secsUnit, initialParts.secs);
+
+    var timer = setInterval(function () {
+      var parts = bacComputeCountdownParts();
+      if (!parts) { clearInterval(timer); bacShowCountdownFinished(wrap); return; }
+      bacUpdateFlipUnit(daysUnit, parts.days);
+      bacUpdateFlipUnit(hoursUnit, parts.hours);
+      bacUpdateFlipUnit(minsUnit, parts.mins);
+      bacUpdateFlipUnit(secsUnit, parts.secs);
+    }, 1000);
+  }
+
+  /* ---------------------------------------------------------
+     8هـ. حفظ شعبة المستخدم
+     --------------------------------------------------------- */
+  var BAC_BRANCH_STORAGE_KEY = 'bacorbit_saved_branch';
+  var BAC_BRANCH_PROMPT_KEY = 'bacorbit_branch_prompt_shown';
+
+  function bacLoadSavedBranch() {
+    try {
+      var raw = localStorage.getItem(BAC_BRANCH_STORAGE_KEY);
+      var parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && parsed.url && parsed.name) return parsed;
+      return null;
+    } catch (e) { return null; }
+  }
+  function bacSaveBranch(data) {
+    try { localStorage.setItem(BAC_BRANCH_STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+  function bacClearSavedBranch() {
+    try { localStorage.removeItem(BAC_BRANCH_STORAGE_KEY); } catch (e) {}
+  }
+  function bacMarkBranchPromptShown() {
+    try { localStorage.setItem(BAC_BRANCH_PROMPT_KEY, '1'); } catch (e) {}
+  }
+  function bacWasBranchPromptShown() {
+    try { return localStorage.getItem(BAC_BRANCH_PROMPT_KEY) === '1'; } catch (e) { return false; }
+  }
+
+  function bacHomeHrefFromCurrentPage() {
+    return location.pathname.indexOf('/Branches/') !== -1 ? '../index.html' : 'index.html';
+  }
+
+  function bacResolveBranchUrl(savedUrl) {
+    var insideBranches = location.pathname.indexOf('/Branches/') !== -1;
+    return insideBranches ? savedUrl.replace(/^Branches\//, '') : savedUrl;
+  }
+
+  var bacBranchModalOverlay = null;
+  function bacEnsureBranchModal() {
+    if (bacBranchModalOverlay) return bacBranchModalOverlay;
+    bacBranchModalOverlay = document.createElement('div');
+    bacBranchModalOverlay.className = 'bac-branch-modal-overlay';
+    bacBranchModalOverlay.innerHTML =
+      '<div class="bac-branch-modal">' +
+        '<div class="bac-branch-modal-icon">💾</div>' +
+        '<h3>هل تريد حفظ شعبتك؟</h3>' +
+        '<p>لن تضطر إلى اختيار شعبتك مرة أخرى عند زيارة الموقع.</p>' +
+        '<div class="bac-branch-modal-actions">' +
+          '<button type="button" class="bac-branch-modal-btn bac-branch-modal-save" id="bacBranchSaveBtn">حفظ</button>' +
+          '<button type="button" class="bac-branch-modal-btn bac-branch-modal-later" id="bacBranchLaterBtn">ليس الآن</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(bacBranchModalOverlay);
+    return bacBranchModalOverlay;
+  }
+  function bacOpenBranchModal(onChoice) {
+    var overlay = bacEnsureBranchModal();
+    overlay.classList.add('open');
+    var saveBtn = document.getElementById('bacBranchSaveBtn');
+    var laterBtn = document.getElementById('bacBranchLaterBtn');
+
+    function close(choice) {
+      overlay.classList.remove('open');
+      saveBtn.removeEventListener('click', onSave);
+      laterBtn.removeEventListener('click', onLater);
+      overlay.removeEventListener('click', onOverlayClick);
+      onChoice(choice);
+    }
+    function onSave() { close(true); }
+    function onLater() { close(false); }
+    function onOverlayClick(e) { if (e.target === overlay) close(false); }
+
+    saveBtn.addEventListener('click', onSave);
+    laterBtn.addEventListener('click', onLater);
+    overlay.addEventListener('click', onOverlayClick);
+  }
+
+  function initBranchSelectionCards() {
+    var cards = qsa('.card[data-branch-key]');
+    if (!cards.length) return;
+
+    cards.forEach(function (card) {
+      on(card, 'click', function () {
+        var url = card.getAttribute('data-branch-url');
+        var name = card.getAttribute('data-branch-name');
+        var key = card.getAttribute('data-branch-key');
+        var saved = bacLoadSavedBranch();
+
+        if (saved) {
+          bacSaveBranch({ key: key, name: name, url: url });
+          window.location.href = url;
+          return;
+        }
+        if (bacWasBranchPromptShown()) {
+          window.location.href = url;
+          return;
+        }
+
+        bacOpenBranchModal(function (wantsSave) {
+          bacMarkBranchPromptShown();
+          if (wantsSave) bacSaveBranch({ key: key, name: name, url: url });
+          window.location.href = url;
+        });
+      });
+    });
+  }
+
+  var BRANCH_TOP_PAGE_RE = /\/Branches\/1_(science|math|technical|economy|info)\.html$/;
+
+  /* بيانات الشعبة الحالية إن كانت الصفحة هي صفحة شعبة (نفس القيم المستخدمة في بطاقات الرئيسية) */
+  var BAC_BRANCH_PAGES = {
+    science:   { key: 'science',   name: 'علوم تجريبية',            url: 'Branches/1_science.html' },
+    math:      { key: 'math',      name: 'رياضيات',                 url: 'Branches/1_math.html' },
+    technical: { key: 'technical', name: 'الهندسة (تقني رياضي)',     url: 'Branches/1_technical.html' },
+    economy:   { key: 'economy',   name: 'تسيير واقتصاد',            url: 'Branches/1_economy.html' }
+  };
+  function bacCurrentBranchPage() {
+    var m = BRANCH_TOP_PAGE_RE.exec(location.pathname);
+    return (m && BAC_BRANCH_PAGES[m[1]]) || null;
+  }
+
+  function initCountdownBranchAction() {
+    var mount = document.getElementById('bacCountdownBranchAction');
+    if (!mount) return;
+
+    var saved = bacLoadSavedBranch();
+    var current = bacCurrentBranchPage();
+
+    if (saved) {
+      mount.innerHTML = '<div class="bac-branch-actions"><button type="button" class="bac-change-branch-link" id="bacChangeBranchLink">↺ تغيير الشعبة</button></div>';
+      on(document.getElementById('bacChangeBranchLink'), 'click', function () {
+        bacClearSavedBranch();
+        window.location.href = bacHomeHrefFromCurrentPage();
+      });
+      return;
+    }
+
+    /* لا شعبة محفوظة: إن كنا داخل صفحة شعبة (مثلًا بعد الضغط على «ليس الآن») نعرض زر الحفظ */
+    if (current) {
+      mount.innerHTML = '<div class="bac-branch-actions"><button type="button" class="bac-change-branch-link bac-save-branch-link" id="bacSaveBranchLink">💾 حفظ الشعبة</button></div>';
+      on(document.getElementById('bacSaveBranchLink'), 'click', function () {
+        bacSaveBranch({ key: current.key, name: current.name, url: current.url });
+        bacMarkBranchPromptShown();
+        showToast('تم حفظ شعبتك ✅');
+        initCountdownBranchAction(); /* يتحول الزر إلى «تغيير الشعبة» */
+      });
+      return;
+    }
+
+    mount.innerHTML = '';
+  }
+
+
+  /* ---------------------------------------------------------
+     حاوية موحّدة لأزرار الشريط العلوي: ☰ ثم (تنزيل الموقع في الرئيسية) ثم 🔔.
+     تُنشأ مبكرًا وبشكل متزامن لتكون مرساة ثابتة لا يتغيّر مكانها مهما تأخّر
+     تحميل الإشعارات (notifications.js تعيد استخدامها بدل إنشاء حاوية جديدة). */
+  function ensureNavActions() {
+    var navBtn = document.getElementById('navMenuBtn');
+    if (!navBtn || !navBtn.parentNode) return;
+    var holder = navBtn.parentNode;
+    var actions = holder.classList.contains('bac-nav-actions') ? holder : holder.querySelector('.bac-nav-actions');
+    if (!actions) {
+      actions = document.createElement('div');
+      actions.className = 'bac-nav-actions';
+      holder.insertBefore(actions, holder.firstChild);
+      actions.appendChild(navBtn);
+    }
+    var pwa = document.getElementById('pwaInstallBtn');
+    if (pwa && pwa.parentNode !== actions) actions.appendChild(pwa);
+  }
+
+  /* ---------------------------------------------------------
+     إزالة أزرار «العودة إلى الصفحة الرئيسية» واستبدالها بدائرة التمرير أدناه.
+     (أزرار العودة الأخرى مثل «العودة إلى الفصول» تبقى كما هي.) */
+  function removeHomeBackButtons() {
+    qsa('a.back').forEach(function (a) {
+      if (a.closest('.auth-gate')) return;
+      var href = a.getAttribute('href') || '';
+      if (/(^|\/)index\.html$/.test(href)) a.remove();
+    });
+  }
+
+  /* ---------------------------------------------------------
+     دائرة «المنزل»: عند الوصول لنهاية الصفحة ومواصلة التمرير للأسفل تظهر دائرة
+     بأيقونة منزل وتمتلئ تدريجيًا؛ عند اكتمالها يعود المستخدم لشعبته المحفوظة
+     أو للصفحة الرئيسية إن لم يحفظ شعبة. */
+  function initOverscrollHome() {
+    if (document.getElementById('bacHomeRing')) return;
+    var path = location.pathname;
+    if (/(^|\/)index\.html$/.test(path) || /\/$/.test(path) || /admin\.html$/.test(path)) return;
+
+    var C = 2 * Math.PI * 26;
+    var WHEEL_MAX = 1500, TOUCH_MAX = 560;   /* كانت 700 / 260: الآن أقل حساسية */
+    var DWELL_MS = 450;                       /* لا يبدأ الامتلاء إلا بعد البقاء لحظة عند أسفل الصفحة */
+    var bottomSince = 0;
+    var progress = 0, navigating = false, idleTimer = null, decayRaf = null, touchY = null;
+
+    var ring = document.createElement('div');
+    ring.id = 'bacHomeRing';
+    ring.className = 'bac-home-ring';
+    ring.setAttribute('aria-hidden', 'true');
+    ring.innerHTML =
+      '<svg class="bac-home-ring-svg" viewBox="0 0 64 64"><circle class="bac-home-ring-track" cx="32" cy="32" r="26"/>' +
+      '<circle class="bac-home-ring-bar" cx="32" cy="32" r="26" stroke-dasharray="' + C + '" stroke-dashoffset="' + C + '"/></svg>' +
+      '<span class="bac-home-ring-icon"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></span>';
+    document.body.appendChild(ring);
+    var bar = ring.querySelector('.bac-home-ring-bar');
+
+    function disabled() {
+      return BRANCH_TOP_PAGE_RE.test(location.pathname) && !!bacLoadSavedBranch();
+    }
+    function blocked() {
+      return navigating || disabled() || document.body.style.overflow === 'hidden';
+    }
+    function atBottom() {
+      var d = document.documentElement;
+      return (window.scrollY || d.scrollTop || 0) + window.innerHeight >= d.scrollHeight - 3;
+    }
+    function target() {
+      var saved = bacLoadSavedBranch();
+      if (saved && !BRANCH_TOP_PAGE_RE.test(location.pathname)) return bacResolveBranchUrl(saved.url);
+      return bacHomeHrefFromCurrentPage();
+    }
+    function render() {
+      ring.classList.toggle('show', progress > 0.02);
+      bar.style.strokeDashoffset = String(C * (1 - progress));
+    }
+    function reset() {
+      if (navigating) return;
+      bottomSince = 0;
+      clearTimeout(idleTimer);
+      if (decayRaf) { cancelAnimationFrame(decayRaf); decayRaf = null; }
+      progress = 0;
+      render();
+    }
+    function decay() {
+      if (navigating) return;
+      progress -= 0.03;
+      if (progress <= 0) { progress = 0; render(); decayRaf = null; return; }
+      render();
+      decayRaf = requestAnimationFrame(decay);
+    }
+    function scheduleDecay() {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(function () { decayRaf = requestAnimationFrame(decay); }, 500);
+    }
+    function go() {
+      navigating = true;
+      ring.classList.add('done');
+      setTimeout(function () { location.href = target(); }, 300);
+    }
+    function add(amount) {
+      if (blocked()) return;
+      /* تجاهل زخم التمرير الذي أوصل المستخدم للنهاية للتوّ */
+      var now = Date.now();
+      if (!bottomSince) { bottomSince = now; return; }
+      if (now - bottomSince < DWELL_MS) return;
+      if (decayRaf) { cancelAnimationFrame(decayRaf); decayRaf = null; }
+      progress = Math.min(1, progress + amount);
+      render();
+      if (progress >= 1) { go(); return; }
+      scheduleDecay();
+    }
+
+    on(window, 'wheel', function (e) {
+      if (e.ctrlKey) return;
+      if (e.deltaY < 0) { if (progress > 0) reset(); return; }
+      if (!atBottom()) return;
+      var dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+      add(dy / WHEEL_MAX);
+    }, { passive: true });
+
+    on(window, 'scroll', function () {
+      if (!atBottom()) { bottomSince = 0; if (progress > 0) reset(); }
+      else if (!bottomSince) bottomSince = Date.now();
+    }, { passive: true });
+    /* نقرة/لمسة على الدائرة تنقل مباشرة (طريقة سهلة بديلة عن مواصلة التمرير) */
+    on(ring, 'click', function () { if (!navigating && progress > 0.02) { progress = 1; render(); go(); } });
+
+    on(window, 'touchstart', function (e) {
+      touchY = e.touches && e.touches.length ? e.touches[0].clientY : null;
+    }, { passive: true });
+    on(window, 'touchmove', function (e) {
+      if (!e.touches || !e.touches.length) return;
+      var y = e.touches[0].clientY;
+      if (touchY !== null) {
+        var dy = touchY - y;
+        if (dy > 0 && atBottom()) add(dy / TOUCH_MAX);
+        else if (dy < 0 && progress > 0) reset();
+      }
+      touchY = y;
+    }, { passive: true });
+    on(window, 'touchend', function () { touchY = null; if (progress > 0) scheduleDecay(); }, { passive: true });
+
+    on(window, 'pageshow', function () {
+      navigating = false;
+      ring.classList.remove('done');
+      reset();
+    });
+  }
+
+  /* ---------------------------------------------------------
+     لافتات أسئلة الفيزياء التفاعلية: تُحمَّل فقط في صفحات محددة
+     (دروس الفيزياء، سلاسل تمارين الفيزياء، المواضيع المتنوعة للفيزياء — الفصل الأول)
+     --------------------------------------------------------- */
+  function initPhysicsBanners() {
+    var p = location.pathname;
+    /* الفيزياء والعلوم الطبيعية: الدروس (L_) وسلاسل التمارين (I_) وفقط الفصل الأول من المواضيع المتنوعة (T_) */
+    var onTarget = /\/(L_physic|I_physic|L_science2?|I_science|S_science2?)\.html$/.test(p) ||
+      (/\/T_(physic|science)\.html$/.test(p) && new URLSearchParams(location.search).get('c') === '1');
+    /* الرياضيات: كل الفصول — الدروس والملخصات (L_) وسلاسل التمارين (I_) ومواضيع البكالوريا (S_math_*) والمواضيع المتنوعة (T_math) */
+    if (/\/(L_math|I_math|S_math_(E|m|T|Sc)|T_math)\.html$/.test(p)) onTarget = true;
+    /* اللغة العربية: الدروس والملخصات (L_Arabic) ومواضيع البكالوريا (S_Arabic) */
+    if (/\/(L_Arabic|S_Arabic)\.html$/.test(p)) onTarget = true;
+    if (!onTarget) return;
+    loadScriptTag(siblingUrl('physics-banners.js')).catch(function (e) {
+      console.warn('[BacOrbit] تعذّر تحميل physics-banners.js', e);
+    });
+  }
+
+  /* ---------------------------------------------------------
+     8و. جملة تحفيزية تحت العنوان الرئيسي (صفحات الدروس L_ والتمارين I_
+     والمواضيع S_ / T_ فقط). تُختار عشوائيًا مرة واحدة عند تحميل الصفحة
+     (لا تتغير أثناء بقاء المستخدم فيها)، وتُحفظ آخر جملة لكل صفحة في
+     localStorage لتجنّب تكرارها في زيارتين متتاليتين. تستبدل نص الوصف
+     الموجود في .hero p فقط، دون المساس بالعنوان h1 أو تنسيقه. */
+  var BAC_MOTIVATION = [
+    '🎯 مستقبلك يُبنى بما تفعله اليوم، لا بما تتمناه غدًا.',
+    '📚 ادرس الآن، لتفتخر بنفسك لاحقًا.',
+    '🚀 كل دقيقة دراسة تقرّبك من حلمك.',
+    '💪 لا تنتظر الحماس، ابدأ وسيأتي الحماس.',
+    '🌱 تعب اليوم هو راحة الغد.',
+    '🛤️ لا تقارن بدايتك بنهاية الآخرين.',
+    '🏆 النجاح لا يحتاج إلى العبقرية بقدر ما يحتاج إلى الاستمرار.',
+    '✨ خطوة صغيرة كل يوم تصنع فرقًا كبيرًا.',
+    '🔥 أنت أقوى من رغبتك في الاستسلام.',
+    '🌈 لا تجعل يومًا سيئًا يفسد هدفًا عظيمًا.',
+    '✍️ كل تمرين تحلّه هو خطوة نحو التفوق.',
+    '⏳ مستقبلك يستحق ساعة إضافية من الاجتهاد.',
+    '🧠 لا تخف من صعوبة الدرس، بل خف من تركه دون محاولة.',
+    '🔄 الفشل ليس النهاية، بل فرصة لتتعلم من جديد.',
+    '🚫 النجاح يبدأ عندما تتوقف عن اختلاق الأعذار.',
+    '📈 لا تحتاج إلى أن تكون الأفضل اليوم، بل أن تكون أفضل من الأمس.',
+    '💎 أحلامك كبيرة؟ اجعل اجتهادك أكبر.',
+    '🌾 ما تزرعه في دفترك اليوم ستحصده في نتائجك غدًا.',
+    '🛡️ لا تستسلم في منتصف الطريق الذي اخترته بنفسك.',
+    '🌙 كل ليلة تسهر فيها من أجل هدفك تقرّبك منه.',
+    '🧑‍🎓 لا أحد يستطيع أن يدرس بدلًا منك أو يحقق حلمك نيابة عنك.',
+    '⚡ اجعل هدفك أقوى من كسلك.',
+    '❤️‍🔥 عندما تشعر بالتعب، تذكّر لماذا بدأت.',
+    '📖 كل صفحة تنهيها هي انتصار صغير.',
+    '🧭 لا تبحث عن الطريق الأسهل، بل عن الطريقة الأفضل.',
+    '🥇 النجاح ليس ضربة حظ، بل نتيجة محاولات متكررة.',
+    '⏰ لا تؤجل ما يمكن أن يغيّر مستقبلك.',
+    '🌟 امنح أحلامك الوقت الذي تستحقه.',
+    '🙋‍♂️ لا تخجل من السؤال، فالفهم أقوى من الحفظ الأعمى.',
+    '📝 كل خطأ تكتشفه اليوم يمنع خطأً غدًا.',
+    '🎓 أنت لا تدرس من أجل علامة فقط، بل من أجل مستقبل تصنعه بنفسك.',
+    '🚶‍♂️ ابدأ بما تستطيع، وستصل إلى ما تريد.',
+    '📵 لا تجعل هاتفك يسرق منك أحلامك.',
+    '🔒 الانضباط يوصلك إلى أماكن لا يستطيع الحماس وحده بلوغها.',
+    '🐢 حتى أبطأ تقدم يظل أفضل من الوقوف في مكانك.',
+    '☀️ لا تنتظر اللحظة المثالية، اصنعها بالعمل.',
+    '📅 كل يوم تؤجل فيه هدفك هو يوم تبتعد فيه عنه.',
+    '🧩 ثق بقدرتك على التعلم، حتى عندما لا تفهم من المحاولة الأولى.',
+    '🪞 المنافس الحقيقي هو أنت بالأمس.',
+    '📊 لا تدع درجاتك الحالية تحدد سقف طموحاتك.',
+    '🌳 النجاح يحتاج إلى الصبر بقدر حاجته إلى الذكاء.',
+    '💰 اجعل كل ساعة دراسة استثمارًا في نفسك.',
+    '🦁 عندما يستسلم الآخرون، اجعل صبرك نقطة قوتك.',
+    '💡 لا يوجد فهم مستحيل لمن يمنح نفسه الوقت الكافي.',
+    '👣 طريق الألف ميل يبدأ بدرس واحد.',
+    '🎬 لا تنتظر أن تشعر بالاستعداد، فالبداية هي التي تصنعه.',
+    '⌛ تذكّر أن لحظة ندم على التقصير أصعب من لحظة تعب أثناء الاجتهاد.',
+    '🤫 اجتهد بصمت، ودع نتائجك تتحدث عنك.',
+    '🌻 قد لا ترى نتيجة جهدك اليوم، لكن ذلك لا يعني أنه بلا قيمة.',
+    '🎉 يوم إعلان النتائج، ستتمنى لو أنك اجتهدت أكثر؛ اجتهد الآن حتى لا تندم لاحقًا.'
+  ];
+  var BAC_MOTIVATION_KEY = 'bacorbit_motivation_last_v1';
+
+  function initMotivationalLine() {
+    /* كل صفحات الموقع ما عدا الرئيسية (index.html) ولوحة الإدارة؛ القارئ طبقة منبثقة لا صفحة، فلا يتأثر */
+    var path = location.pathname;
+    if (/(^|\/)index\.html$/.test(path) || /\/$/.test(path) || /admin\.html$/.test(path)) return;
+    var h1 = qs('.hero h1');
+    if (!h1) return;
+    var p = qs('.hero p');
+    if (!p) {
+      p = document.createElement('p');
+      h1.insertAdjacentElement('afterend', p);
+    }
+    /* لا نستبدل رسائل الخطأ (مثل تعذّر تحديد الشعبة في صفحات T_) */
+    if (/تعذّر/.test(p.textContent)) return;
+
+    var pageKey = location.pathname.split('/').pop() || 'page';
+    var last = {};
+    try { last = JSON.parse(localStorage.getItem(BAC_MOTIVATION_KEY)) || {}; } catch (e) { last = {}; }
+    if (!last || typeof last !== 'object') last = {};
+
+    var n = BAC_MOTIVATION.length;
+    var idx = Math.floor(Math.random() * n);
+    if (n > 1 && idx === last[pageKey]) idx = (idx + 1 + Math.floor(Math.random() * (n - 1))) % n;
+
+    p.textContent = BAC_MOTIVATION[idx];
+
+    last[pageKey] = idx;
+    try { localStorage.setItem(BAC_MOTIVATION_KEY, JSON.stringify(last)); } catch (e) {}
+  }
+
+  /* ---------------------------------------------------------
+     9. التهيئة العامة
+     --------------------------------------------------------- */
+  function init() {
+    safeRun(ensureFavicon, 'أيقونة الموقع (favicon)');
+    safeRun(initThemeToggle, 'الوضع الداكن/الفاتح');
+    safeRun(initMotivationalLine, 'الجملة التحفيزية تحت العنوان');
+    safeRun(initTopBarScroll, 'الشريط العلوي');
+    safeRun(ensureImageViewer, 'مكبر الصور الموحّد');
+    safeRun(enhanceLessonImages, 'عارض صور الدروس');
+    safeRun(initLessonZoomControl, 'شريط التحكم بحجم صور الدروس');
+    safeRun(initVisitedTopicsTracking, 'تمييز المواضيع التي تمت زيارتها');
+    safeRun(initPdfCardReader, 'قارئ ملفات PDF للمواضيع');
+    safeRun(preloadReader, 'تحميل القارئ مسبقًا');
+    safeRun(initLessonAutoReader, 'فتح القارئ مباشرة في صفحات الدروس');
+    safeRun(initBranchStateMemory, 'تذكر حالة بطاقات الشعبة عند الرجوع');
+    safeRun(restoreReturnScroll, 'استعادة موضع التمرير عند العودة من القارئ');
+    safeRun(ensureToggleContentFallback, 'toggleContent الاحتياطي');
+    safeRun(initNavMenu, 'قائمة التنقل');
+    safeRun(rebuildNavMenu, 'توحيد قائمة التنقل الجانبية');
+    safeRun(ensureNavActions, 'حاوية أزرار الشريط العلوي');
+    safeRun(initBacCloudFeatures, 'الإشعارات والدراسة لاحقًا');
+    safeRun(initPhysicsBanners, 'لافتات أسئلة الفيزياء');
+    safeRun(initStudyTimer, 'مؤقت الدراسة');
+    safeRun(initInteractiveBackground, 'الخلفية التفاعلية');
+    safeRun(initBacCountdown, 'العدّاد التنازلي لبكالوريا 2027');
+    safeRun(initBranchSelectionCards, 'حفظ اختيار الشعبة');
+    safeRun(initCountdownBranchAction, 'رابط تغيير الشعبة أسفل العدّاد');
+    safeRun(removeHomeBackButtons, 'إزالة أزرار العودة إلى الرئيسية');
+    safeRun(initOverscrollHome, 'دائرة العودة عند التمرير للأسفل');
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();

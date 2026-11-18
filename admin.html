@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الإدارة - BacOrbit</title>
+<meta name="robots" content="noindex, nofollow">
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="admin.css">
+<script src="script.js"></script>
+
+<!-- ══════════════════════════════════════════════════════════
+     Firebase SDK (compat) — نفس مشروع Firebase المستخدم في
+     المنتدى (chat.html)، لا يوجد أي مشروع Firebase جديد هنا.
+═══════════════════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+</head>
+
+<body>
+
+<div class="top-bar" id="topBar">
+    <div class="nav-menu-wrap">
+        <button id="navMenuBtn" class="nav-menu-btn" type="button" aria-label="فتح قائمة التنقل" aria-expanded="false" aria-controls="navMenuPanel">
+            <span class="nav-menu-icon">
+                <span class="nav-menu-bar"></span>
+                <span class="nav-menu-bar"></span>
+                <span class="nav-menu-bar"></span>
+            </span>
+        </button>
+        <div class="nav-menu-panel" id="navMenuPanel" role="menu" aria-hidden="true">
+            <a href="index.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">🏠</span>الصفحة الرئيسية</a>
+            <a href="chat.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">📚</span>المنتدى</a>
+            <a href="library.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">📖</span>مكتبة الكتب</a>
+        </div>
+    </div>
+
+    <button id="themeToggle" class="theme-switch" aria-label="تبديل الوضع الداكن والفاتح" title="تبديل الوضع الداكن والفاتح">
+        <span class="theme-switch-track">
+            <span class="theme-switch-icon sun">☀️</span>
+            <span class="theme-switch-icon moon">🌙</span>
+        </span>
+        <span class="theme-switch-thumb"></span>
+    </button>
+</div>
+
+<header class="site-header">
+    <div class="logo">BacOrbit</div>
+</header>
+
+<section class="hero">
+    <h1>🛠️ لوحة الإدارة</h1>
+    <p>خاصة بمدير الموقع فقط — الوصول محمي عبر Firebase Authentication وFirestore Security Rules</p>
+</section>
+
+<div class="admin-wrap">
+
+    <!-- ══ شاشة تسجيل الدخول ══ -->
+    <div id="adminLoginScreen">
+        <div class="admin-login-card">
+            <div class="admin-login-icon">🔐</div>
+            <h2>دخول الأدمن</h2>
+            <p>هذه اللوحة محمية بحساب بريد إلكتروني وكلمة مرور خاصين بالإدارة فقط، منفصلين تمامًا عن حسابات المنتدى.</p>
+            <input type="email" id="adminEmailInput" class="admin-input" placeholder="البريد الإلكتروني" autocomplete="username">
+            <input type="password" id="adminPasswordInput" class="admin-input" placeholder="كلمة المرور" autocomplete="current-password">
+            <button type="button" class="admin-login-btn" id="adminLoginBtn">دخول</button>
+            <div class="admin-login-error" id="adminLoginError"></div>
+        </div>
+    </div>
+
+    <!-- ══ لوحة التحكم (تظهر فقط بعد التحقق من صلاحية الأدمن) ══ -->
+    <div id="adminDashboard" style="display:none">
+
+        <div class="admin-topbar">
+            <span class="admin-whoami">مسجّل الدخول باسم: <strong id="adminWhoamiEmail"></strong></span>
+            <button type="button" class="admin-signout-btn" id="adminSignoutBtn">تسجيل الخروج</button>
+        </div>
+
+        <div class="admin-tabs">
+            <button type="button" class="admin-tab-btn active" data-panel="panelStats">📊 الإحصائيات والتحليلات</button>
+            <button type="button" class="admin-tab-btn" data-panel="panelSummaries">📥 الملخصات والملفات</button>
+            <button type="button" class="admin-tab-btn" data-panel="panelForum">💬 المنتدى</button>
+        </div>
+
+        <!-- ── الإحصائيات والتحليلات (مدمجة) ── -->
+        <div class="admin-panel active" id="panelStats">
+            <div id="analyticsBody"><div class="admin-empty-note">جارٍ تحميل الإحصائيات…</div></div>
+        </div>
+
+        <!-- ── الملخصات ── -->
+        <div class="admin-panel" id="panelSummaries">
+            <h2 class="admin-section-title">⏳ عناصر تنتظر المراجعة</h2>
+            <div class="admin-list" id="adminSummariesPending"></div>
+            <div class="admin-empty-note" id="adminSummariesPendingEmpty" style="display:none">لا توجد ملخصات بانتظار المراجعة حاليًا 🎉</div>
+
+            <h2 class="admin-section-title">📋 كل الملخصات والملفات التي تمت مراجعتها</h2>
+            <div class="admin-list" id="adminSummariesAll"></div>
+        </div>
+
+        <!-- ── المنتدى ── -->
+        <div class="admin-panel" id="panelForum">
+            <h2 class="admin-section-title">💬 إدارة منشورات المنتدى</h2>
+            <div class="admin-list" id="adminForumList"></div>
+            <div class="admin-empty-note" id="adminForumEmpty" style="display:none">لا توجد أي منشورات بعد.</div>
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+/* أنماط الإحصائيات والتحليلات — تعتمد على متغيرات style.css */
+.an-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:16px}
+.an-card{background:var(--card-bg);border:2px solid var(--empty-border);border-radius:16px;padding:18px}
+.an-card h3{color:var(--accent);font-size:15px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.an-note{color:var(--footer-text);font-size:12px;line-height:1.8;margin-top:10px}
+.an-periods{display:inline-flex;gap:6px}
+.an-period{background:var(--bg);border:1.5px solid var(--empty-border);color:var(--text-secondary);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:bold;cursor:pointer;font-family:inherit}
+.an-period.active{background:var(--accent);border-color:var(--accent);color:#000}
+.an-hrow{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12.5px}
+.an-hrank{flex:0 0 18px;color:var(--footer-text);text-align:center}
+.an-hlabel{flex:0 0 36%;max-width:36%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.an-htrack{flex:1;height:10px;background:var(--bg);border-radius:999px;overflow:hidden}
+.an-hfill{display:block;height:100%;background:var(--accent);border-radius:999px}
+.an-hval{flex:0 0 34px;text-align:left;color:var(--text-secondary);direction:ltr}
+</style>
+
+<a href="index.html" class="back">⬅ العودة إلى الصفحة الرئيسية</a>
+
+<footer>
+© 2026 BacOrbit
+</footer>
+
+<div id="adminToast"><div class="admin-toast-box" id="adminToastBox"></div></div>
+
+<script src="admin.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <link rel="icon" type="image/png" href="favicon.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BacOrbit | منصة مراجعة البكالوريا في الجزائر</title>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "BacOrbit",
+  "url": "https://bacorbit.github.io/"
+}
+</script>
+<meta name="description" content="BacOrbit منصتك المجانية لمراجعة شاملة للبكالوريا الجزائرية: دروس وملخصات، مواضيع بكالوريا لسنوات سابقة مع الحلول، ولعبة تفاعلية لمراجعة المكتسبات، لجميع الشعب: علوم تجريبية، رياضيات، تقني رياضي، تسيير واقتصاد.">
+<meta name="keywords" content="بكالوريا, BAC الجزائر, مواضيع البكالوريا, دروس البكالوريا, تصحيح نموذجي, شعبة علوم تجريبية, شعبة رياضيات, تقني رياضي, تسيير واقتصاد, BacOrbit">
+<meta name="robots" content="index, follow">
+<meta name="author" content="BacOrbit">
+<meta name="theme-color" content="#0f172a">
+<meta http-equiv="Content-Language" content="ar">
+<link rel="canonical" href="https://bacorbit.github.io/BacOrbit/">
+
+<meta name="google-site-verification" content="_gTiZ5wcR4kqcL5H6LCgCts39QDOlzibFxzvbdBqwbg" />
+
+<!-- ══ PWA: تثبيت الموقع كتطبيق (الصفحة الرئيسية فقط تعرض زر التثبيت) ══ -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BacOrbit">
+<meta property="og:locale" content="ar_DZ">
+<meta property="og:title" content="BacOrbit | منصة مراجعة البكالوريا في الجزائر">
+<meta property="og:description" content="دروس، مواضيع سنوات سابقة، وتمارين تفاعلية لجميع شعب البكالوريا في الجزائر، مجاناً.">
+<meta property="og:url" content="https://bacorbit.github.io/BacOrbit/">
+<meta property="og:image" content="https://bacorbit.github.io/BacOrbit/assets/og-cover.png">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BacOrbit | منصة مراجعة البكالوريا في الجزائر">
+<meta name="twitter:description" content="دروس، مواضيع سنوات سابقة، وتمارين تفاعلية لجميع شعب البكالوريا في الجزائر، مجاناً.">
+<meta name="twitter:image" content="https://bacorbit.github.io/BacOrbit/assets/og-cover.png">
+
+<link rel="stylesheet" href="style.css">
+<script src="script.js"></script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "BacOrbit",
+  "url": "https://bacorbit.github.io/BacOrbit/",
+  "description": "منصة مجانية لمراجعة البكالوريا في الجزائر: دروس، مواضيع سنوات سابقة، وتمارين تفاعلية لجميع الشعب.",
+  "areaServed": "DZ",
+  "inLanguage": "ar"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "BacOrbit",
+  "url": "https://bacorbit.github.io/BacOrbit/",
+  "inLanguage": "ar"
+}
+</script>
+
+<style>
+/* ══ زر تنزيل الموقع (PWA) في الشريط العلوي بين ☰ و 🔔 ══
+   عند توفر التثبيت يتمدّد الزر لحظيًا بنص وأنيميشن جاذب ثم ينكمش ويبقى أيقونة. */
+.top-bar-right-group{display:flex;align-items:center;gap:10px}
+.pwa-install-btn{display:none;width:auto;min-width:44px;padding:0;gap:0;overflow:hidden;white-space:nowrap;color:var(--accent);
+    transition:padding .6s cubic-bezier(.4,0,.2,1),gap .6s ease,background-color .3s ease,border-color .3s ease,box-shadow .25s ease,transform .15s ease}
+.pwa-install-btn.pwa-visible{display:inline-flex;animation:pwaPop .55s cubic-bezier(.34,1.56,.64,1) both}
+.pwa-install-btn svg{width:20px;height:20px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pwa-install-label{display:inline-block;max-width:0;opacity:0;font-size:12.5px;font-weight:bold;
+    transition:max-width .6s cubic-bezier(.4,0,.2,1),opacity .4s ease}
+.pwa-install-btn.pwa-attention{padding:0 14px;gap:8px;border-color:var(--accent);
+    animation:pwaPop .55s cubic-bezier(.34,1.56,.64,1) both,pwaRing 1.5s ease-out .5s infinite}
+.pwa-install-btn.pwa-attention .pwa-install-label{max-width:110px;opacity:1}
+.pwa-install-btn.pwa-attention svg{animation:pwaArrow .9s ease-in-out infinite}
+.pwa-install-btn:disabled{opacity:.6;cursor:wait}
+@keyframes pwaPop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes pwaRing{0%{box-shadow:0 0 0 0 var(--accent-glow)}100%{box-shadow:0 0 0 12px transparent}}
+@keyframes pwaArrow{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
+@media (max-width:420px){
+    .pwa-install-label{font-size:11px}
+    .pwa-install-btn.pwa-attention{padding:0 10px;gap:6px}
+    .pwa-install-btn.pwa-attention .pwa-install-label{max-width:78px}
+}
+</style>
+</head>
+
+<body>
+<h1 class="seo-title">BacOrbit - باك أوربيت</h1>
+<div class="top-bar" id="topBar">
+
+    <div class="nav-menu-wrap">
+        <button id="navMenuBtn" class="nav-menu-btn" type="button" aria-label="فتح قائمة التنقل" aria-expanded="false" aria-controls="navMenuPanel">
+            <span class="nav-menu-icon">
+                <span class="nav-menu-bar"></span>
+                <span class="nav-menu-bar"></span>
+                <span class="nav-menu-bar"></span>
+            </span>
+        </button>
+        <button id="pwaInstallBtn" class="nav-menu-btn pwa-install-btn" type="button" aria-label="تنزيل الموقع كتطبيق" title="تنزيل الموقع كتطبيق">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 19h14"/></svg>
+            <span class="pwa-install-label">تنزيل التطبيق</span>
+        </button>
+
+        <div class="nav-menu-panel" id="navMenuPanel" role="menu" aria-hidden="true">
+            <a href="play.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">🧠</span>المكتسبات القبلية</a>
+            <a href="chat.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">📚</span>المنتدى</a>
+            <a href="library.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">📖</span>مكتبة الكتب</a>
+            <a href="guidance.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">💡</span>نصائح وتوجيهات</a>
+            <a href="calculator.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">🧮</span>حساب المعدل</a>
+            <a href="https://www.facebook.com/profile.php?id=61593220613025" class="nav-menu-item" role="menuitem" target="_blank" rel="noopener noreferrer"><span class="nav-menu-item-icon">🎧</span>الدعم</a>
+            <a href="privacy.html" class="nav-menu-item" role="menuitem"><span class="nav-menu-item-icon">🛡️</span>السياسة والخصوصية</a>
+        </div>
+    </div>
+
+    <div class="top-bar-right-group">
+
+        <button id="themeToggle" class="theme-switch" aria-label="تبديل الوضع الداكن والفاتح" title="تبديل الوضع الداكن والفاتح">
+            <span class="theme-switch-track">
+                <span class="theme-switch-icon sun">☀️</span>
+                <span class="theme-switch-icon moon">🌙</span>
+            </span>
+            <span class="theme-switch-thumb"></span>
+        </button>
+    </div>
+
+</div>
+
+<header class="site-header">
+    <div class="logo">BacOrbit</div>
+</header>
+
+<section class="hero">
+    <h1>اختر شعبتك الدراسية</h1>
+    <p>ابدأ رحلتك نحو البكالوريا</p>
+</section>
+
+<section class="branches">
+
+
+    <div class="card" data-branch-key="science" data-branch-name="علوم تجريبية" data-branch-url="Branches/1_science.html">
+        <h2>علوم تجريبية</h2>
+        <p>الدخول إلى شعبة العلوم التجريبية</p>
+    </div>
+
+    <div class="card" data-branch-key="math" data-branch-name="رياضيات" data-branch-url="Branches/1_math.html">
+        <h2>رياضيات</h2>
+        <p>الدخول إلى شعبة الرياضيات</p>
+    </div>
+
+    <div class="card" data-branch-key="technical" data-branch-name="الهندسة (تقني رياضي)" data-branch-url="Branches/1_technical.html">
+        <h2>تقني رياضي</h2>
+        <p>الدخول إلى شعبة الهندسة</p>
+    </div>
+
+    <div class="card" data-branch-key="economy" data-branch-name="تسيير واقتصاد" data-branch-url="Branches/1_economy.html">
+        <h2>تسيير واقتصاد</h2>
+        <p>الدخول إلى شعبة تسيير واقتصاد</p>
+    </div>
+
+</section>
+
+<div class="bac-countdown-section" id="bacCountdownSection">
+    <div class="bac-countdown-title">⏳ العد التنازلي لبكالوريا 2027</div>
+    <div class="bac-flip-clock" id="bacFlipClock"></div>
+    <div class="bac-countdown-branch-action" id="bacCountdownBranchAction"></div>
+</div>
+
+<footer>
+    © 2026 BacOrbit
+</footer>
+
+<script>
+/* ══ تنزيل/تثبيت الموقع (PWA) — الصفحة الرئيسية فقط ══
+   عند توفر التثبيت الفعلي (beforeinstallprompt) يظهر الزر في الشريط العلوي بين ☰ و 🔔
+   بأنيميشن جاذب (تمدّد + نبض + سهم) لبضع ثوانٍ ثم ينكمش ويبقى أيقونة صغيرة دائمة. */
+(function () {
+'use strict';
+var installBtn = document.getElementById('pwaInstallBtn');
+if (!installBtn) return;
+
+var deferredPrompt = null;
+var attentionTimer = null;
+var ATTENTION_MS = 5500;
+
+function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function endAttention() {
+    clearTimeout(attentionTimer);
+    installBtn.classList.remove('pwa-attention');
+}
+function triggerInstall() {
+    if (!deferredPrompt) return;
+    var promptEvent = deferredPrompt;
+    deferredPrompt = null;
+    endAttention();
+    installBtn.disabled = true;
+    promptEvent.prompt();
+    promptEvent.userChoice.finally(function () {
+        installBtn.disabled = false;
+        if (!deferredPrompt) installBtn.classList.remove('pwa-visible');
+    });
+}
+
+if (!isStandalone()) {
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.classList.add('pwa-visible');
+        void installBtn.offsetWidth;
+        installBtn.classList.add('pwa-attention');
+        clearTimeout(attentionTimer);
+        attentionTimer = setTimeout(endAttention, ATTENTION_MS);
+    });
+    installBtn.addEventListener('click', triggerInstall);
+    window.addEventListener('appinstalled', function () {
+        deferredPrompt = null;
+        endAttention();
+        installBtn.classList.remove('pwa-visible');
+    });
+}
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('service-worker.js').catch(function () {});
+    });
+}
+})();
+</script>
+
+</body>
+
+</html>
