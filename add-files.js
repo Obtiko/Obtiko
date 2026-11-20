@@ -1,5 +1,5 @@
 /* ============================================================
-   BacOrbit — add-files.js
+   Obtiko — add-files.js
    يتيح للمستخدم إضافة ملف تعليمي (ملخص/تمارين) حسب شعبته ومادته.
    ⚠️ مهم: لا يُنشئ أي نظام مراجعة جديد — يكتب في نفس مجموعة
    Firestore "summaries" التي تستخدمها submit-summary.js ولوحة
@@ -157,7 +157,7 @@ async function submitFile(){
       reviewedBy: null
     });
 
-    showMsg('تم إرسال ملفك بنجاح ✅ سيراجعه فريق BacOrbit قريبًا.', 'ok');
+    showMsg('تم إرسال ملفك بنجاح ✅ سيراجعه فريق Obtiko قريبًا.', 'ok');
     $('#afNote').value = '';
     fileInput.value = ''; $('#afFileName').textContent = 'لم يتم اختيار ملف بعد';
   }catch(err){

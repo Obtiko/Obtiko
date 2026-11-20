@@ -1,10 +1,10 @@
 /* ============================================================
-   BacOrbit — physics-banners.js
+   Obtiko — physics-banners.js
    لافتات أسئلة تفاعلية تظهر من يمين الشاشة في صفحات الفيزياء المستهدفة فقط
    (يُحمَّل من script.js بعد التحقق من الصفحة). يعتمد على localStorage فقط.
 
    التوقيت: أول سؤال بعد 30 دقيقة من أول فتح لصفحة مستهدفة، ثم سؤال كل ساعة.
-   الحالة محفوظة في localStorage (المفتاح bacorbit_phq_v1):
+   الحالة محفوظة في localStorage (المفتاح obtiko_phq_v1):
    { nextAt: وقت السؤال القادم, order: ترتيب الأسئلة, pos: موضع الترتيب, last: آخر سؤال }
    ============================================================ */
 (function () {
@@ -14,7 +14,7 @@ window.__bacPhysicsBanners = true;
 
 /* المادة تُحدَّد من الصفحة: رياضيات أو لغة عربية أو فيزياء أو علوم طبيعية (نفس النظام والتصميم والتوقيت، ومؤقت مستقل لكل مادة) */
 var SUBJ = /math/i.test(location.pathname) ? 'math' : (/arabic/i.test(location.pathname) ? 'arabic' : (/physic/.test(location.pathname) ? 'physic' : 'science'));
-var KEY = SUBJ === 'math' ? 'bacorbit_mathq_v1' : (SUBJ === 'arabic' ? 'bacorbit_arabq_v1' : (SUBJ === 'physic' ? 'bacorbit_phq_v1' : 'bacorbit_sciq_v1'));
+var KEY = SUBJ === 'math' ? 'obtiko_mathq_v1' : (SUBJ === 'arabic' ? 'obtiko_arabq_v1' : (SUBJ === 'physic' ? 'obtiko_phq_v1' : 'obtiko_sciq_v1'));
 var FIRST_DELAY = 15 * 60 * 1000;
 var INTERVAL = 60 * 60 * 1000;
 var AUTO_HIDE = 15000;

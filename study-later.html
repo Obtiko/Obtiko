@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الدراسة لاحقًا | BacOrbit</title>
+<title>الدراسة لاحقًا | Obtiko</title>
 
 <meta name="description" content="كل الدروس وسلاسل التمارين ومواضيع البكالوريا التي حفظتها لمتابعتها لاحقًا.">
 <meta name="robots" content="noindex, nofollow">
@@ -85,7 +85,7 @@
     </button>
 </div>
 
-<header class="site-header"><div class="logo">BacOrbit</div></header>
+<header class="site-header"><div class="logo">Obtiko</div></header>
 
 <section class="hero">
     <h1>🔖 الدراسة لاحقًا</h1>
@@ -103,7 +103,7 @@
 
 <a href="index.html" class="back">⬅ العودة إلى الصفحة الرئيسية</a>
 
-<footer>© 2026 BacOrbit</footer>
+<footer>© 2026 Obtiko</footer>
 
 <script>
 (function () {
@@ -188,7 +188,7 @@ function loadList() {
     .onSnapshot(function (qs) {
       renderItems(qs.docs.map(function (doc) { return Object.assign({ id: doc.id }, doc.data()); }));
     }, function (err) {
-      console.error('[BacOrbit][الدراسة لاحقًا] تعذّر تحميل القائمة', err);
+      console.error('[Obtiko][الدراسة لاحقًا] تعذّر تحميل القائمة', err);
       $('#slLoading').textContent = 'تعذّر تحميل قائمتك، أعد تحميل الصفحة.';
     });
 }

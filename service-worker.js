@@ -1,11 +1,11 @@
 /* ============================================================
-   BacOrbit — service-worker.js
+   Obtiko — service-worker.js
    Service Worker بسيط يهدف بشكل أساسي لتمكين خاصية "تثبيت الموقع"
    (PWA Install)، مع تخزين مؤقت خفيف لأصول الواجهة الأساسية فقط
    (لا يخزن أي صفحات دروس أو ملفات PDF لتفادي استهلاك المساحة).
    ============================================================ */
 
-var CACHE_NAME = 'bacorbit-shell-v1';
+var CACHE_NAME = 'obtiko-shell-v1';
 var CORE_ASSETS = [
     './',
     './index.html',

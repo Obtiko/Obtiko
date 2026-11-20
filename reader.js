@@ -1,5 +1,5 @@
 /* ============================================================
-   BacOrbit — reader.js
+   Obtiko — reader.js
    قارئ موحّد لملفات PDF والصور التعليمية. يُحمَّل عند الحاجة فقط عبر
    window.bacOpenReader(...) المعرّفة في script.js، ويُنشئ واجهته بنفسه
    (CSS مضمّن، يعتمد على متغيرات style.css فيتبع الوضع الداكن/الفاتح).
@@ -93,7 +93,7 @@ function norm(s) {
   return String(s || '').toLowerCase().replace(/[\u064B-\u0652\u0670\u0640]/g, '').replace(/[إأآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه');
 }
 function safeName(s, ext) {
-  var n = String(s || 'BacOrbit').replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim() || 'BacOrbit';
+  var n = String(s || 'Obtiko').replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim() || 'Obtiko';
   return /\.pdf$/i.test(n) ? n : n + ext;
 }
 function saveBlob(blob, name) {
@@ -351,7 +351,7 @@ function close(fromPop) {
     restore();
     requestAnimationFrame(restore);
   }
-  if (onClose) { try { onClose(); } catch (e) { console.warn('[BacOrbit][القارئ] onClose', e); } }
+  if (onClose) { try { onClose(); } catch (e) { console.warn('[Obtiko][القارئ] onClose', e); } }
 }
 
 /* ---------------------------------------------------------
@@ -385,7 +385,7 @@ function initPdf() {
     });
   }).catch(function (err) {
     if (!S || S.token !== tok) return;
-    console.error('[BacOrbit][القارئ] تعذّر فتح الملف:', S.o.src, err);
+    console.error('[Obtiko][القارئ] تعذّر فتح الملف:', S.o.src, err);
     var hint = location.protocol === 'file:' ? '<br>الصفحة مفتوحة من القرص (file://) — شغّل الموقع عبر خادم أو GitHub Pages.' : '';
     showMsg('تعذّر عرض هذا الملف داخل الموقع.' + hint +
       '<a class="bac-rd-btn" target="_blank" rel="noopener" href="' + abs(S.o.src) + '">فتح الملف في نافذة جديدة ↗</a>', 'err');
@@ -559,7 +559,7 @@ function renderPdf(p) {
     });
   }).catch(function (e) {
     if (e && e.name === 'RenderingCancelledException') return;
-    console.warn('[BacOrbit][القارئ] تعذّر رسم الصفحة ' + (p.i + 1), e);
+    console.warn('[Obtiko][القارئ] تعذّر رسم الصفحة ' + (p.i + 1), e);
   }).then(function () {
     p.busy = false; p.task = null;
     if (p.again) { p.again = false; if (S && p.vis) renderPdf(p); }

@@ -1,6 +1,6 @@
 {
-  "name": "BacOrbit - منصة مراجعة البكالوريا",
-  "short_name": "BacOrbit",
+  "name": "Obtiko - منصة مراجعة البكالوريا",
+  "short_name": "Obtiko",
   "description": "منصة مجانية لمراجعة البكالوريا في الجزائر: دروس، مواضيع سنوات سابقة، وتمارين تفاعلية لجميع الشعب.",
   "start_url": "./index.html",
   "scope": "./",

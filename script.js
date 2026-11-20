@@ -1,5 +1,5 @@
 /* ============================================================
-   BacOrbit — script.js
+   Obtiko — script.js
    الملف المركزي لكل التفاعلات: الثيم، الشريط العلوي، تأثير النبض،
    الإشعارات، تنزيل المواضيع والدروس، وعارض تكبير/تنزيل الصور.
    مصمم ليعمل بأمان على أي صفحة حتى لو كانت بعض العناصر غير موجودة.
@@ -25,6 +25,26 @@
   'use strict';
 
   /* ---------------------------------------------------------
+     0-صفر. ترحيل مفاتيح التخزين المحلي القديمة (bacorbit_*) إلى الجديدة (obtiko_*)
+     بعد تغيير اسم المشروع، حتى لا يفقد المستخدم الثيم والشعبة المحفوظة وعلامات
+     الحاسبة وغيرها. يعمل مرة واحدة لكل متصفح ويُنفَّذ قبل أي قراءة للمفاتيح.
+     --------------------------------------------------------- */
+  (function migrateLegacyStorage() {
+    try {
+      var OLD = 'bacorbit_', NEW = 'obtiko_', moved = [];
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(OLD) === 0) moved.push(k);
+      }
+      moved.forEach(function (k) {
+        var nk = NEW + k.slice(OLD.length);
+        if (localStorage.getItem(nk) === null) localStorage.setItem(nk, localStorage.getItem(k));
+        localStorage.removeItem(k);
+      });
+    } catch (e) { /* التخزين غير متاح: لا شيء لترحيله */ }
+  })();
+
+  /* ---------------------------------------------------------
      0-أ. توجيه تلقائي فوري لأصحاب شعبة محفوظة عند دخول الصفحة الرئيسية
      --------------------------------------------------------- */
   (function redirectToSavedBranchIfHome() {
@@ -32,7 +52,7 @@
       var path = location.pathname;
       var isHome = /(^|\/)index\.html$/.test(path) || /\/$/.test(path);
       if (!isHome) return;
-      var raw = localStorage.getItem('bacorbit_saved_branch');
+      var raw = localStorage.getItem('obtiko_saved_branch');
       if (!raw) return;
       var saved = JSON.parse(raw);
       if (saved && saved.url) location.replace(saved.url);
@@ -48,16 +68,16 @@
 
   function safeRun(fn, label) {
     try { fn(); }
-    catch (err) { console.warn('[BacOrbit]', label || 'خطأ غير متوقع', err); }
+    catch (err) { console.warn('[Obtiko]', label || 'خطأ غير متوقع', err); }
   }
 
   /* ---------------------------------------------------------
      0ج. تتبّع الصفحة السابقة داخل الموقع (مستقل عن document.referrer)
      --------------------------------------------------------- */
-  var NAV_CUR_KEY = 'bacorbit_nav_cur';
-  var NAV_PREV_KEY = 'bacorbit_nav_prev';
-  var NAV_SCROLL_PREFIX = 'bacorbit_nav_scroll:';
-  var NAV_RESTORE_KEY = 'bacorbit_nav_restore';
+  var NAV_CUR_KEY = 'obtiko_nav_cur';
+  var NAV_PREV_KEY = 'obtiko_nav_prev';
+  var NAV_SCROLL_PREFIX = 'obtiko_nav_scroll:';
+  var NAV_RESTORE_KEY = 'obtiko_nav_restore';
   var bacReturning = false;
 
   function navPageId() { return location.pathname + location.search; }
@@ -93,9 +113,9 @@
   }
 
   /* ---------------------------------------------------------
-     0ب. ضمان ظهور أيقونة BacOrbit (favicon) في كل صفحة
+     0ب. ضمان ظهور أيقونة Obtiko (favicon) في كل صفحة
      --------------------------------------------------------- */
-  var SITE_ROOT = 'https://bacorbit.github.io/BacOrbit/';
+  var SITE_ROOT = 'https://obtiko.github.io/Obtiko/';
 
   var CURRENT_SCRIPT_SRC = (document.currentScript && document.currentScript.src) || '';
   function siblingUrl(name) {
@@ -142,7 +162,7 @@
   /* ---------------------------------------------------------
      1. الوضع الداكن / الفاتح (Theme)
      --------------------------------------------------------- */
-  const THEME_KEY = 'bacorbit_theme';
+  const THEME_KEY = 'obtiko_theme';
 
   function applyStoredTheme() {
     try {
@@ -467,7 +487,7 @@
     return loadScriptTag(siblingUrl('reader.js')).then(function () {
       return window.BacReader.open(opts);
     }).catch(function (err) {
-      console.warn('[BacOrbit] تعذّر تشغيل القارئ', err);
+      console.warn('[Obtiko] تعذّر تشغيل القارئ', err);
       if (opts && opts.type === 'pdf' && opts.src) window.open(opts.src, '_blank');
       return false;
     });
@@ -530,7 +550,7 @@
   function initBranchStateMemory() {
     var cards = qsa('.subjects > .card').filter(function (c) { return c.querySelector('.subject-content'); });
     if (!cards.length) return;
-    var KEY = 'bacorbit_subjects_state:' + location.pathname;
+    var KEY = 'obtiko_subjects_state:' + location.pathname;
     var savedByClick = false;
 
     function save() {
@@ -681,7 +701,7 @@
   /* ---------------------------------------------------------
      6ج. تمييز المواضيع التي سبق للمستخدم الدخول إليها
      --------------------------------------------------------- */
-  const VISITED_TOPICS_KEY = 'bacorbit_visited_topics';
+  const VISITED_TOPICS_KEY = 'obtiko_visited_topics';
 
   function loadVisitedTopics() {
     try {
@@ -1324,7 +1344,7 @@
     var seg = location.pathname.split('/').filter(Boolean).pop() || 'index';
     try { seg = decodeURIComponent(seg); } catch (e) {}
     seg = seg.replace(/\.html$/, '');
-    if (seg === 'BacOrbit') seg = 'index';
+    if (seg === 'Obtiko') seg = 'index';
     return seg.replace(/[^\w\u0600-\u06FF\-]/g, '_') || 'index';
   }
 
@@ -1332,7 +1352,7 @@
     try {
       if (!db || !uid) return;
       var key = bacVisitPageKey();
-      var mark = 'bacorbit_visit_' + key;
+      var mark = 'obtiko_visit_' + key;
       try { if (sessionStorage.getItem(mark)) return; sessionStorage.setItem(mark, '1'); } catch (e) {}
       var now = new Date();
       var date = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
@@ -1369,8 +1389,8 @@
       .then(function () {
         /* كل ملف يُحمَّل باستقلال: فشل أحدهما لا يُعطّل الآخر */
         return Promise.all([
-          loadScriptTag(siblingUrl('notifications.js')).catch(function (e) { console.warn('[BacOrbit] تعذّر تحميل notifications.js', e); }),
-          loadScriptTag(siblingUrl('study-later.js')).catch(function (e) { console.warn('[BacOrbit] تعذّر تحميل study-later.js', e); })
+          loadScriptTag(siblingUrl('notifications.js')).catch(function (e) { console.warn('[Obtiko] تعذّر تحميل notifications.js', e); }),
+          loadScriptTag(siblingUrl('study-later.js')).catch(function (e) { console.warn('[Obtiko] تعذّر تحميل study-later.js', e); })
         ]);
       })
       .then(function () { return window.BacFirebase.ready(); })
@@ -1381,14 +1401,14 @@
         if (window.BacStudyLater) window.BacStudyLater.init(ctx);
       })
       .catch(function (err) {
-        console.warn('[BacOrbit] تعذّر تفعيل الإشعارات/الدراسة لاحقًا (لن يؤثر على بقية الموقع)', err);
+        console.warn('[Obtiko] تعذّر تفعيل الإشعارات/الدراسة لاحقًا (لن يؤثر على بقية الموقع)', err);
       });
   }
 
   /* ---------------------------------------------------------
      8ج. مؤقت الدراسة (Study Timer)
      --------------------------------------------------------- */
-  const TIMER_KEY = 'bacorbit_timer_state_v1';
+  const TIMER_KEY = 'obtiko_timer_state_v1';
   const TIMER_MIN_SEC = 60;
   const TIMER_MAX_SEC = 180 * 60;
   const TIMER_DEFAULT_SEC = 45 * 60;
@@ -1869,8 +1889,8 @@
   /* ---------------------------------------------------------
      8هـ. حفظ شعبة المستخدم
      --------------------------------------------------------- */
-  var BAC_BRANCH_STORAGE_KEY = 'bacorbit_saved_branch';
-  var BAC_BRANCH_PROMPT_KEY = 'bacorbit_branch_prompt_shown';
+  var BAC_BRANCH_STORAGE_KEY = 'obtiko_saved_branch';
+  var BAC_BRANCH_PROMPT_KEY = 'obtiko_branch_prompt_shown';
 
   function bacLoadSavedBranch() {
     try {
@@ -2182,7 +2202,7 @@
     if (/\/(L_Arabic|S_Arabic)\.html$/.test(p)) onTarget = true;
     if (!onTarget) return;
     loadScriptTag(siblingUrl('physics-banners.js')).catch(function (e) {
-      console.warn('[BacOrbit] تعذّر تحميل physics-banners.js', e);
+      console.warn('[Obtiko] تعذّر تحميل physics-banners.js', e);
     });
   }
 
@@ -2244,7 +2264,7 @@
     '🌻 قد لا ترى نتيجة جهدك اليوم، لكن ذلك لا يعني أنه بلا قيمة.',
     '🎉 يوم إعلان النتائج، ستتمنى لو أنك اجتهدت أكثر؛ اجتهد الآن حتى لا تندم لاحقًا.'
   ];
-  var BAC_MOTIVATION_KEY = 'bacorbit_motivation_last_v1';
+  var BAC_MOTIVATION_KEY = 'obtiko_motivation_last_v1';
 
   function initMotivationalLine() {
     /* كل صفحات الموقع ما عدا الرئيسية (index.html) ولوحة الإدارة؛ القارئ طبقة منبثقة لا صفحة، فلا يتأثر */

@@ -4,11 +4,11 @@
   <script src="script.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>منتدى التلاميذ - اطرح أسئلتك وشارك زملاءك | BacOrbit</title>
+<title>منتدى التلاميذ - اطرح أسئلتك وشارك زملاءك | Obtiko</title>
 <link rel="stylesheet" href="style.css">
 <script>
 /* منع وميض الثيم عند التحميل */
-try{ var t=localStorage.getItem('bacorbit_theme'); if(t==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+try{ var t=localStorage.getItem('obtiko_theme'); if(t==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
 </script>
 
 <!-- ══════════════════════════════════════════════════════════
@@ -88,7 +88,7 @@ try{ var t=localStorage.getItem('bacorbit_theme'); if(t==='light') document.docu
 
 </nav>
 
-<header class="site-header"><div class="logo">BacOrbit</div></header>
+<header class="site-header"><div class="logo">Obtiko</div></header>
 
 <section class="hero">
   <h1>منتدى التلاميذ</h1>
@@ -128,7 +128,7 @@ try{ var t=localStorage.getItem('bacorbit_theme'); if(t==='light') document.docu
           <h3>✏️ اكتب سؤالاً</h3>
           <p>شارك نصاً، صورة، أو ملفاً مع زملائك.</p>
         </div>
-        <span class="composer-badge">BacOrbit 🎓</span>
+        <span class="composer-badge">Obtiko 🎓</span>
       </div>
 
       <div id="mainError" class="forum-error" style="display:none"></div>
@@ -155,13 +155,13 @@ try{ var t=localStorage.getItem('bacorbit_theme'); if(t==='light') document.docu
 </main>
 
 <a class="back" href="index.html">⬅ العودة إلى الصفحة الرئيسية</a>
-<footer>© 2026 BacOrbit</footer>
+<footer>© 2026 Obtiko</footer>
 
 <div id="toast"><div class="toast-box" id="toastBox"></div></div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   منتدى BacOrbit — المنطق الكامل
+   منتدى Obtiko — المنطق الكامل
    المراحل: 1) الإعدادات 2) الثيم والشريط العلوي 3) محوّلا التخزين
             (Firebase / محلي) 4) العرض 5) الأحداث
 ═══════════════════════════════════════════════════════════════ */
@@ -232,7 +232,7 @@ $('#themeSwitch').addEventListener('click',()=>{
   const root=document.documentElement;
   const light=root.getAttribute('data-theme')==='light';
   root.setAttribute('data-theme',light?'dark':'light');
-  try{ localStorage.setItem('bacorbit_theme',light?'dark':'light'); }catch(e){}
+  try{ localStorage.setItem('obtiko_theme',light?'dark':'light'); }catch(e){}
 });
 let lastY=0;
 window.addEventListener('scroll',()=>{
@@ -342,7 +342,7 @@ const FB={
       });
     }).catch(err=>{
       /* كان الخطأ يُبتلع بصمت سابقاً؛ الآن يظهر في الـ Console لتسهيل التشخيص (غالباً Security Rules) */
-      console.error('[BacOrbit][المنتدى] تعذّر إنشاء إشعار الرد — تحقق من قواعد Firestore لمجموعة notifications', err);
+      console.error('[Obtiko][المنتدى] تعذّر إنشاء إشعار الرد — تحقق من قواعد Firestore لمجموعة notifications', err);
     });
   },
   async delete(id){
@@ -402,7 +402,7 @@ const FB={
 
 /* ═══════════ 3ب) محوّل الوضع التجريبي المحلي ═══════════ */
 const LC={
-  KEY:'bacorbit_forum_v1',data:null,cb:null,userCb:null,
+  KEY:'obtiko_forum_v1',data:null,cb:null,userCb:null,
   load(){ try{this.data=JSON.parse(localStorage.getItem(this.KEY))}catch(e){this.data=null}
           if(!this.data) this.data={uid:null,users:{},posts:[]}; },
   save(){ try{localStorage.setItem(this.KEY,JSON.stringify(this.data));}

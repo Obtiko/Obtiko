@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bacorbit.github.io/BacOrbit/sitemap.xml
+Sitemap: https://obtiko.github.io/Obtiko/sitemap.xml

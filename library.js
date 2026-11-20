@@ -1,5 +1,5 @@
 /* ============================================================
-   BacOrbit — library.js
+   Obtiko — library.js
    منطق مكتبة الكتب: بناء البطاقات من LIBRARY_BOOKS (المعرّفة في
    library-books.js ويجب تحميله قبل هذا الملف)، البحث الفوري،
    التصفية حسب المادة، الترتيب، توليد صور غلاف حقيقية من الصفحة
@@ -284,7 +284,7 @@ function loadCover(cardEl) {
         };
         customImg.onerror = function () {
             console.error(
-                '[BacOrbit][مكتبة] تعذّر تحميل صورة الغلاف المخصصة للكتاب "' + book.title + '" من: ' + book.coverImage +
+                '[Obtiko][مكتبة] تعذّر تحميل صورة الغلاف المخصصة للكتاب "' + book.title + '" من: ' + book.coverImage +
                 (isFileProtocol() ? ' — ' + FILE_PROTOCOL_HINT : ' — تحقّق من أنّ الصورة موجودة فعليًا بهذا المسار.')
             );
             coverWrap.dataset.loaded = "0";
@@ -323,7 +323,7 @@ function loadCover(cardEl) {
            لتسهيل معرفة السبب الفعلي: 404 (الملف غير موجود بهذا المسار)،
            فشل الشبكة، أو الصفحة مفتوحة عبر file:// بدل خادم محلي. */
         console.error(
-            '[BacOrbit][مكتبة] تعذّر توليد غلاف الكتاب "' + book.title + '" من الملف: ' + book.pdf +
+            '[Obtiko][مكتبة] تعذّر توليد غلاف الكتاب "' + book.title + '" من الملف: ' + book.pdf +
             (isFileProtocol() ? ' — ' + FILE_PROTOCOL_HINT : ' — تحقّق من تبويب Network في أدوات المطوّر لمعرفة رمز الحالة (404 يعني أنّ الملف غير موجود بهذا المسار).'),
             err
         );
@@ -445,7 +445,7 @@ function renderBookIntoReader(book, container, myRequestId) {
         if (myRequestId !== readerRequestId) return;
         /* تُسجَّل تفاصيل الخطأ الحقيقية هنا في الـ Console (F12 → Console)
            بدل ابتلاعها بصمت كما كان سابقًا، لتسهيل معرفة السبب الفعلي. */
-        console.error('[BacOrbit][مكتبة] تعذّر تحميل/عرض الكتاب "' + book.title + '" من الملف: ' + book.pdf, err);
+        console.error('[Obtiko][مكتبة] تعذّر تحميل/عرض الكتاب "' + book.title + '" من الملف: ' + book.pdf, err);
 
         var msg = "تعذّر عرض محتوى هذا الكتاب داخل الموقع حاليًا. تأكد من رفع الملف بنفس المسار الصحيح، أو نزّله مباشرة عبر زر التنزيل أعلاه.";
         if (isFileProtocol()) {
@@ -514,7 +514,7 @@ function init() {
        عبر file://، لأن هذا سيمنع كل الأغلفة وكل عمليات القراءة من
        العمل بغض النظر عن صحة مسارات الملفات. */
     if (isFileProtocol()) {
-        console.warn('[BacOrbit][مكتبة] ' + FILE_PROTOCOL_HINT);
+        console.warn('[Obtiko][مكتبة] ' + FILE_PROTOCOL_HINT);
     }
 
     renderChips();

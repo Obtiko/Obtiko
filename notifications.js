@@ -1,5 +1,5 @@
 /* ============================================================
-   BacOrbit — notifications.js
+   Obtiko — notifications.js
    أيقونة 🔔 الإشعارات: تُضاف ديناميكيًا داخل .nav-menu-wrap مباشرة
    بجانب زر القائمة ☰ (وليس كعنصر شقيق منفصل لـ #topBar)، حتى تظهر
    في نفس المكان تمامًا في كل صفحات الموقع بغض النظر عن اختلاف بنية
@@ -20,7 +20,7 @@
    نفس مجموعة Firestore "notifications" الموجودة أصلًا وتُقرأ من نفس
    الاستماع اللحظي (onSnapshot) هنا فقط. لكل تذكير عدّاد مستقل لعدد
    مرات ظهور اللافتة (محفوظ في localStorage تحت المفتاح
-   bacorbit_study_banner_shown، بمعرّف الإشعار نفسه — وهو معرّف ثابت
+   obtiko_study_banner_shown، بمعرّف الإشعار نفسه — وهو معرّف ثابت
    بالفعل بحسب study-later.js: sl_<docId>_<count> — فلا يوجد أي تكرار
    حتى لو حفظ المستخدم عشرات الصفحات). اللافتة تظهر بحد أقصى 3 مرات
    لكل تذكير، ثم تختفي نهائيًا مع بقاء التذكير في سجل 🔔، وتظهر مرة
@@ -42,7 +42,7 @@ function fmtDate(ms) {
 }
 
 /* ═══════════ عدّاد ظهور لافتة التذكير (مستقل لكل تذكير، أقصاه 3) ═══════════ */
-var BANNER_SHOWN_KEY = 'bacorbit_study_banner_shown';
+var BANNER_SHOWN_KEY = 'obtiko_study_banner_shown';
 function loadBannerCounts() {
   try {
     var raw = localStorage.getItem(BANNER_SHOWN_KEY);
@@ -297,7 +297,7 @@ function init(ctx) {
         }
       }
     }, function (err) {
-      console.error('[BacOrbit][الإشعارات] تعذّر تحميل الإشعارات (على الأغلب Security Rules)', err);
+      console.error('[Obtiko][الإشعارات] تعذّر تحميل الإشعارات (على الأغلب Security Rules)', err);
     });
 
   ctx.db.collection('savedLessons')
@@ -306,7 +306,7 @@ function init(ctx) {
       savedItems = qs.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
       renderPanel();
     }, function (err) {
-      console.error('[BacOrbit][الإشعارات] تعذّر قراءة العناصر المحفوظة', err);
+      console.error('[Obtiko][الإشعارات] تعذّر قراءة العناصر المحفوظة', err);
     });
 }
 

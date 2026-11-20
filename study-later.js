@@ -1,5 +1,5 @@
 /* ============================================================
-   BacOrbit — study-later.js  (نسخة مُصلَحة)
+   Obtiko — study-later.js  (نسخة مُصلَحة)
    ميزة «الدراسة لاحقًا» — زر 🔖 واحد بجانب زر الوضع الداكن/الفاتح
    في: صفحات الدروس (L_*)، صفحات المواضيع (S_*)، سلاسل التمارين (I_*)
    وفقرات الإنجليزية (P_english).
@@ -35,7 +35,7 @@
 (function () {
 'use strict';
 
-var SESSION_KEY = 'bacorbit_study_reminded_session';
+var SESSION_KEY = 'obtiko_study_reminded_session';
 var RESUME_PARAM = 'bacResume';
 var UNIT_PARAM = 'bacUnit';
 var MAX_REMINDERS = 3;
@@ -169,7 +169,7 @@ function toast(msg) {
 }
 
 function explainError(err) {
-  console.error('[BacOrbit][الدراسة لاحقًا]', err);
+  console.error('[Obtiko][الدراسة لاحقًا]', err);
   var code = err && err.code;
   if (code === 'permission-denied') {
     return 'تعذّر الحفظ: قواعد Firestore لا تسمح بكتابة «savedLessons» — انشر القواعد المحدّثة';
@@ -293,7 +293,7 @@ function recordSaveNotification(id, title, link, newTab, savedRef) {
   return writeStudyNotification(id, title, link, newTab).then(function () {
     return savedRef.update({ notifSaved: true });
   }).catch(function (err) {
-    console.error('[BacOrbit][الدراسة لاحقًا] تعذّر تسجيل الإشعار (تحقّق من قواعد notifications)', err);
+    console.error('[Obtiko][الدراسة لاحقًا] تعذّر تسجيل الإشعار (تحقّق من قواعد notifications)', err);
   });
 }
 
@@ -470,7 +470,7 @@ function applyResumeIfNeeded() {
     } else if (scrollY) {
       setTimeout(doScroll, 500);
     }
-  }).catch(function (err) { console.error('[BacOrbit][الدراسة لاحقًا] تعذّر الاستعادة', err); });
+  }).catch(function (err) { console.error('[Obtiko][الدراسة لاحقًا] تعذّر الاستعادة', err); });
 }
 
 /* ═══════════ التذكيرات (نفس مجموعة الإشعارات 🔔) ═══════════
@@ -510,7 +510,7 @@ function runRemindersOnce(docs) {
     if (count >= MAX_REMINDERS || shown.has(doc.id)) return; /* لا تكرار في نفس الزيارة */
     due.push({ doc: doc, d: d, count: count });
   });
-  console.info('[BacOrbit][الدراسة لاحقًا] محفوظ: ' + docs.length + ' — مستحق للتذكير الآن: ' + due.length);
+  console.info('[Obtiko][الدراسة لاحقًا] محفوظ: ' + docs.length + ' — مستحق للتذكير الآن: ' + due.length);
   if (!due.length) return;
 
   due.forEach(function (it) {
@@ -522,7 +522,7 @@ function runRemindersOnce(docs) {
       reminderCount: ctxRef.firebase.firestore.FieldValue.increment(1),
       lastRemindedAt: serverTs()
     }).catch(function (err) {
-      console.error('[BacOrbit][الدراسة لاحقًا] تعذّر تحديث عدّاد التذكير', err);
+      console.error('[Obtiko][الدراسة لاحقًا] تعذّر تحديث عدّاد التذكير', err);
     });
 
     /* إشعار السجل: يُنشأ عند الحفظ؛ هنا فقط للوثائق التي لم يُسجَّل لها إشعار بعد */
@@ -548,7 +548,7 @@ function startListener() {
         runRemindersOnce(qs.docs ? qs.docs.slice() : []);
       }
     }, function (err) {
-      console.error('[BacOrbit][الدراسة لاحقًا] تعذّر تحميل العناصر المحفوظة (على الأغلب Security Rules)', err);
+      console.error('[Obtiko][الدراسة لاحقًا] تعذّر تحميل العناصر المحفوظة (على الأغلب Security Rules)', err);
     });
 }
 

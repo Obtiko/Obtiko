@@ -1,5 +1,5 @@
 /* ============================================================
-   BacOrbit — firebase-shared.js
+   Obtiko — firebase-shared.js
    تحميل كسول (lazy) لمكتبات Firebase (نفس مشروع bacorbit-c5d67
    المستخدم في بقية الموقع)، وتوفير هوية Anonymous Auth موحّدة —
    نفس هوية المنتدى تمامًا (نفس المتصفح ⇐ نفس UID) — لأي صفحة تحتاج
@@ -97,7 +97,7 @@ function boot() {
       });
     })
     .catch(function (err) {
-      console.error('[BacOrbit][Firebase] تعذّر تهيئة الاتصال', err);
+      console.error('[Obtiko][Firebase] تعذّر تهيئة الاتصال', err);
       readyPromise = null;
       throw err;
     });

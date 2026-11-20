@@ -1,5 +1,5 @@
 /* ============================================================
-   BacOrbit — submit-summary.js
+   Obtiko — submit-summary.js
    يتيح للمستخدم رفع ملخص (PDF) ليدخل مباشرة بحالة "pending" في
    Firestore (مجموعة summaries)، دون أي نشر مباشر. يعتمد على نفس
    هوية المستخدم المجهولة (Anonymous Auth) المستخدمة في المنتدى،
@@ -114,7 +114,7 @@ async function submitSummary(){
       reviewedBy: null
     });
 
-    showMsg('تم إرسال ملخصك بنجاح ✅ سيراجعه فريق BacOrbit قريبًا.', 'ok');
+    showMsg('تم إرسال ملخصك بنجاح ✅ سيراجعه فريق Obtiko قريبًا.', 'ok');
     $('#ssTitle').value = ''; $('#ssLevel').value = ''; $('#ssNote').value = '';
     fileInput.value = ''; $('#ssFileName').textContent = 'لم يتم اختيار ملف بعد';
   }catch(err){
