@@ -1285,15 +1285,15 @@
      "المكتسبات القبلية" (play.html) يبقى متاحًا كبطاقة مميزة في
      الصفحة الرئيسية كما هو، فقط محتوى قائمة ☰ تحديدًا يُوحَّد الآن. */
   var BAC_NAV_ITEMS = [
-    { label: 'الصفحة الرئيسية',   icon: '🏠', path: 'index.html' },
-    { label: 'المنتدى',           icon: '📚', path: 'chat.html' },
-    { label: 'المكتبة',           icon: '📖', path: 'library.html' },
-    { label: 'نصائح و توجيهات',   icon: '💡', path: 'guidance.html' },
-    { label: 'المكتسبات القبلية', icon: '🧠', path: 'play.html' },
-    { label: 'إضافة ملفات',       icon: '📤', path: 'add-files.html' },
-    { label: 'حساب المعدل',       icon: '🧮', path: 'calculator.html' },
-    { label: 'الدعم',             icon: '🎧', href: 'https://www.facebook.com/profile.php?id=61593220613025', external: true },
-    { label: 'السياسة والخصوصية', icon: '🛡️', path: 'privacy.html' }
+    { label: 'الصفحة الرئيسية',   icon: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10', path: 'index.html' },
+    { label: 'المنتدى',           icon: 'M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', path: 'chat.html' },
+    { label: 'المكتبة',           icon: 'M2 4h7a3 3 0 0 1 3 3v14a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v14a2 2 0 0 1 2-2h8z', path: 'library.html' },
+    { label: 'نصائح و توجيهات',   icon: 'M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z', path: 'guidance.html' },
+    { label: 'المكتسبات القبلية', icon: 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3', path: 'play.html' },
+    { label: 'إضافة ملفات',       icon: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12', path: 'add-files.html' },
+    { label: 'حساب المعدل',       icon: 'M5 2h14a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01', path: 'calculator.html' },
+    { label: 'الدعم',             icon: 'M3 18v-6a9 9 0 0 1 18 0v6M21 19a2 2 0 0 1-2 2h-1v-7h3zM3 19a2 2 0 0 0 2 2h1v-7H3z', href: 'https://www.facebook.com/profile.php?id=61593220613025', external: true },
+    { label: 'السياسة والخصوصية', icon: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z', path: 'privacy.html' }
   ];
 
   function bacNavPathPrefix() {
@@ -1320,7 +1320,12 @@
         link.href = prefix + item.path;
       }
 
-      link.innerHTML = '<span class="nav-menu-item-icon">' + item.icon + '</span>' + item.label;
+      link.innerHTML = '<span class="nav-menu-item-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + item.icon + '"/></svg></span>' + item.label;
+      var curFile = location.pathname.split('/').pop() || 'index.html';
+      if (item.path && (item.path === curFile || (item.path === 'index.html' && location.pathname.indexOf('/Branches/') !== -1))) {
+        link.classList.add('active');
+        link.setAttribute('aria-current', 'page');
+      }
       panel.appendChild(link);
     });
   }
@@ -1397,6 +1402,7 @@
       .then(function (ctx) {
         if (ctx && ctx.me && ctx.me.banned) return;
         bacRecordVisit(ctx && ctx.db, ctx && ctx.me && ctx.me.uid, ctx && ctx.firebase);
+        bacSetUserName(ctx);
         if (window.BacNotifications) window.BacNotifications.init(ctx);
         if (window.BacStudyLater) window.BacStudyLater.init(ctx);
       })
@@ -2406,6 +2412,94 @@
   }
 
   /* ---------------------------------------------------------
+     8ح. هوية التصميم الجديدة: شعار الشريط العلوي + آخر الدروس المزارة
+     --------------------------------------------------------- */
+  function ensureBrand() {
+    var topBar = document.getElementById('topBar');
+    if (!topBar || topBar.querySelector('.bac-brand')) return;
+    var a = document.createElement('a');
+    a.className = 'bac-brand';
+    a.href = bacNavPathPrefix() + 'index.html';
+    a.setAttribute('aria-label', 'Obtiko');
+    a.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="7"/><ellipse cx="20" cy="20" rx="17" ry="6.5" transform="rotate(-25 20 20)"/></svg><span>Obt<b>iko</b></span>';
+    topBar.insertBefore(a, topBar.firstChild);
+  }
+
+  var BAC_RECENT_KEY = 'obtiko_recent_lessons_v1';
+  var BAC_ICONS = {
+    sigma: 'M18 7V4H6l6 8-6 8h12v-3',
+    flask: 'M9 3h6M10 3v6l-5.2 9.3A1.6 1.6 0 0 0 6.2 21h11.6a1.6 1.6 0 0 0 1.4-2.7L14 9V3M7.5 15h9',
+    chart: 'M4 20h16M6 16l4.5-4.5 3 3L20 8M15 8h5v5',
+    tri: 'M12 4l9 16H3zM12 10l4.5 8h-9z',
+    book: 'M2 4h7a3 3 0 0 1 3 3v14a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v14a2 2 0 0 1 2-2h8z'
+  };
+  function bacRecentIcon(url) {
+    var u = url.toLowerCase();
+    if (/math/.test(u)) return ['sigma', 'ic-purple'];
+    if (/physic|science/.test(u)) return ['flask', 'ic-blue'];
+    if (/economy|law|accounting/.test(u)) return ['chart', 'ic-purple'];
+    if (/civil|mechanical|electrical|transport/.test(u)) return ['tri', 'ic-green'];
+    return ['book', 'ic-orange'];
+  }
+  function bacLoadRecent() {
+    try { var r = JSON.parse(localStorage.getItem(BAC_RECENT_KEY)); return Array.isArray(r) ? r : []; }
+    catch (e) { return []; }
+  }
+
+  function initRecentLessons() {
+    var path = location.pathname;
+    if (/\/(L_|I_|P_)[^\/]*\.html$/.test(path)) {
+      var h = qs('.hero h1');
+      var title = stripLead(h ? h.textContent : document.title);
+      if (title) {
+        var list = bacLoadRecent().filter(function (x) { return x && x.url !== path; });
+        list.unshift({ url: path, title: title });
+        try { localStorage.setItem(BAC_RECENT_KEY, JSON.stringify(list.slice(0, 3))); } catch (e) {}
+      }
+    }
+
+    var bar = document.getElementById('bacUserbar');
+    var box = document.getElementById('bacRecentList');
+    if (!bar || !box) return;
+    var recent = bacLoadRecent();
+    var cont = document.getElementById('bacContinue');
+    box.innerHTML = '';
+    if (!recent.length) {
+      box.innerHTML = '<span class="bac-recent-empty">لم تفتح أي درس بعد — ابدأ بأي مادة وستظهر دروسك هنا تلقائيًا.</span>';
+      if (cont) cont.style.display = 'none';
+      bar.hidden = false;
+      return;
+    }
+    recent.forEach(function (it) {
+      var I = window.BacIcons, key = I ? I.keyFor(it.url) : 'book';
+      var a = document.createElement('a');
+      a.className = 'bac-chip';
+      a.href = it.url;
+      a.innerHTML = (I ? I.badge(key) : '') + '<span class="bac-chip-txt"><small></small><b></b></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>';
+      a.querySelector('small').textContent = I ? I.label(key) : '';
+      a.querySelector('b').textContent = it.title;
+      box.appendChild(a);
+    });
+    if (cont) { cont.style.display = ''; cont.href = recent[0].url; }
+    bar.hidden = false;
+  }
+
+  function bacSetUserName(ctx) {
+    var el = document.getElementById('bacUserName');
+    if (el && ctx && ctx.me && ctx.me.name) el.textContent = ctx.me.name;
+  }
+
+  function initDesignV2() {
+    var l = document.createElement('link');
+    l.rel = 'stylesheet'; l.href = siblingUrl('design-v2.css');
+    document.head.appendChild(l);
+    loadScriptTag(siblingUrl('icons.js')).then(function () {
+      if (window.BacIcons) window.BacIcons.decorate();
+      initRecentLessons();
+    }).catch(function () {});
+  }
+
+  /* ---------------------------------------------------------
      9. التهيئة العامة
      --------------------------------------------------------- */
   function init() {
@@ -2428,6 +2522,9 @@
     safeRun(initNavMenu, 'قائمة التنقل');
     safeRun(rebuildNavMenu, 'توحيد قائمة التنقل الجانبية');
     safeRun(ensureNavActions, 'حاوية أزرار الشريط العلوي');
+    safeRun(ensureBrand, 'شعار الشريط العلوي');
+    safeRun(initRecentLessons, 'آخر الدروس المزارة');
+    safeRun(initDesignV2, 'التصميم الجديد والأيقونات');
     safeRun(initBacCloudFeatures, 'الإشعارات والدراسة لاحقًا');
     safeRun(initPhysicsBanners, 'لافتات أسئلة الفيزياء');
     safeRun(initStudyTimer, 'مؤقت الدراسة');

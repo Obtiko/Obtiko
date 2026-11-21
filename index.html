@@ -139,6 +139,18 @@
     <div class="logo">Obtiko</div>
 </header>
 
+<section class="bac-userbar" id="bacUserbar" hidden>
+    <a class="bac-continue" id="bacContinue" href="#">متابعة التعلم <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h7a3 3 0 0 1 3 3v14a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v14a2 2 0 0 1 2-2h8z"/></svg></a>
+    <div class="bac-recent">
+        <div class="bac-recent-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></svg>آخر الدروس التي زرتها</div>
+        <div class="bac-recent-list" id="bacRecentList"></div>
+    </div>
+    <div class="bac-user">
+        <span class="bac-avatar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7z"/></svg><i></i></span>
+        <span id="bacUserName">طالب Obtiko</span>
+    </div>
+</section>
+
 <section class="hero">
     <h1>اختر شعبتك الدراسية</h1>
     <p>ابدأ رحلتك نحو البكالوريا</p>
@@ -146,25 +158,29 @@
 
 <section class="branches">
 
-
-    <div class="card" data-branch-key="science" data-branch-name="علوم تجريبية" data-branch-url="Branches/1_science.html">
-        <h2>علوم تجريبية</h2>
-        <p>الدخول إلى شعبة العلوم التجريبية</p>
-    </div>
-
     <div class="card" data-branch-key="math" data-branch-name="رياضيات" data-branch-url="Branches/1_math.html">
+        <span class="bac-card-icon ic-green"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8.5 7h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01" stroke-width="2.4"/></svg></span>
         <h2>رياضيات</h2>
         <p>الدخول إلى شعبة الرياضيات</p>
+        <span class="bac-card-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg></span>
     </div>
-
+    <div class="card" data-branch-key="science" data-branch-name="علوم تجريبية" data-branch-url="Branches/1_science.html">
+        <span class="bac-card-icon ic-blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5.2 9.3A1.6 1.6 0 0 0 6.2 21h11.6a1.6 1.6 0 0 0 1.4-2.7L14 9V3M7.5 15h9"/></svg></span>
+        <h2>علوم تجريبية</h2>
+        <p>الدخول إلى شعبة العلوم التجريبية</p>
+        <span class="bac-card-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg></span>
+    </div>
     <div class="card" data-branch-key="technical" data-branch-name="الهندسة (تقني رياضي)" data-branch-url="Branches/1_technical.html">
+        <span class="bac-card-icon ic-orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21 20H3z"/><path d="M12 10l4.5 8h-9z"/></svg></span>
         <h2>تقني رياضي</h2>
         <p>الدخول إلى شعبة الهندسة</p>
+        <span class="bac-card-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg></span>
     </div>
-
     <div class="card" data-branch-key="economy" data-branch-name="تسيير واقتصاد" data-branch-url="Branches/1_economy.html">
+        <span class="bac-card-icon ic-purple"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 16l4.5-4.5 3 3L20 8M15 8h5v5"/></svg></span>
         <h2>تسيير واقتصاد</h2>
         <p>الدخول إلى شعبة تسيير واقتصاد</p>
+        <span class="bac-card-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg></span>
     </div>
 
 </section>

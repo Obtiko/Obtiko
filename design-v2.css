@@ -1,0 +1,64 @@
+/* Obtiko — design-v2.css : طبقة تحسين بصري فوق style.css (تُحمَّل بعده تلقائيًا من script.js) */
+:root{
+  --bg:#020605;--card-bg:#06100b;--header-bg:rgba(3,10,7,.8);
+  --border:rgba(26,255,102,.4);--empty-border:rgba(26,255,102,.14);
+  --text-secondary:#a9b8af;--featured-tint:#0a2216;
+  --bac-glass:linear-gradient(145deg,rgba(0,210,95,.17),rgba(0,210,95,.03) 38%,rgba(0,0,0,.4));
+  --bac-shadow:0 18px 50px rgba(0,0,0,.65),0 0 22px rgba(26,255,102,.08),inset 0 1px 0 rgba(255,255,255,.06);
+}
+html[data-theme="light"]{
+  --bg:#fffaf3;--card-bg:#fbf7f2;--header-bg:rgba(255,250,243,.86);
+  --border:rgba(255,138,31,.5);--empty-border:#eadfd2;--text-secondary:#5c5c5c;
+  --bac-glass:linear-gradient(145deg,rgba(255,138,31,.15),rgba(255,138,31,.02) 42%,rgba(255,255,255,.45));
+  --bac-shadow:0 12px 34px rgba(120,70,10,.12),0 0 20px rgba(255,138,31,.1);
+}
+
+/* ---- الأيقونات ---- */
+.bac-ico{--ic:#1aff66;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ic)}
+.bac-ico.c-green{--ic:#1aff66}.bac-ico.c-blue{--ic:#29c5ff}.bac-ico.c-orange{--ic:#ffb02e}
+.bac-ico.c-purple{--ic:#a463ff}.bac-ico.c-teal{--ic:#2de2b4}
+.bac-ico svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 7px color-mix(in srgb,currentColor 55%,transparent))}
+
+/* ---- بطاقات الشعب (الرئيسية) ---- */
+html .branches{max-width:1240px;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;padding:26px 20px}
+html .branches .card{min-height:204px;padding:26px 24px;row-gap:34px;border-radius:26px}
+html .branches .card .bac-card-icon{width:78px;height:78px}
+html .branches .card .bac-card-icon svg{width:78px;height:78px;stroke-width:1.5}
+html .branches .card h2{font-size:25px;line-height:1.3}
+html .bac-card-arrow{width:44px;height:44px}
+@media (max-width:1100px){html .branches{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){
+  html .branches{grid-template-columns:1fr;gap:14px;padding:14px}
+  html .branches .card{min-height:150px;padding:20px;row-gap:18px}
+  html .branches .card .bac-card-icon,html .branches .card .bac-card-icon svg{width:62px;height:62px}
+  html .branches .card h2{font-size:22px}
+}
+
+/* ---- شريط آخر الدروس ---- */
+.bac-userbar{max-width:1240px;padding:16px 22px;gap:20px}
+.bac-recent-list{display:flex;flex-wrap:nowrap;gap:12px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
+.bac-recent-list::-webkit-scrollbar{display:none}
+.bac-chip{flex:0 0 auto;gap:11px;padding:8px 14px 8px 12px;border-radius:16px;min-width:190px;
+  background:linear-gradient(145deg,rgba(26,255,102,.08),rgba(255,255,255,.02));border:1px solid var(--empty-border)}
+.bac-chip:hover{border-color:var(--accent);box-shadow:0 0 16px var(--accent-glow)}
+.bac-chip .bac-ico{width:36px;height:36px}
+.bac-chip .bac-ico svg{width:100%;height:100%}
+.bac-chip-txt{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.35}
+.bac-chip-txt small{font-size:11px;color:var(--text-secondary)}
+.bac-chip-txt b{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+.bac-recent-empty{color:var(--text-secondary);font-size:13px;line-height:1.8}
+@media (max-width:900px){.bac-chip{min-width:170px}}
+
+/* ---- أيقونات بطاقات المواد داخل صفحات الشعب ---- */
+.subjects > .card:not(.topic-card):not(.card-empty) > h2{display:flex;align-items:center;gap:14px;margin-bottom:0}
+.card-sub-ico{width:46px;height:46px}
+.subjects > .card:not(.topic-card) .subject-content{margin-top:18px}
+
+/* ---- خلفية أعمق وتوهج ناعم ---- */
+body::before{background-image:
+  radial-gradient(ellipse 55% 40% at 92% 0%,rgba(0,200,90,.12),transparent 70%),
+  radial-gradient(ellipse 50% 40% at 2% 100%,rgba(0,200,90,.09),transparent 70%),
+  linear-gradient(var(--bg-grid) 1px,transparent 1px),linear-gradient(90deg,var(--bg-grid) 1px,transparent 1px)}
+body::after{opacity:.9}
+html[data-theme="light"] body::before{background-image:none}
