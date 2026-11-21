@@ -2620,17 +2620,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
     to   { opacity: 1; }
 }
 
-.hero { animation: bacFadeUp 0.5s var(--bac-ease) backwards; }
-
-.branches > .card,
-.subjects > .card {
-    animation: bacFadeUp 0.45s var(--bac-ease) backwards;
-}
-.branches > .card:nth-child(2), .subjects > .card:nth-child(2) { animation-delay: 0.04s; }
-.branches > .card:nth-child(3), .subjects > .card:nth-child(3) { animation-delay: 0.08s; }
-.branches > .card:nth-child(4), .subjects > .card:nth-child(4) { animation-delay: 0.12s; }
-.branches > .card:nth-child(5), .subjects > .card:nth-child(5) { animation-delay: 0.16s; }
-.branches > .card:nth-child(n+6), .subjects > .card:nth-child(n+6) { animation-delay: 0.2s; }
+/* (أنيميشن الدخول القديم استُبدل بالنظام المتتابع في القسم 24 أدناه) */
 
 @keyframes bacSubjectOpen {
     from { opacity: 0; transform: translateY(-8px); }
@@ -2657,4 +2647,93 @@ button, a { -webkit-tap-highlight-color: transparent; }
         animation: none !important;
     }
     html { scroll-behavior: auto; }
+}
+
+/* ---------- 24. أنيميشن الدخول المتتابع (Fade + Slide Up) في كل الصفحات ----------
+   الترتيب: الهيدر والشعار ← عنوان الصفحة ← الوصف ← الأقسام (شريط/بطاقة/أدوات)
+   ← البطاقات واحدة تلو الأخرى (فاصل 55ms، وبعد البطاقة 12 تظهر الباقية معها
+   حتى لا يتأخر التصفح). يعمل تلقائيًا أيضًا على العناصر التي تُرسم بالـJavaScript
+   لأن الأنيميشن يبدأ لحظة إدراج العنصر. fill-mode: backwards فقط، فلا يتعارض
+   مع تأثيرات :hover/:active. يُعطَّل كليًا مع prefers-reduced-motion. */
+
+:root { --bac-y: 22px; --bac-ease-out: cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes bacRise {
+    from { opacity: 0; transform: translate3d(0, var(--bac-y, 22px), 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@media (max-width: 480px) { :root { --bac-y: 16px; } }
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* 1) الهيدر والشعار */
+  header.site-header { animation: bacFadeIn 0.5s ease backwards; }
+  header.site-header .logo { animation: bacRise 0.6s var(--bac-ease-out) 0.05s backwards; }
+
+  /* 2) عنوان الصفحة ثم الوصف */
+  .hero > h1 { --bac-base: 0.12s; }
+  .hero > p  { --bac-base: 0.2s; }
+  .hero > h1, .hero > p {
+      animation: bacRise 0.65s var(--bac-ease-out) backwards;
+      animation-delay: var(--bac-base);
+  }
+
+  /* 3) الأقسام الرئيسية (عناصر مفردة) */
+  .score-bar, .progress-track, .branch-tabs, .library-controls, .guidance-section-head,
+  .download-all-section, .teacher-group-title { --bac-base: 0.26s; }
+  .tips-list { --bac-base: 0.28s; }
+  .calc-card, .policy-card, .ss-card, .af-card, .new-post { --bac-base: 0.32s; }
+  .ss-mine, .af-mine { --bac-base: 0.42s; }
+  .bac-countdown-section { --bac-base: 0.55s; }
+
+  /* 4) البطاقات والعناصر المتتابعة */
+  .library-grid > .book-card { --bac-base: 0.2s; }
+  #slList > * { --bac-base: 0.1s; }
+
+  /* رقم الترتيب (--bac-i) لأول 12 عنصرًا في كل مجموعة */
+  :is(.branches, .subjects, .lessons, .library-grid, .resource-grid, .teacher-grid, .im-units, .ii-units, .ip-units, .is-units, .pe-units, #slList) > :nth-child(2) { --bac-i: 1; }
+  :is(.branches, .subjects, .lessons, .library-grid, .resource-grid, .teacher-grid, .im-units, .ii-units, .ip-units, .is-units, .pe-units, #slList) > :nth-child(3) { --bac-i: 2; }
+  :is(.branches, .subjects, .lessons, .library-grid, .resource-grid, .teacher-grid, .im-units, .ii-units, .ip-units, .is-units, .pe-units, #slList) > :nth-child(4) { --bac-i: 3; }
+  :is(.branches, .subjects, .lessons, .library-grid, .resource-grid, .teacher-grid, .im-units, .ii-units, .ip-units, .is-units, .pe-units, #slList) > :nth-child(5) { --bac-i: 4; }
+  :is(.branches, .subjects, .lessons, .library-grid, .resource-grid, .teacher-grid, .im-units, .ii-units, .ip-units, .is-units, .pe-units, #slList) > :nth-child(6) { --bac-i: 5; }
+  :is(.branches, .subjects, .lessons, .library-grid, .resource-grid, .teacher-grid, .im-units, .ii-units, .ip-units, .is-units, .pe-units, #slList) > :nth-child(7) { --bac-i: 6; }
+  :is(.branches, .subjects, .lessons, .library-grid, .resource-grid, .teacher-grid, .im-units, .ii-units, .ip-units, .is-units, .pe-units, #slList) > :nth-child(8) { --bac-i: 7; }
+  :is(.branches, .subjects, .lessons, .library-grid, .resource-grid, .teacher-grid, .im-units, .ii-units, .ip-units, .is-units, .pe-units, #slList) > :nth-child(9) { --bac-i: 8; }
+  :is(.branches, .subjects, .lessons, .library-grid, .resource-grid, .teacher-grid, .im-units, .ii-units, .ip-units, .is-units, .pe-units, #slList) > :nth-child(10) { --bac-i: 9; }
+  :is(.branches, .subjects, .lessons, .library-grid, .resource-grid, .teacher-grid, .im-units, .ii-units, .ip-units, .is-units, .pe-units, #slList) > :nth-child(11) { --bac-i: 10; }
+  :is(.branches, .subjects, .lessons, .library-grid, .resource-grid, .teacher-grid, .im-units, .ii-units, .ip-units, .is-units, .pe-units, #slList) > :nth-child(n+12) { --bac-i: 11; }
+
+  /* 5) تطبيق الحركة على الكل بنفس المنحنى والمدة */
+  .score-bar,
+  .progress-track,
+  .branch-tabs,
+  .calc-card,
+  .library-controls,
+  .guidance-section-head,
+  .tips-list,
+  .policy-card,
+  .ss-card,
+  .af-card,
+  .ss-mine,
+  .af-mine,
+  .new-post,
+  .download-all-section,
+  .teacher-group-title,
+  .bac-countdown-section,
+  .branches > *,
+  .subjects > *,
+  .lessons > .lesson,
+  .library-grid > .book-card,
+  .resource-grid > *,
+  .teacher-grid > *,
+  .im-units > *,
+  .ii-units > *,
+  .ip-units > *,
+  .is-units > *,
+  .pe-units > *,
+  #slList > * {
+      animation: bacRise 0.65s var(--bac-ease-out) backwards;
+      animation-delay: calc(var(--bac-base, 0.3s) + var(--bac-i, 0) * 0.055s);
+  }
 }
