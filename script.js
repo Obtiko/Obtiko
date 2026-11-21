@@ -2296,11 +2296,122 @@
   }
 
   /* ---------------------------------------------------------
+     8ز. أنيميشن الدخول حسب موضع البطاقة في الشبكة + فتح/إغلاق البطاقات بسلاسة
+     ------------------------------------------------------------
+     initGridStagger: يحسب لكل عنصر صفّه وعموده الفعليين (الصفوف من الأعلى للأسفل،
+     وداخل الصف من اليمين لليسار في RTL) ويضع --bac-d كتأخير للأنيميشن.
+     يراقب أيضًا الحاويات التي تُملأ لاحقًا بالـJS (مثل المكتبة).
+     initCardAccordion: يحرّك ارتفاع .subject-content بدل القفز المفاجئ،
+     بلا تغيير في HTML أو في حالة display التي تعتمد عليها ذاكرة البطاقات. */
+  var BAC_STAGGER_SEL = '.branches,.subjects,.lessons,.library-grid,.resource-grid,.teacher-grid,' +
+    '.im-units,.ii-units,.ip-units,.is-units,.pe-units,#slList';
+
+  function bacReducedMotion() {
+    return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function bacStaggerContainer(container) {
+    var kids = Array.prototype.filter.call(container.children, function (el) {
+      return !el.hasAttribute('data-bac-d') && el.offsetParent !== null;
+    });
+    if (!kids.length) return;
+
+    var rtl = getComputedStyle(container).direction === 'rtl';
+    var base = container.classList.contains('library-grid') ? 0.28 : (container.id === 'slList' ? 0.12 : 0.45);
+    var ROW = 0.13, COL = 0.075;
+
+    var rows = [];
+    kids.forEach(function (el) {
+      var top = el.offsetTop, row = null;
+      for (var i = 0; i < rows.length; i++) {
+        if (Math.abs(rows[i].top - top) < 4) { row = rows[i]; break; }
+      }
+      if (!row) { row = { top: top, items: [] }; rows.push(row); }
+      row.items.push(el);
+    });
+    rows.sort(function (a, b) { return a.top - b.top; });
+
+    rows.forEach(function (row, r) {
+      row.items.sort(function (a, b) { return rtl ? b.offsetLeft - a.offsetLeft : a.offsetLeft - b.offsetLeft; });
+      row.items.forEach(function (el, c) {
+        var d = base + Math.min(r, 5) * ROW + Math.min(c, 5) * COL;
+        el.style.setProperty('--bac-d', d.toFixed(3) + 's');
+        el.setAttribute('data-bac-d', '1');
+      });
+    });
+  }
+
+  function initGridStagger() {
+    if (bacReducedMotion()) return;
+    var containers = qsa(BAC_STAGGER_SEL);
+    containers.forEach(function (container) {
+      bacStaggerContainer(container);
+      if (typeof MutationObserver === 'function') {
+        new MutationObserver(function () { bacStaggerContainer(container); })
+          .observe(container, { childList: true });
+      }
+    });
+  }
+
+  function initCardAccordion() {
+    if (!qs('.subjects > .card .subject-content')) return;
+    var reduce = bacReducedMotion();
+
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (!t || !t.closest) return;
+      if (t.closest('.mini-card')) return;                 /* الانتقال يبقى كما هو */
+      var card = t.closest('.subjects > .card');
+      if (!card) return;
+      var content = card.querySelector(':scope > .subject-content');
+      if (!content) return;
+
+      e.stopPropagation();                                  /* يمنع toggleContent المضمّن في الصفحة */
+      if (content._bacBusy) return;
+
+      var isOpen = content.style.display === 'block';
+      if (reduce || typeof content.animate !== 'function') {
+        content.style.display = isOpen ? 'none' : 'block';
+        return;
+      }
+
+      var ease = 'cubic-bezier(0.22, 0.61, 0.36, 1)';
+      content._bacBusy = true;
+      content.style.overflow = 'hidden';
+
+      if (!isOpen) {
+        content.style.display = 'block';
+        var h = content.getBoundingClientRect().height;
+        var mt = parseFloat(getComputedStyle(content).marginTop) || 0;
+        var a = content.animate(
+          [{ height: '0px', marginTop: '0px', opacity: 0 }, { height: h + 'px', marginTop: mt + 'px', opacity: 1 }],
+          { duration: 420, easing: ease }
+        );
+        a.onfinish = a.oncancel = function () { content.style.overflow = ''; content._bacBusy = false; };
+      } else {
+        var h0 = content.getBoundingClientRect().height;
+        var mt0 = parseFloat(getComputedStyle(content).marginTop) || 0;
+        var b = content.animate(
+          [{ height: h0 + 'px', marginTop: mt0 + 'px', opacity: 1 }, { height: '0px', marginTop: '0px', opacity: 0 }],
+          { duration: 320, easing: ease, fill: 'forwards' }
+        );
+        b.onfinish = b.oncancel = function () {
+          content.style.display = 'none';
+          b.cancel();
+          content.style.overflow = '';
+          content._bacBusy = false;
+        };
+      }
+    }, true);
+  }
+
+  /* ---------------------------------------------------------
      9. التهيئة العامة
      --------------------------------------------------------- */
   function init() {
     safeRun(ensureFavicon, 'أيقونة الموقع (favicon)');
     safeRun(initThemeToggle, 'الوضع الداكن/الفاتح');
+    safeRun(initGridStagger, 'أنيميشن الدخول حسب موضع البطاقة');
     safeRun(initMotivationalLine, 'الجملة التحفيزية تحت العنوان');
     safeRun(initTopBarScroll, 'الشريط العلوي');
     safeRun(ensureImageViewer, 'مكبر الصور الموحّد');
@@ -2311,6 +2422,7 @@
     safeRun(preloadReader, 'تحميل القارئ مسبقًا');
     safeRun(initLessonAutoReader, 'فتح القارئ مباشرة في صفحات الدروس');
     safeRun(initBranchStateMemory, 'تذكر حالة بطاقات الشعبة عند الرجوع');
+    safeRun(initCardAccordion, 'فتح/إغلاق بطاقات المواد بسلاسة');
     safeRun(restoreReturnScroll, 'استعادة موضع التمرير عند العودة من القارئ');
     safeRun(ensureToggleContentFallback, 'toggleContent الاحتياطي');
     safeRun(initNavMenu, 'قائمة التنقل');
