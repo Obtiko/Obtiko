@@ -1,0 +1,190 @@
+/* ============================================================
+   Obtiko — topbar-v3.css  (طبقة فوق style.css، تُحمَّل من script.js)
+   الترتيب (من اليمين): ☰ القائمة ← الشعار ← … ← المؤقت ← النشاطات ← تنزيل/حفظ ← الوضع
+   يعتمد على display:contents + order فلا يتأثر بتأخر ظهور أزرار الإشعارات/الحفظ.
+   ============================================================ */
+:root{--bac-spring:cubic-bezier(.34,1.56,.64,1);--bac-smooth:cubic-bezier(.22,.61,.36,1)}
+
+/* ---------- 1) التخطيط ---------- */
+html .top-bar{gap:10px}
+html .top-bar > .nav-menu-wrap:not(.stage-skip-wrap),
+html .top-bar .bac-nav-actions,
+html .top-bar .bac-sl-group{display:contents}
+
+html .top-bar #navMenuBtn{display:inline-flex;order:0}
+html .top-bar .bac-brand{order:1;margin-inline-end:auto;gap:10px}
+html .top-bar .bac-timer-btn{order:3}
+html .top-bar .bac-notif-btn{order:4}
+html .top-bar #bacDlBtn,
+html .top-bar .bac-sl-btn{order:5}
+html .top-bar .theme-switch,
+html .top-bar > .top-bar-right-group{order:9}
+
+/* القائمة المنسدلة دائمًا (حتى على الشاشات العريضة) تحت زر ☰ في أقصى اليمين */
+html .top-bar .nav-menu-panel{
+  position:absolute;top:calc(100% + 12px);right:12px;left:auto;margin:0;order:0;
+  min-width:240px;flex-direction:column;gap:2px;padding:8px;
+  border:1.5px solid var(--border);border-radius:18px;
+  background:rgba(7,15,11,.96);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  box-shadow:0 18px 44px rgba(0,0,0,.38);
+  opacity:0;visibility:hidden;transform:translateY(-8px) scale(.97);transform-origin:top right;
+  transition:opacity .25s var(--bac-smooth),transform .3s var(--bac-spring),visibility .25s;
+}
+html[data-theme="light"] .top-bar .nav-menu-panel{background:rgba(255,250,243,.97)}
+html .top-bar .nav-menu-panel.open{opacity:1;visibility:visible;transform:none}
+html .top-bar .nav-menu-item{padding:12px 14px;gap:10px;font-size:14.5px;white-space:normal}
+html .top-bar .nav-menu-item.active::after{display:none}
+
+/* ---------- 2) أزرار الشريط: مؤقت / نشاطات / تنزيل / حفظ ---------- */
+html .top-bar :is(.bac-timer-btn,.bac-notif-btn,#bacDlBtn,.bac-sl-btn){
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0;
+  height:44px;width:auto;min-width:44px;padding:0 14px;margin:0;border-radius:14px;cursor:pointer;
+  font-family:inherit;font-size:13px;font-weight:700;line-height:1;
+  transition:transform .35s var(--bac-spring),box-shadow .3s var(--bac-smooth),background-color .25s ease,border-color .25s ease,color .25s ease,opacity .25s ease;
+}
+html .top-bar :is(.bac-timer-btn,.bac-notif-btn){background:var(--track-bg);border:1px solid var(--border);color:var(--accent)}
+html .top-bar :is(.bac-timer-btn,.bac-notif-btn)::after{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap}
+html .top-bar .bac-timer-btn::after{content:"المؤقت"}
+html .top-bar .bac-notif-btn::after{content:"النشاطات"}
+html .top-bar .bac-notif-btn{font-size:0}                 /* يخفي الإيموجي القديم قبل استبداله بأيقونة */
+html .top-bar :is(.bac-timer-btn,.bac-notif-btn):hover,
+html .top-bar #navMenuBtn:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 6px 18px var(--accent-glow)}
+html .top-bar :is(.bac-timer-btn,.bac-notif-btn,#bacDlBtn,.bac-sl-btn,#navMenuBtn):active{transform:scale(.92);transition-duration:.1s}
+html .top-bar :is(.bac-timer-btn,.bac-notif-btn,#bacDlBtn,.bac-sl-btn,#navMenuBtn):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+html .top-bar #navMenuBtn{transition:transform .35s var(--bac-spring),box-shadow .3s var(--bac-smooth),border-color .25s ease}
+
+.bac-tb-ic{width:20px;height:20px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+html .top-bar .bac-timer-btn svg{width:20px;height:20px}
+
+/* زر «تنزيل» + «حفظ»: مُعبَّأ بلون الهوية فيبرز عن بقية الأزرار */
+html .top-bar :is(#bacDlBtn,.bac-sl-btn){
+  color:#000;border:1px solid var(--accent);overflow:hidden;
+  background:linear-gradient(135deg,rgba(255,255,255,.34),rgba(255,255,255,0) 55%),var(--accent);
+  box-shadow:0 4px 16px var(--accent-glow);
+}
+html .top-bar :is(#bacDlBtn,.bac-sl-btn):hover{transform:translateY(-2px) scale(1.04);box-shadow:0 8px 24px var(--accent-glow)}
+html .top-bar :is(#bacDlBtn,.bac-sl-btn)::before{
+  content:"";position:absolute;top:0;bottom:0;left:0;width:38%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);
+  transform:translateX(-170%) skewX(-20deg);
+}
+.bac-dl-label,.bac-sl-btn .bac-lbl{white-space:nowrap}
+.bac-dl-label{display:inline-block;overflow:hidden;max-width:120px;transition:max-width .5s var(--bac-smooth),opacity .4s ease,margin .4s ease}
+
+/* حالة «محفوظ» */
+html .top-bar .bac-sl-btn .bac-lbl-on{display:none}
+html .top-bar .bac-sl-btn.saved{background:var(--featured-tint);color:var(--accent);border-color:var(--accent)}
+html .top-bar .bac-sl-btn.saved .bac-lbl-on{display:inline}
+html .top-bar .bac-sl-btn.saved .bac-lbl-off{display:none}
+html .top-bar .bac-sl-btn.saved .bac-tb-ic path{fill:currentColor}
+html .top-bar .bac-sl-btn.saved::before{display:none}
+html .top-bar .bac-sl-btn:disabled{opacity:.65;cursor:wait}
+
+/* في صفحات التمارين/المواضيع: «حفظ» يحل محل «تنزيل» */
+html.bac-save-mode #bacDlBtn{display:none}
+
+/* ---------- 3) حركة زر «تنزيل» ---------- */
+#bacDlBtn{animation:bacDlIn .8s var(--bac-spring) backwards,bacDlIdle 5s ease-in-out 2s infinite}
+#bacDlBtn::before{animation:bacDlShineIdle 7s ease-in-out 3s infinite}
+.bac-sl-btn{animation:bacDlIn .7s var(--bac-spring) backwards}
+#bacDlBtn.bac-dl-attn{animation:bacDlIn .8s var(--bac-spring) backwards,bacDlRing 1.5s ease-out .9s 4}
+#bacDlBtn.bac-dl-attn::before{animation:bacDlShine 1.4s ease-in-out .8s 3}
+#bacDlBtn.bac-dl-attn .bac-tb-ic{animation:bacDlArrow .9s ease-in-out .9s infinite}
+
+@keyframes bacDlIn{
+  0%{opacity:0;transform:translateY(-18px) scale(.4) rotate(-14deg)}
+  60%{opacity:1;transform:translateY(2px) scale(1.12) rotate(3deg)}
+  100%{opacity:1;transform:none}
+}
+@keyframes bacDlRing{
+  0%{box-shadow:0 0 0 0 var(--accent-glow),0 4px 16px var(--accent-glow)}
+  100%{box-shadow:0 0 0 16px transparent,0 4px 16px var(--accent-glow)}
+}
+@keyframes bacDlIdle{
+  0%,100%{box-shadow:0 4px 14px var(--accent-glow)}
+  50%{box-shadow:0 4px 28px var(--accent)}
+}
+@keyframes bacDlArrow{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
+@keyframes bacDlShine{0%{transform:translateX(-170%) skewX(-20deg)}100%{transform:translateX(330%) skewX(-20deg)}}
+@keyframes bacDlShineIdle{0%{transform:translateX(-170%) skewX(-20deg)}22%,100%{transform:translateX(330%) skewX(-20deg)}}
+
+/* ---------- 4) الشاشات: النصوص تظهر على الواسعة وتختفي على الضيقة ---------- */
+@media (max-width:820px){
+  html .top-bar :is(.bac-timer-btn,.bac-notif-btn){width:44px;padding:0}
+  html .top-bar :is(.bac-timer-btn,.bac-notif-btn)::after{display:none}
+}
+@media (max-width:560px){
+  html .top-bar .bac-sl-btn .bac-lbl{display:none}
+  html .top-bar .bac-sl-btn{width:44px;padding:0}
+  html .top-bar #bacDlBtn:not(.bac-dl-attn){padding:0 12px}
+  html .top-bar #bacDlBtn:not(.bac-dl-attn) .bac-dl-label{max-width:0;opacity:0;margin-inline-start:-8px}
+}
+@media (max-width:480px){
+  html .top-bar{gap:6px}
+  html .top-bar :is(.bac-timer-btn,.bac-notif-btn,.bac-sl-btn,#navMenuBtn){width:40px;min-width:40px;height:40px;border-radius:12px}
+  html .top-bar #bacDlBtn{width:40px;min-width:40px;height:40px;padding:0;border-radius:12px}
+  html .top-bar #bacDlBtn .bac-dl-label{display:none}
+  html .top-bar .bac-brand{font-size:21px;gap:6px}
+  html .top-bar .nav-menu-panel{right:8px;min-width:220px}
+}
+@media (max-width:420px){
+  html .top-bar .theme-switch{zoom:.82}
+}
+
+/* ---------- 5) حركة النقر (Ripple) وانتقالات الأزرار العامة ---------- */
+.bac-rp-host{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:1}
+.bac-rp{position:absolute;border-radius:50%;background:currentColor;opacity:.26;transform:scale(0);animation:bacRipple .6s var(--bac-smooth) forwards}
+@keyframes bacRipple{to{transform:scale(1);opacity:0}}
+
+html .back{position:relative}
+html :is(.back,.submit-btn,.restart-btn,.calc-btn,.book-btn,.lib-chip,.branch-tab,.download-all-btn,.action-btn,.sl-btn,.bac-branch-modal-btn,.bac-change-branch-link,.topic-download-btn:not(.bac-side-download):not(.bac-image-viewer-download)){
+  transition:transform .3s var(--bac-spring),box-shadow .3s var(--bac-smooth),background-color .25s ease,border-color .25s ease,color .25s ease,opacity .25s ease;
+}
+html :is(.back,.submit-btn,.restart-btn,.calc-btn,.book-btn,.lib-chip,.branch-tab,.download-all-btn,.action-btn,.sl-btn,.bac-branch-modal-btn,.bac-change-branch-link,.topic-download-btn:not(.bac-side-download):not(.bac-image-viewer-download)):active{
+  transform:scale(.95);transition-duration:.12s;
+}
+html :is(.back,.submit-btn,.restart-btn,.calc-btn,.book-btn,.lib-chip,.branch-tab,.download-all-btn,.action-btn,.sl-btn,.topic-download-btn):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* ---------- 6) صفحة «نصائح وتوجيهات»: نص أكبر وأوضح ---------- */
+html .tips-list{max-width:820px;padding:10px 30px}
+html .tips-list li{
+  font-size:clamp(17px,4.2vw,20px);line-height:2.15;font-weight:700;
+  color:var(--text);padding:18px 4px;gap:14px;
+}
+html .tips-list .tip-bullet{font-size:24px;line-height:2}
+
+/* ---------- 7) زر «حفظ الشعبة» أكثر بروزًا ---------- */
+html .bac-change-branch-link.bac-save-branch-link{
+  position:relative;font-size:15px;font-weight:800;line-height:1.5;letter-spacing:.2px;
+  padding:12px 30px;border:0;border-radius:999px;color:#000;
+  background:linear-gradient(135deg,rgba(255,255,255,.34),rgba(255,255,255,0) 55%),var(--accent);
+  box-shadow:0 8px 26px var(--accent-glow);
+  animation:bacSaveBranchPulse 2.4s ease-out infinite;
+}
+html .bac-change-branch-link.bac-save-branch-link:hover{
+  color:#000;border:0;transform:translateY(-3px) scale(1.05);
+  background:linear-gradient(135deg,rgba(255,255,255,.34),rgba(255,255,255,0) 55%),var(--accent);
+  box-shadow:0 12px 32px var(--accent-glow);
+}
+@keyframes bacSaveBranchPulse{
+  0%{box-shadow:0 8px 26px var(--accent-glow),0 0 0 0 var(--accent-glow)}
+  70%,100%{box-shadow:0 8px 26px var(--accent-glow),0 0 0 16px transparent}
+}
+
+/* ---------- 8) إتاحة الحركة ---------- */
+@media (prefers-reduced-motion:reduce){
+  #bacDlBtn,#bacDlBtn::before,#bacDlBtn .bac-tb-ic,.bac-sl-btn,
+  html .bac-change-branch-link.bac-save-branch-link{animation:none!important}
+  .bac-rp{display:none}
+}
+
+/* ---------- 9) توست تلميح التثبيت ---------- */
+.bac-tb-toast{
+  position:fixed;left:50%;bottom:24px;z-index:9000;max-width:min(92vw,420px);
+  transform:translate(-50%,16px);opacity:0;pointer-events:none;text-align:center;
+  background:var(--card-bg);border:2px solid var(--accent);color:var(--text);
+  padding:12px 20px;border-radius:14px;font-size:13.5px;font-weight:700;line-height:1.8;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);transition:opacity .3s ease,transform .35s var(--bac-spring);
+}
+.bac-tb-toast.show{opacity:1;transform:translate(-50%,0)}

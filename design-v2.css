@@ -62,3 +62,57 @@ body::before{background-image:
   linear-gradient(var(--bg-grid) 1px,transparent 1px),linear-gradient(90deg,var(--bg-grid) 1px,transparent 1px)}
 body::after{opacity:.9}
 html[data-theme="light"] body::before{background-image:none}
+
+/* ===== اللوحة الذكية: نصفان متساويان ===== */
+.bac-userbar{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0;overflow:hidden;align-items:stretch}
+.bac-half{padding:22px 26px;min-width:0}
+.bac-bismillah{display:flex;align-items:center;justify-content:center;border-inline-end:1px solid var(--empty-border);
+  background:radial-gradient(ellipse 80% 90% at 50% 50%,rgba(255,154,60,.10),transparent 70%)}
+.bac-bismillah img{width:min(100%,430px);max-height:150px;object-fit:contain;filter:brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,.18))}
+html[data-theme="light"] .bac-bismillah{background:linear-gradient(135deg,#ff8a1f,#ffb25c)}
+.bac-recent{border:0;padding-inline:26px}
+.bac-recent-list{flex-direction:column;flex-wrap:nowrap;overflow:visible;gap:10px}
+.bac-chip{min-width:0;width:100%;border-radius:14px}
+.bac-chip-txt b{max-width:none}
+@media (max-width:760px){
+  .bac-userbar{grid-template-columns:1fr}
+  .bac-bismillah{border-inline-end:0;border-bottom:1px solid var(--empty-border)}
+  .bac-bismillah img{max-height:110px}
+}
+
+/* ===== خلفية: لمسات برتقالية وزرقاء هادئة بجانب الأخضر ===== */
+body::before{background-image:
+  radial-gradient(ellipse 55% 40% at 92% 0%,rgba(0,200,90,.11),transparent 70%),
+  radial-gradient(ellipse 40% 32% at 50% -4%,rgba(255,154,60,.08),transparent 70%),
+  radial-gradient(ellipse 38% 34% at 100% 62%,rgba(41,168,255,.08),transparent 70%),
+  radial-gradient(ellipse 42% 34% at 0% 46%,rgba(255,154,60,.06),transparent 70%),
+  radial-gradient(ellipse 50% 40% at 2% 100%,rgba(41,168,255,.08),transparent 70%),
+  linear-gradient(var(--bg-grid) 1px,transparent 1px),linear-gradient(90deg,var(--bg-grid) 1px,transparent 1px)}
+.branches .card:nth-child(2)::before{filter:hue-rotate(150deg) saturate(.8)}
+.branches .card:nth-child(3)::before{filter:hue-rotate(-60deg) saturate(.9)}
+.branches .card:nth-child(4)::before{filter:hue-rotate(90deg) saturate(.7)}
+.bac-ico.c-orange{--ic:#ffa43a}.bac-ico.c-blue{--ic:#33b0ff}.bac-ico.c-red{--ic:#ff6b6b}
+
+/* ===== أيقونات البطاقات الصغيرة ووحدات الدروس ===== */
+.mini-card{display:flex;align-items:center;gap:11px}
+.mini-card .bac-ico{width:26px;height:26px}
+.mini-card span.mc-t{flex:1}
+.unit-ico-card{display:flex!important;align-items:center;justify-content:center;gap:14px}
+.unit-ico-card .bac-ico{width:34px;height:34px}
+.unit-ico-card.active .bac-ico{color:#000!important}
+.unit-ico-card.active .bac-ico svg{filter:none}
+
+/* ===== تعديل: بسملة صغيرة + آخر الدروس أفقيًا ===== */
+.bac-userbar{grid-template-columns:auto 1fr}
+.bac-half{padding:16px 22px}
+.bac-bismillah{padding-inline:26px}
+.bac-bismillah img{width:170px;max-width:100%;max-height:64px}
+.bac-recent-list{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:12px;padding-bottom:6px;scrollbar-width:none}
+.bac-recent-list::-webkit-scrollbar{display:none}
+.bac-chip{flex:0 0 auto;width:auto;min-width:190px}
+.bac-chip-txt b{max-width:170px}
+@media (max-width:760px){
+  .bac-userbar{grid-template-columns:1fr}
+  .bac-bismillah{padding:14px}
+  .bac-bismillah img{width:150px;max-height:56px}
+}
