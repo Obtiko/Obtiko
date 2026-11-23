@@ -3084,3 +3084,80 @@ html .bac-sl-banner { top: 92px; }
     .bac-userbar { width: calc(100% - 20px); padding: 14px; }
     body::after { background-size: 85vw auto, 85vw auto; opacity: .7; }
 }
+
+
+/* ==========================================================
+   27. تحسين الموجات الجانبية + سلاسة أنيميشن الإشعارات والمؤقت
+   (طبقة تحسين فقط: نفس أشكال الموجات ومواضعها وأبعادها، وبدون
+   أي تغيير في المنطق. selectors أعلى وزنًا لتعمل حتى لو حُمِّل design-v4.css)
+   ========================================================== */
+
+/* ---- الموجات: أخضر مسيطر + أزرق للتباين + برتقالي خفيف جدًا ---- */
+html body::after {
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 460'%3E%3Cdefs%3E%3ClinearGradient id='f' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23064D32' stop-opacity='0.6'/%3E%3Cstop offset='0.5' stop-color='%23087A43' stop-opacity='0.34'/%3E%3Cstop offset='1' stop-color='%2312C978' stop-opacity='0.07'/%3E%3C/linearGradient%3E%3ClinearGradient id='a' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23064D32' stop-opacity='0.85'/%3E%3Cstop offset='0.5' stop-color='%23087A43' stop-opacity='0.7'/%3E%3Cstop offset='1' stop-color='%2312C978' stop-opacity='0.45'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23075477' stop-opacity='0.75'/%3E%3Cstop offset='0.5' stop-color='%23087FA8' stop-opacity='0.55'/%3E%3Cstop offset='1' stop-color='%2339C9E8' stop-opacity='0.3'/%3E%3C/linearGradient%3E%3Cfilter id='s' x='-20%' y='-20%' width='140%' height='140%'%3E%3CfeGaussianBlur stdDeviation='3'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M0 0H520C430 90 330 120 230 190 120 265 50 340 0 440Z' fill='url(%23f)'/%3E%3Cpath d='M0 440C50 340 120 265 230 190 330 120 430 90 520 0' fill='none' stroke='url(%23a)' stroke-width='6' opacity='0.22' filter='url(%23s)'/%3E%3Cpath d='M0 440C50 340 120 265 230 190 330 120 430 90 520 0' fill='none' stroke='url(%23a)' stroke-width='2'/%3E%3Cpath d='M0 370C60 295 140 228 240 165 340 100 420 58 470 0' fill='none' stroke='url(%23b)' stroke-width='1.5'/%3E%3C/svg%3E") left top / min(52vw, 720px) auto no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 460'%3E%3Cdefs%3E%3ClinearGradient id='f' x1='1' y1='1' x2='0' y2='0'%3E%3Cstop offset='0' stop-color='%23064D32' stop-opacity='0.6'/%3E%3Cstop offset='0.5' stop-color='%23087A43' stop-opacity='0.34'/%3E%3Cstop offset='1' stop-color='%2312C978' stop-opacity='0.07'/%3E%3C/linearGradient%3E%3ClinearGradient id='a' x1='1' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23075477' stop-opacity='0.75'/%3E%3Cstop offset='0.5' stop-color='%23087FA8' stop-opacity='0.6'/%3E%3Cstop offset='1' stop-color='%2339C9E8' stop-opacity='0.35'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' x1='1' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23A94F18' stop-opacity='0.5'/%3E%3Cstop offset='0.5' stop-color='%23D87929' stop-opacity='0.4'/%3E%3Cstop offset='1' stop-color='%23FFB65C' stop-opacity='0.22'/%3E%3C/linearGradient%3E%3Cfilter id='s' x='-20%' y='-20%' width='140%' height='140%'%3E%3CfeGaussianBlur stdDeviation='3'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M700 460H180C270 370 370 340 470 270 580 195 650 120 700 20Z' fill='url(%23f)'/%3E%3Cpath d='M700 20C650 120 580 195 470 270 370 340 270 370 180 460' fill='none' stroke='url(%23a)' stroke-width='6' opacity='0.22' filter='url(%23s)'/%3E%3Cpath d='M700 20C650 120 580 195 470 270 370 340 270 370 180 460' fill='none' stroke='url(%23a)' stroke-width='2'/%3E%3Cpath d='M700 90C640 165 560 232 460 295 360 360 280 400 230 460' fill='none' stroke='url(%23b)' stroke-width='1.1'/%3E%3C/svg%3E") right bottom / min(52vw, 720px) auto no-repeat;
+}
+html[data-theme="light"] body::after { filter: none; opacity: .6; }
+@media (max-width: 480px) {
+    html body::after { background-size: 85vw auto, 85vw auto; opacity: .7; }
+}
+
+/* ---- لوحة الإشعارات: ظهور واختفاء ناعمان (كانت display:none فلا تتحرك) ---- */
+@keyframes bacNotifItemIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes bacNotifBadgePop { 0% { transform: scale(.6); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+@keyframes bacNotifBell { 0%, 88%, 100% { transform: rotate(0); } 92% { transform: rotate(8deg); } 96% { transform: rotate(-6deg); } }
+@keyframes bacTimerRing { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+
+html .bac-notif-panel {
+    display: block; visibility: hidden; opacity: 0; pointer-events: none;
+    transform: translateY(-10px) scale(.97); transform-origin: top center;
+    transition: opacity .25s var(--bac-ease), transform .35s var(--bac-ease), visibility 0s linear .35s;
+}
+html .bac-notif-panel.open {
+    visibility: visible; opacity: 1; pointer-events: auto; transform: none;
+    transition: opacity .25s var(--bac-ease), transform .35s var(--bac-ease), visibility 0s;
+}
+html .bac-notif-panel.open .bac-notif-item { animation: bacNotifItemIn .32s var(--bac-ease) backwards; }
+html .bac-notif-panel.open .bac-notif-item:nth-child(3) { animation-delay: .04s; }
+html .bac-notif-panel.open .bac-notif-item:nth-child(4) { animation-delay: .08s; }
+html .bac-notif-panel.open .bac-notif-item:nth-child(n+5) { animation-delay: .12s; }
+.bac-notif-badge.show { animation: bacNotifBadgePop .4s var(--bac-ease); }
+.bac-notif-btn:has(.bac-notif-badge.show) svg { transform-origin: 50% 10%; animation: bacNotifBell 6s ease-in-out 1.5s infinite; }
+
+/* لافتة التذكير (دراسة لاحقًا): دخول وخروج أنعم */
+html .bac-study-banner { transform: translateY(-12px) scale(.97); transition: opacity .35s var(--bac-ease), transform .45s var(--bac-ease); }
+html .bac-study-banner.show { transform: none; }
+html .bac-sl-banner { transition: opacity .35s var(--bac-ease), transform .45s var(--bac-ease), visibility .35s; }
+
+/* ---- المؤقت: فتح وإغلاق ناعمان + ضغط أزرار طبيعي ---- */
+html .bac-timer-widget {
+    display: flex; visibility: hidden; opacity: 0; pointer-events: none;
+    transform: translateY(14px) scale(.96); transform-origin: bottom left;
+    transition: opacity .3s var(--bac-ease), transform .4s var(--bac-ease), visibility 0s linear .4s, left 0s, top 0s;
+}
+html .bac-timer-widget.open {
+    visibility: visible; opacity: 1; pointer-events: auto; transform: none;
+    transition: opacity .3s var(--bac-ease), transform .4s var(--bac-ease), visibility 0s, left 0s, top 0s;
+}
+html .bac-timer-widget.dragging { transition: none; }
+html :is(.bac-timer-primary-btn, .bac-timer-secondary-btn, .bac-timer-adjust-btn) {
+    transition: transform .25s var(--bac-ease), box-shadow .25s ease, background-color .25s ease, border-color .25s ease, color .25s ease;
+}
+html :is(.bac-timer-primary-btn, .bac-timer-secondary-btn, .bac-timer-adjust-btn):active { transform: scale(.95); transition-duration: .1s; }
+.bac-timer-display { font-variant-numeric: tabular-nums; }
+.bac-timer-btn.active .bac-timer-badge { animation: bacNotifBadgePop .4s var(--bac-ease); }
+
+/* نافذة انتهاء الوقت: ظهور تدريجي بدل القفز */
+html .bac-timer-finish-overlay { display: flex; opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s linear .3s; }
+html .bac-timer-finish-overlay.show { opacity: 1; visibility: visible; transition: opacity .3s ease, visibility 0s; }
+html .bac-timer-finish-card { animation: none; transform: scale(.94) translateY(10px); transition: transform .45s var(--bac-ease); }
+html .bac-timer-finish-overlay.show .bac-timer-finish-card { transform: none; }
+html .bac-timer-finish-overlay.show .bac-timer-finish-icon { animation: bacTimerRing 1s ease .3s 2; }
+
+@media (prefers-reduced-motion: reduce) {
+    html .bac-notif-panel, html .bac-timer-widget, html .bac-timer-finish-card,
+    html .bac-timer-finish-overlay, html .bac-study-banner, html .bac-sl-banner { transition-duration: .01s; }
+    html .bac-notif-panel.open .bac-notif-item, .bac-notif-badge.show, .bac-timer-btn.active .bac-timer-badge,
+    .bac-notif-btn:has(.bac-notif-badge.show) svg, html .bac-timer-finish-overlay.show .bac-timer-finish-icon { animation: none; }
+}
