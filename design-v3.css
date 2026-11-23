@@ -1,0 +1,182 @@
+/* Obtiko — design-v3.css : ألوان أهدأ (أخضر + أزرق + برتقالي)، شريط علوي جديد، اللوحة الذكية، أيقونات الوحدات */
+:root{
+  --blue:#38bdf8; --orange:#ffa94d;
+  --accent-glow:rgba(26,255,102,.24); --accent-soft:rgba(26,255,102,.36);
+  --bac-glass:linear-gradient(145deg,rgba(26,255,102,.10),rgba(56,189,248,.04) 42%,rgba(255,169,77,.035) 78%,rgba(0,0,0,.3));
+  --bac-shadow:0 14px 40px rgba(0,0,0,.6),0 0 14px rgba(26,255,102,.05),inset 0 1px 0 rgba(255,255,255,.05);
+}
+html[data-theme="light"]{
+  --blue:#2a8fd6; --orange:#ff8a1f;
+  --accent-glow:rgba(255,138,31,.24); --accent-soft:rgba(255,138,31,.32);
+  --bac-glass:linear-gradient(145deg,rgba(255,138,31,.12),rgba(42,143,214,.05) 46%,rgba(255,255,255,.5));
+  --bac-shadow:0 12px 30px rgba(120,70,10,.10),0 0 12px rgba(255,138,31,.06);
+}
+
+/* ---- الخلفية: أخضر + لمسات زرقاء وبرتقالية هادئة ---- */
+body::before{
+  background-image:
+    radial-gradient(ellipse 55% 42% at 92% 0%,rgba(0,200,90,.11),transparent 70%),
+    radial-gradient(ellipse 46% 38% at 0% 42%,rgba(56,189,248,.095),transparent 70%),
+    radial-gradient(ellipse 50% 40% at 100% 88%,rgba(255,169,77,.08),transparent 70%),
+    radial-gradient(ellipse 50% 38% at 2% 100%,rgba(0,200,90,.08),transparent 70%),
+    linear-gradient(var(--bg-grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--bg-grid) 1px,transparent 1px);
+  background-size:auto,auto,auto,auto,34px 34px,34px 34px;
+}
+html[data-theme="light"] body::before{
+  background-image:
+    radial-gradient(ellipse 55% 42% at 92% 0%,rgba(255,138,31,.10),transparent 70%),
+    radial-gradient(ellipse 46% 40% at 0% 42%,rgba(56,160,230,.09),transparent 70%),
+    radial-gradient(ellipse 50% 40% at 100% 90%,rgba(255,201,77,.10),transparent 70%);
+  background-size:auto;
+}
+.bac-ico svg{filter:drop-shadow(0 0 3px color-mix(in srgb,currentColor 35%,transparent))}
+.bac-card-icon svg{filter:drop-shadow(0 0 4px currentColor)}
+.back{box-shadow:0 0 10px var(--accent-glow)}
+.hero h1::after{background:linear-gradient(90deg,transparent,var(--blue))}
+.hero h1::before{background:linear-gradient(270deg,transparent,var(--accent))}
+.top-bar{box-shadow:0 10px 32px rgba(0,0,0,.45),0 0 12px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.05)}
+.top-bar::after{content:"";position:absolute;left:28px;right:28px;bottom:0;height:1px;pointer-events:none;opacity:.55;
+  background:linear-gradient(90deg,transparent,var(--blue),var(--accent),var(--orange),transparent)}
+
+/* ---- الشريط العلوي: ☰ ثم الشعار ثم المؤقت ثم النشاطات ثم تنزيل/حفظ ---- */
+.top-bar > .nav-menu-wrap:not(.stage-skip-wrap),.top-bar .bac-nav-actions{display:contents}
+.top-bar #navMenuBtn{order:1;display:inline-flex}
+.top-bar .bac-brand{order:2}
+.top-bar #bacTimerBtn{order:3}
+.top-bar #bacNotifBtn{order:4}
+.top-bar #pwaInstallBtn,.top-bar #bacSlBtn{order:5}
+.top-bar > .theme-switch,.top-bar > .top-bar-right-group,.top-bar > .bac-sl-group{order:20;margin-inline-start:auto}
+.top-bar .nav-menu-panel{right:14px;left:auto}
+body.bac-save-page .top-bar #pwaInstallBtn{display:none}
+@media (min-width:1300px){
+  .top-bar #navMenuBtn{display:inline-flex}
+  .top-bar .nav-menu-panel{position:absolute;order:0;margin-inline:0;min-width:226px;flex-direction:column;gap:2px;padding:8px;
+    border:1.5px solid var(--border);background:rgba(7,15,11,.96);box-shadow:0 16px 40px rgba(0,0,0,.28);
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);opacity:0;visibility:hidden;transform:translateY(-8px) scale(.97)}
+  .top-bar .nav-menu-panel.open{opacity:1;visibility:visible;transform:none}
+  .top-bar .nav-menu-item{padding:12px 14px;gap:10px;font-size:14.5px}
+  .top-bar .nav-menu-item.active::after{display:none}
+}
+.nav-menu-panel.open .nav-menu-item{animation:bacItemIn .32s var(--bac-ease-out,ease) both}
+.nav-menu-panel.open .nav-menu-item:nth-child(2){animation-delay:.03s}.nav-menu-panel.open .nav-menu-item:nth-child(3){animation-delay:.06s}
+.nav-menu-panel.open .nav-menu-item:nth-child(4){animation-delay:.09s}.nav-menu-panel.open .nav-menu-item:nth-child(5){animation-delay:.12s}
+.nav-menu-panel.open .nav-menu-item:nth-child(n+6){animation-delay:.15s}
+@keyframes bacItemIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+
+.top-bar .bac-timer-btn,.top-bar .bac-notif-btn,.top-bar .bac-sl-btn{
+  width:auto;min-width:44px;height:44px;padding:0 13px;gap:8px;margin:0;display:inline-flex;align-items:center;justify-content:center;
+  font-family:inherit;font-size:13px;font-weight:700;border-radius:12px;color:var(--accent);background:var(--track-bg);
+  border:1px solid var(--border);cursor:pointer;flex-shrink:0;white-space:nowrap}
+.top-bar .bac-notif-btn{color:var(--blue);border-color:color-mix(in srgb,var(--blue) 45%,transparent)}
+.top-bar .bac-sl-btn{color:var(--orange);border-color:color-mix(in srgb,var(--orange) 50%,transparent)}
+.top-bar .bac-sl-btn.saved{background:color-mix(in srgb,var(--orange) 14%,var(--track-bg))}
+.top-bar .bac-sl-btn.saved svg path{fill:currentColor}
+.top-bar .bac-timer-btn svg,.top-bar .bac-notif-btn svg,.top-bar .bac-sl-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.top-bar .bac-notif-btn:hover,.top-bar .bac-sl-btn:hover{box-shadow:0 0 12px var(--accent-glow)}
+
+/* زر التنزيل البارز */
+.top-bar .bac-install-btn{position:relative;display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border:0;border-radius:12px;
+  cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:800;color:#04140a;white-space:nowrap;overflow:hidden;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),#8dffbd 55%,var(--blue));box-shadow:0 6px 18px rgba(0,0,0,.35)}
+html[data-theme="light"] .top-bar .bac-install-btn{color:#2b1500;background:linear-gradient(135deg,var(--accent),#ffd08a)}
+.top-bar .bac-install-btn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.top-bar .bac-install-btn::after{content:"";position:absolute;inset:0;pointer-events:none;transform:translateX(-130%);
+  background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);animation:bacInstShine 4.5s ease-in-out 1.4s infinite}
+.top-bar .bac-install-btn:disabled{opacity:.6;cursor:wait}
+.top-bar .bac-install-btn.bac-intro{animation:bacInstIn .85s cubic-bezier(.34,1.56,.64,1) both,bacInstRing 1.6s ease-out .85s 4}
+.top-bar .bac-install-btn.bac-intro svg{animation:bacInstArrow .9s ease-in-out infinite}
+@keyframes bacInstShine{0%,65%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+@keyframes bacInstIn{0%{opacity:0;transform:translateY(-20px) scale(.55)}100%{opacity:1;transform:none}}
+@keyframes bacInstRing{0%{box-shadow:0 0 0 0 var(--accent-glow),0 6px 18px rgba(0,0,0,.35)}100%{box-shadow:0 0 0 14px transparent,0 6px 18px rgba(0,0,0,.35)}}
+@keyframes bacInstArrow{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
+
+@media (max-width:700px){
+  .top-bar{gap:7px;padding:8px 12px}
+  .top-bar .bac-btn-label{display:none}
+  .top-bar .bac-timer-btn,.top-bar .bac-notif-btn,.top-bar .bac-sl-btn,.top-bar #navMenuBtn{width:40px;min-width:40px;height:40px;padding:0}
+  .top-bar .bac-install-btn{height:40px;padding:0 11px}
+  .top-bar .bac-install-btn.bac-intro .bac-btn-label{display:inline}
+  .top-bar .bac-brand{font-size:20px}
+  .top-bar .bac-brand svg{width:24px;height:24px}
+  .top-bar .theme-switch{width:54px}
+}
+@media (max-width:400px){.top-bar .bac-brand span{display:none}}
+
+/* ---- اللوحة الذكية: نصفان متساويان ---- */
+.bac-userbar.bac-smart{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0;padding:0;overflow:hidden;align-items:stretch;min-height:0}
+.bac-userbar.bac-smart[hidden]{display:none}
+.bac-smart-half{padding:14px 22px;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.bac-smart-basmala{align-items:center;text-align:center;padding-inline:28px;background:radial-gradient(ellipse at 50% 50%,rgba(26,255,102,.07),transparent 70%)}
+html[data-theme="light"] .bac-smart-basmala{background:linear-gradient(135deg,#1c2b25,#0c1512)}
+.bac-smart-recent{border-inline-start:1px solid var(--empty-border)}
+.bac-basmala-img{display:block;width:170px;max-width:100%;max-height:62px;object-fit:contain;filter:brightness(0) invert(1)}
+.bac-basmala-fallback{display:none;color:#fff;font-size:clamp(18px,2vw,24px);line-height:1.5;font-family:'Amiri','Scheherazade New','Traditional Arabic',serif;text-shadow:0 0 14px rgba(255,255,255,.2)}
+.bac-smart-recent .bac-recent-title{margin-bottom:12px}
+.bac-smart-recent .bac-recent-title{margin-bottom:8px}
+.bac-smart-recent .bac-recent-list{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:10px;padding:2px 2px 6px;scrollbar-width:none}
+.bac-smart-recent .bac-recent-list::-webkit-scrollbar{display:none}
+.bac-smart-recent .bac-chip{display:flex;flex:0 0 auto;min-width:190px;width:auto;border-radius:14px;padding:8px 12px}
+.bac-smart-recent .bac-chip-txt b{max-width:none}
+@media (max-width:560px){
+  .bac-userbar.bac-smart{grid-template-columns:1fr}
+  .bac-smart-recent{border-inline-start:0;border-top:1px solid var(--empty-border)}
+  .bac-smart-basmala{min-height:0;padding-block:10px}
+  .bac-basmala-img{width:150px;max-height:52px}
+  .bac-smart-recent .bac-chip{min-width:170px}
+}
+
+/* ---- أيقونات الوحدات والبطاقات الصغيرة ---- */
+.mini-card{display:flex;align-items:center;gap:12px;text-align:right}
+.mini-card .bac-ico{width:26px;height:26px}
+.bac-unit{display:flex!important;align-items:center;justify-content:center;gap:14px}
+.bac-unit .bac-ico{width:32px;height:32px}
+.bac-unit.active .bac-ico{color:#000}
+.bac-unit.active .bac-ico svg{filter:none}
+.topic-card h2 .bac-ico,.card-empty h2 .bac-ico{width:24px;height:24px;vertical-align:middle;margin-inline-end:8px}
+.card h2 .bac-ico.card-sub-ico{vertical-align:middle}
+
+/* ---- زر حفظ الشعبة ---- */
+.bac-save-branch-link.bac-change-branch-link{background:linear-gradient(135deg,var(--accent),#8dffbd);color:#04140a;border:0;padding:11px 28px;
+  font-size:14.5px;font-weight:800;box-shadow:0 8px 22px var(--accent-glow);animation:bacSavePulse 2.6s ease-in-out infinite}
+html[data-theme="light"] .bac-save-branch-link.bac-change-branch-link{color:#2b1500;background:linear-gradient(135deg,var(--accent),#ffd08a)}
+.bac-save-branch-link.bac-change-branch-link:hover{color:#04140a;transform:translateY(-2px);background:linear-gradient(135deg,#8dffbd,var(--accent))}
+@keyframes bacSavePulse{0%,100%{box-shadow:0 8px 22px var(--accent-glow)}50%{box-shadow:0 8px 30px var(--accent-soft)}}
+
+/* ---- سلاسة التنقل والنقر ---- */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:bacVtOut .2s ease both}
+::view-transition-new(root){animation:bacVtIn .32s cubic-bezier(.22,.61,.36,1) both}
+@keyframes bacVtOut{to{opacity:0;transform:translateY(-6px)}}
+@keyframes bacVtIn{from{opacity:0;transform:translateY(10px)}}
+a,button,.card,.mini-card{touch-action:manipulation}
+.bac-unit,.mini-card,.top-bar button{transition:transform .25s var(--bac-ease,ease),box-shadow .25s ease,background-color .25s ease,border-color .25s ease,color .25s ease}
+.bac-unit:active,.top-bar button:active{transform:scale(.96)}
+@media (prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  .top-bar .bac-install-btn,.top-bar .bac-install-btn::after,.top-bar .bac-install-btn svg,.bac-save-branch-link{animation:none!important}
+}
+
+/* شعار الشريط العلوي (الصورة الرسمية) */
+.bac-brand .bac-brand-logo{width:40px;height:40px;border-radius:11px;flex-shrink:0;object-fit:cover;box-shadow:0 0 12px var(--accent-glow)}
+@media (max-width:480px){.bac-brand .bac-brand-logo{width:32px;height:32px;border-radius:9px}}
+
+/* شعار الشريط العلوي: يحلّ محل حرف O بنسبته الأصلية وبوضوح */
+html .top-bar .bac-brand{gap:0}
+.bac-brand .bac-brand-logo{
+  width:auto;height:1.15em;max-width:none;
+  object-fit:contain;border-radius:0;box-shadow:none;
+  image-rendering:-webkit-optimizeContrast;
+}
+@media (max-width:480px){.bac-brand .bac-brand-logo{width:auto;height:1.15em;border-radius:0}}
+
+/* البسملة: الصورة الجديدة بخلفية سوداء ومربّعة؛ نخفي الخلفية بالدمج (screen)
+   ونقصّ الفراغ حول الخط دون تشويه (cover + موضع الخط) فيبقى الخط أبيض كما هو */
+.bac-smart-basmala .bac-basmala-img{
+  width:230px;max-width:100%;max-height:none;height:auto;
+  aspect-ratio:5/1;object-fit:cover;object-position:50% 48.6%;
+  filter:none;mix-blend-mode:screen;
+}
+@media (max-width:560px){
+  .bac-smart-basmala .bac-basmala-img{width:190px}
+}

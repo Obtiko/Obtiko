@@ -169,6 +169,7 @@ function build() {
         '<button type="button" class="bac-rd-btn" data-a="fitp" title="ملاءمة الصفحة كاملة">▯<span class="bac-rd-sm"> الصفحة</span></button>' +
       '</div>' +
       '<div class="bac-rd-grp">' +
+        '<button type="button" class="bac-rd-btn" data-a="save" id="bacRdSave" title="حفظ للدراسة لاحقًا" style="display:none"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg><span id="bacRdSaveTxt">حفظ</span></button>' +
         '<button type="button" class="bac-rd-btn" data-a="dl" id="bacRdDl" title="تنزيل">⬇<span id="bacRdDlTxt">تنزيل</span></button>' +
         '<button type="button" class="bac-rd-btn" data-a="fs" id="bacRdFs" title="ملء الشاشة">⛶</button>' +
       '</div>' +
@@ -180,7 +181,7 @@ function build() {
     '</div>';
   document.body.appendChild(root);
 
-  ['Title', 'Scroll', 'Pages', 'Page', 'Total', 'Zoom', 'Msg', 'Toast', 'Dl', 'DlTxt', 'Fs']
+  ['Title', 'Scroll', 'Pages', 'Page', 'Total', 'Zoom', 'Msg', 'Toast', 'Dl', 'DlTxt', 'Fs', 'Save', 'SaveTxt']
     .forEach(function (k) { el[k] = $('bacRd' + k); });
 
   root.addEventListener('click', function (e) {
@@ -247,6 +248,21 @@ function build() {
   });
 }
 
+function saveToggle() {
+  var SL = window.BacStudyLater;
+  if (!SL || !SL.ready || !SL.toggleForReader) { toast('ميزة الحفظ غير جاهزة بعد، حاول بعد لحظات', { err: true }); return; }
+  SL.toggleForReader(S.o);
+}
+function syncSave() {
+  if (!root || !el.Save) return;
+  var SL = window.BacStudyLater, can = !!(SL && SL.ready && SL.canSave && SL.canSave());
+  el.Save.style.display = can ? '' : 'none';
+  var on = !!(S && can && SL.isSavedForReader(S.o));
+  el.Save.classList.toggle('on', on);
+  el.SaveTxt.textContent = on ? 'محفوظ' : 'حفظ';
+}
+window.addEventListener('bac-sl-change', syncSave);
+
 function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
 
 function onKey(e) {
@@ -277,6 +293,7 @@ function act(a) {
     case 'fitp': fitPage(); break;
     case 'dl': download(); break;
     case 'fs': toggleFs(); break;
+    case 'save': saveToggle(); break;
   }
 }
 
@@ -311,6 +328,7 @@ function open(o) {
   /* o.history === false: فتح تلقائي عند دخول الصفحة (لا نضيف سجلًا، فيعود زر الرجوع مباشرة للصفحة السابقة) */
   if (!histPushed && o.history !== false) { try { history.pushState({ bacReader: 1 }, ''); histPushed = true; } catch (e) {} }
 
+  syncSave();
   if (S.type === 'images') initImages(); else initPdf();
   return true;
 }

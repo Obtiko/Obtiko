@@ -1,6 +1,6 @@
 /* ============================================================
    Obtiko — notifications.js
-   أيقونة 🔔 الإشعارات: تُضاف ديناميكيًا داخل .nav-menu-wrap مباشرة
+   أيقونة النشاطات: تُضاف ديناميكيًا داخل .nav-menu-wrap مباشرة
    بجانب زر القائمة ☰ (وليس كعنصر شقيق منفصل لـ #topBar)، حتى تظهر
    في نفس المكان تمامًا في كل صفحات الموقع بغض النظر عن اختلاف بنية
    الشريط العلوي (وجود .top-bar-right-group من عدمه، أو اختلاف معرّف
@@ -142,44 +142,27 @@ function hideStudyBanner() {
 function init(ctx) {
   if (!ctx || !ctx.db || !ctx.me) return;
   var topBar = document.getElementById('topBar');
-  if (!topBar || document.getElementById('bacNotifBtn')) return;
+  if (!topBar) return;
 
   ensureStyles();
 
-  var btn = document.createElement('button');
-  btn.type = 'button';
-  btn.id = 'bacNotifBtn';
-  btn.className = 'bac-notif-btn';
-  btn.setAttribute('aria-label', 'الإشعارات');
-  btn.title = 'الإشعارات';
-  btn.innerHTML = '🔔<span class="bac-notif-badge" id="bacNotifBadge">0</span>';
-  /* حاوية موحّدة لأزرار الشريط العلوي: تجمع ☰ و 🔔 و ⏱️ في صف واحد.
-     تبقى لوحة القائمة خارجها لأنها موضوعة absolute بالنسبة إلى .nav-menu-wrap. */
-  var navBtn = document.getElementById('navMenuBtn');
-  if (navBtn && navBtn.parentNode) {
-    var navActions = navBtn.parentNode.classList.contains('bac-nav-actions')
-      ? navBtn.parentNode
-      : navBtn.parentNode.querySelector('.bac-nav-actions');
-    if (!navActions) {
-      navActions = document.createElement('div');
-      navActions.className = 'bac-nav-actions';
-      navBtn.parentNode.insertBefore(navActions, navBtn.parentNode.firstChild);
-      navActions.appendChild(navBtn);
-    }
-    navActions.appendChild(btn);
-  } else {
-    var anchor = document.getElementById('themeToggle') || document.getElementById('themeSwitch');
-    if (anchor && anchor.parentNode) {
-      anchor.parentNode.insertBefore(btn, anchor);
-    } else {
-      topBar.appendChild(btn);
-    }
+  /* الزر يُنشأ مبكرًا من script.js (لثبات ترتيب الشريط)؛ نُنشئه هنا فقط إن لم يوجد */
+  var btn = document.getElementById('bacNotifBtn');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'bacNotifBtn';
+    btn.className = 'bac-notif-btn';
+    btn.setAttribute('aria-label', 'النشاطات');
+    btn.title = 'النشاطات';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10.3 21a2 2 0 0 0 3.4 0"/></svg><span class="bac-btn-label">النشاطات</span><span class="bac-notif-badge" id="bacNotifBadge">0</span>';
+    topBar.appendChild(btn);
   }
 
   var panel = document.createElement('div');
   panel.className = 'bac-notif-panel';
   panel.id = 'bacNotifPanel';
-  panel.innerHTML = '<div class="bac-notif-head">🔔 الإشعارات</div><div class="bac-notif-empty">لا توجد إشعارات بعد</div>';
+  panel.innerHTML = '<div class="bac-notif-head">النشاطات</div><div class="bac-notif-empty">لا توجد إشعارات بعد</div>';
   document.body.appendChild(panel);
 
   var open = false;
@@ -252,7 +235,7 @@ function init(ctx) {
     badge.textContent = unread > 9 ? '9+' : String(unread);
     badge.classList.toggle('show', unread > 0);
 
-    var head = '<div class="bac-notif-head">🔔 الإشعارات</div>';
+    var head = '<div class="bac-notif-head">النشاطات</div>';
     if (!items.length) {
       panel.innerHTML = head + '<div class="bac-notif-empty">لا توجد إشعارات بعد</div>';
     } else {

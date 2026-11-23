@@ -2,7 +2,8 @@
 <html lang="ar" dir="rtl">
 
 <head>
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" sizes="256x256" href="favicon.png?v=2">
+    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Obtiko | منصة مراجعة البكالوريا في الجزائر</title>
@@ -18,7 +19,7 @@
 <meta name="keywords" content="بكالوريا, BAC الجزائر, مواضيع البكالوريا, دروس البكالوريا, تصحيح نموذجي, شعبة علوم تجريبية, شعبة رياضيات, تقني رياضي, تسيير واقتصاد, Obtiko">
 <meta name="robots" content="index, follow">
 <meta name="author" content="Obtiko">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#000000">
 <meta http-equiv="Content-Language" content="ar">
 <link rel="canonical" href="https://obtiko.github.io/Obtiko/">
 
@@ -26,7 +27,7 @@
 
 <!-- ══ PWA: تثبيت الموقع كتطبيق (الصفحة الرئيسية فقط تعرض زر التثبيت) ══ -->
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
@@ -35,13 +36,16 @@
 <meta property="og:title" content="Obtiko | منصة مراجعة البكالوريا في الجزائر">
 <meta property="og:description" content="دروس، مواضيع سنوات سابقة، وتمارين تفاعلية لجميع شعب البكالوريا في الجزائر، مجاناً.">
 <meta property="og:url" content="https://obtiko.github.io/Obtiko/">
-<meta property="og:image" content="https://obtiko.github.io/Obtiko/assets/og-cover.png">
+<meta property="og:image" content="https://obtiko.github.io/Obtiko/assets/og-cover.png?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="شعار Obtiko">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Obtiko | منصة مراجعة البكالوريا في الجزائر">
 <meta name="twitter:description" content="دروس، مواضيع سنوات سابقة، وتمارين تفاعلية لجميع شعب البكالوريا في الجزائر، مجاناً.">
-<meta name="twitter:image" content="https://obtiko.github.io/Obtiko/assets/og-cover.png">
+<meta name="twitter:image" content="https://obtiko.github.io/Obtiko/assets/og-cover.png?v=2">
 
 <link rel="stylesheet" href="style.css">
 <script src="script.js"></script>
@@ -52,6 +56,8 @@
   "@type": "EducationalOrganization",
   "name": "Obtiko",
   "url": "https://obtiko.github.io/Obtiko/",
+  "logo": "https://obtiko.github.io/Obtiko/assets/logo.png",
+  "image": "https://obtiko.github.io/Obtiko/assets/og-cover.png",
   "description": "منصة مجانية لمراجعة البكالوريا في الجزائر: دروس، مواضيع سنوات سابقة، وتمارين تفاعلية لجميع الشعب.",
   "areaServed": "DZ",
   "inLanguage": "ar"
@@ -64,34 +70,11 @@
   "@type": "WebSite",
   "name": "Obtiko",
   "url": "https://obtiko.github.io/Obtiko/",
+  "image": "https://obtiko.github.io/Obtiko/assets/logo.png",
   "inLanguage": "ar"
 }
 </script>
 
-<style>
-/* ══ زر تنزيل الموقع (PWA) في الشريط العلوي بين ☰ و 🔔 ══
-   عند توفر التثبيت يتمدّد الزر لحظيًا بنص وأنيميشن جاذب ثم ينكمش ويبقى أيقونة. */
-.top-bar-right-group{display:flex;align-items:center;gap:10px}
-.pwa-install-btn{display:none;width:auto;min-width:44px;padding:0;gap:0;overflow:hidden;white-space:nowrap;color:var(--accent);
-    transition:padding .6s cubic-bezier(.4,0,.2,1),gap .6s ease,background-color .3s ease,border-color .3s ease,box-shadow .25s ease,transform .15s ease}
-.pwa-install-btn.pwa-visible{display:inline-flex;animation:pwaPop .55s cubic-bezier(.34,1.56,.64,1) both}
-.pwa-install-btn svg{width:20px;height:20px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.pwa-install-label{display:inline-block;max-width:0;opacity:0;font-size:12.5px;font-weight:bold;
-    transition:max-width .6s cubic-bezier(.4,0,.2,1),opacity .4s ease}
-.pwa-install-btn.pwa-attention{padding:0 14px;gap:8px;border-color:var(--accent);
-    animation:pwaPop .55s cubic-bezier(.34,1.56,.64,1) both,pwaRing 1.5s ease-out .5s infinite}
-.pwa-install-btn.pwa-attention .pwa-install-label{max-width:110px;opacity:1}
-.pwa-install-btn.pwa-attention svg{animation:pwaArrow .9s ease-in-out infinite}
-.pwa-install-btn:disabled{opacity:.6;cursor:wait}
-@keyframes pwaPop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
-@keyframes pwaRing{0%{box-shadow:0 0 0 0 var(--accent-glow)}100%{box-shadow:0 0 0 12px transparent}}
-@keyframes pwaArrow{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
-@media (max-width:420px){
-    .pwa-install-label{font-size:11px}
-    .pwa-install-btn.pwa-attention{padding:0 10px;gap:6px}
-    .pwa-install-btn.pwa-attention .pwa-install-label{max-width:78px}
-}
-</style>
 </head>
 
 <body>
@@ -105,10 +88,6 @@
                 <span class="nav-menu-bar"></span>
                 <span class="nav-menu-bar"></span>
             </span>
-        </button>
-        <button id="pwaInstallBtn" class="nav-menu-btn pwa-install-btn" type="button" aria-label="تنزيل الموقع كتطبيق" title="تنزيل الموقع كتطبيق">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 19h14"/></svg>
-            <span class="pwa-install-label">تنزيل التطبيق</span>
         </button>
 
         <div class="nav-menu-panel" id="navMenuPanel" role="menu" aria-hidden="true">
@@ -139,10 +118,13 @@
     <div class="logo">Obtiko</div>
 </header>
 
-<section class="bac-userbar" id="bacUserbar" hidden>
-    <div class="bac-half bac-bismillah"><img src="Bismillah.png" alt="بسم الله الرحمن الرحيم"></div>
-    <div class="bac-half bac-recent">
-        <div class="bac-recent-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></svg>آخر الدروس التي درستها</div>
+<section class="bac-userbar bac-smart" id="bacUserbar" hidden>
+    <div class="bac-smart-half bac-smart-basmala">
+        <img class="bac-basmala-img" src="assets/bismillah.png" alt="بسم الله الرحمن الرحيم" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span class="bac-basmala-fallback">بسم الله الرحمن الرحيم</span>
+    </div>
+    <div class="bac-smart-half bac-smart-recent">
+        <div class="bac-recent-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></svg>آخر الدروس التي زرتها</div>
         <div class="bac-recent-list" id="bacRecentList"></div>
     </div>
 </section>
@@ -167,7 +149,7 @@
         <span class="bac-card-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg></span>
     </div>
     <div class="card" data-branch-key="technical" data-branch-name="الهندسة (تقني رياضي)" data-branch-url="Branches/1_technical.html">
-        <span class="bac-card-icon ic-orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13a7 7 0 0 1 14 0"/><path d="M3 13h18v2.5H3z"/><path d="M12 6v7M9 8v5M15 8v5"/><path d="M5 20h14M8 20v-1.6M11 20v-1M14 20v-1.6M17 20v-1"/></svg></span>
+        <span class="bac-card-icon ic-orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10.5a5 5 0 0 1 10 0"/><path d="M5 10.5h14v2H5z"/><path d="M12 5.5v5"/><rect x="4" y="14.5" width="16" height="7" rx="1.2"/><path d="M8 20l3-4 3 4z"/><circle cx="17" cy="18" r="1.3"/></svg></span>
         <h2>تقني رياضي</h2>
         <p>الدخول إلى شعبة الهندسة</p>
         <span class="bac-card-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg></span>
@@ -190,65 +172,6 @@
 <footer>
     © 2026 Obtiko
 </footer>
-
-<script>
-/* ══ تنزيل/تثبيت الموقع (PWA) — الصفحة الرئيسية فقط ══
-   عند توفر التثبيت الفعلي (beforeinstallprompt) يظهر الزر في الشريط العلوي بين ☰ و 🔔
-   بأنيميشن جاذب (تمدّد + نبض + سهم) لبضع ثوانٍ ثم ينكمش ويبقى أيقونة صغيرة دائمة. */
-(function () {
-'use strict';
-var installBtn = document.getElementById('pwaInstallBtn');
-if (!installBtn) return;
-
-var deferredPrompt = null;
-var attentionTimer = null;
-var ATTENTION_MS = 5500;
-
-function isStandalone() {
-    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-}
-function endAttention() {
-    clearTimeout(attentionTimer);
-    installBtn.classList.remove('pwa-attention');
-}
-function triggerInstall() {
-    if (!deferredPrompt) return;
-    var promptEvent = deferredPrompt;
-    deferredPrompt = null;
-    endAttention();
-    installBtn.disabled = true;
-    promptEvent.prompt();
-    promptEvent.userChoice.finally(function () {
-        installBtn.disabled = false;
-        if (!deferredPrompt) installBtn.classList.remove('pwa-visible');
-    });
-}
-
-if (!isStandalone()) {
-    window.addEventListener('beforeinstallprompt', function (e) {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBtn.classList.add('pwa-visible');
-        void installBtn.offsetWidth;
-        installBtn.classList.add('pwa-attention');
-        clearTimeout(attentionTimer);
-        attentionTimer = setTimeout(endAttention, ATTENTION_MS);
-    });
-    installBtn.addEventListener('click', triggerInstall);
-    window.addEventListener('appinstalled', function () {
-        deferredPrompt = null;
-        endAttention();
-        installBtn.classList.remove('pwa-visible');
-    });
-}
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-        navigator.serviceWorker.register('service-worker.js').catch(function () {});
-    });
-}
-})();
-</script>
 
 </body>
 

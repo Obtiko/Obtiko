@@ -116,3 +116,18 @@ body::before{background-image:
   .bac-bismillah{padding:14px}
   .bac-bismillah img{width:150px;max-height:56px}
 }
+
+/* ===== تعديل: بسملة صغيرة أنيقة + آخر الدروس أفقيًا ===== */
+.bac-userbar{grid-template-columns:auto 1fr}
+.bac-half{padding:16px 22px}
+.bac-bismillah{padding-inline:26px}
+.bac-bismillah img{width:170px;max-width:100%;max-height:64px}
+.bac-recent-list{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:12px;padding-bottom:6px;scrollbar-width:none}
+.bac-recent-list::-webkit-scrollbar{display:none}
+.bac-chip{flex:0 0 auto;width:auto;min-width:190px}
+.bac-chip-txt b{max-width:170px}
+@media (max-width:760px){
+  .bac-userbar{grid-template-columns:1fr}
+  .bac-bismillah{padding:14px}
+  .bac-bismillah img{width:150px;max-height:56px}
+}

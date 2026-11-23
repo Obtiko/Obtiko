@@ -23,60 +23,6 @@ var ICONS = {
   info: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 21h8M12 16v5M10 8l-2 2 2 2M14 8l2 2-2 2"/>',
   book: '<path d="M2 4h7a3 3 0 0 1 3 3v14a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v14a2 2 0 0 1 2-2h8z"/>'
 };
-Object.assign(ICONS, {
-  engineer: '<path d="M5 13a7 7 0 0 1 14 0"/><path d="M3 13h18v2.5H3z"/><path d="M12 6v7M9 8v5M15 8v5"/><path d="M5 20h14M8 20v-1.6M11 20v-1M14 20v-1.6M17 20v-1"/>',
-  stopwatch: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6M12 2v3"/>',
-  gear: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/>',
-  signal: '<path d="M3 12h4l2-6 3 12 2-6h7"/>',
-  phdrop: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/><path d="M9.5 15a2.5 2.5 0 0 0 2.5 2.5"/>',
-  molecule: '<circle cx="6" cy="8" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 9l3 7M16 9l-3 7M8.5 8h7"/>',
-  battery: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M7 10v4M11 10v4"/>',
-  wave: '<path d="M2 12c2-6 4-6 6 0s4 6 6 0 4-6 6 0"/>',
-  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
-  shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
-  leaf: '<path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19l8-8"/>',
-  cycle: '<path d="M20 8a8 8 0 0 0-14-2M4 4v4h4M4 16a8 8 0 0 0 14 2M20 20v-4h-4"/>',
-  mountain: '<path d="M2 20l7-12 4 6 3-4 6 10z"/>',
-  expc: '<path d="M3 3v18h18"/><path d="M6 17c6 0 9-3 12-11"/>',
-  logc: '<path d="M3 3v18h18"/><path d="M6 8c1 7 5 9 12 9"/>',
-  seq: '<path d="M3 20h18"/><circle cx="6" cy="16" r="1.5"/><circle cx="11" cy="12" r="1.5"/><circle cx="16" cy="8" r="1.5"/><circle cx="20" cy="4.5" r="1"/>',
-  plusminus: '<path d="M12 4v10M7 9h10M7 19h10"/>',
-  dice: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h.01M16 8h.01M12 12h.01M8 16h.01M16 16h.01" stroke-width="2.6"/>',
-  complex: '<path d="M3 12h18M12 3v18"/><circle cx="16" cy="8" r="1.8"/><path d="M12 12l4-4"/>',
-  planet: '<circle cx="12" cy="12" r="5"/><ellipse cx="12" cy="12" rx="10" ry="3.5" transform="rotate(-20 12 12)"/>',
-  pencil: '<path d="M4 20l1-4L16 5l3 3L8 19zM14 7l3 3"/>',
-  layers: '<path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/>',
-  file: '<path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6"/>',
-  pen: '<path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/>'
-});
-var UNIT = {
-  kinetics:['stopwatch','c-orange'], mech:['gear','c-blue'], elec:['signal','c-orange'], ph:['phdrop','c-teal'],
-  nuclear:['physics','c-blue'], ester:['molecule','c-purple'], columns:['battery','c-green'], vibration:['wave','c-blue'],
-  protein_struct:['science','c-teal'], protein_func:['link','c-blue'], enzyme:['process','c-purple'], immunity:['shield','c-green'],
-  nerves:['electrical','c-orange'], photosynthesis:['leaf','c-green'], respiration:['cycle','c-blue'], tectonics:['mountain','c-orange'],
-  exp:['expc','c-green'], log:['logc','c-blue'], seq:['seq','c-orange'], num:['plusminus','c-purple'], prob:['dice','c-teal'], cplx:['complex','c-purple'],
-  meerath:['law','c-orange'], riba:['economy','c-green'], muamalat:['accounting','c-blue'],
-  ethics:['law','c-purple'], safety:['shield','c-orange'], astronomy:['planet','c-blue']
-};
-var MINI = [['المواضيع المتنوعة','layers','c-purple'],['مواضيع البكالوريا','file','c-orange'],['سلاسل','pencil','c-blue'],['فقرات','pen','c-teal'],['دروس','book','c-green']];
-var LEAD = /^[^\u0600-\u06FFA-Za-z0-9]+/;
-function decorateExtra() {
-  document.querySelectorAll('.im-unit-card,.ii-unit-card,.ip-unit-card,.is-unit-card,.pe-unit-card').forEach(function (b) {
-    if (b.querySelector('.bac-ico')) return;
-    var u = UNIT[b.dataset.key]; if (!u) return;
-    var t = b.textContent.replace(LEAD, '').trim();
-    b.classList.add('unit-ico-card');
-    b.innerHTML = badge(u[0], u[1]) + '<span>' + esc(t) + '</span>';
-  });
-  document.querySelectorAll('.mini-card').forEach(function (m) {
-    if (m.querySelector('.bac-ico')) return;
-    var raw = m.textContent.replace(/\s+/g, ' ').trim(), t = raw.replace(LEAD, '').trim(), hit = null;
-    for (var i = 0; i < MINI.length; i++) if (t.indexOf(MINI[i][0]) !== -1) { hit = MINI[i]; break; }
-    if (!hit) return;
-    m.innerHTML = badge(hit[1], hit[2]) + '<span class="mc-t">' + esc(t) + '</span>';
-  });
-}
-function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
 var META = {
   math: ['الرياضيات', 'c-green'], physics: ['الفيزياء', 'c-blue'], science: ['العلوم الطبيعية', 'c-teal'],
   electrical: ['الهندسة الكهربائية', 'c-blue'], mechanical: ['الهندسة الميكانيكية', 'c-orange'],
@@ -103,8 +49,90 @@ function color(k) { return (META[k] || META.book)[1]; }
 function label(k) { return (META[k] || META.book)[0]; }
 function badge(k, cls) { return '<span class="bac-ico ' + color(k) + (cls ? ' ' + cls : '') + '">' + svg(k) + '</span>'; }
 
+
+/* ── أيقونات إضافية: الوحدات الدراسية والبطاقات الصغيرة والهندسة ── */
+var ST = function (c, s) { return '<text x="12" y="15.6" text-anchor="middle" font-size="' + s + '" font-weight="700" fill="currentColor" stroke="none">' + c + '</text>'; };
+var HAT = '<path d="M7 10.5a5 5 0 0 1 10 0"/><path d="M5 10.5h14v2H5z"/><path d="M12 5.5v5"/>';
+Object.assign(ICONS, {
+  engineer: HAT + '<rect x="4" y="14.5" width="16" height="7" rx="1.2"/><path d="M8 20l3-4 3 4z"/><circle cx="17" cy="18" r="1.3"/>',
+  hardhat: HAT + '<path d="M6.5 16.5c.6-2.2 2.6-3.4 5.5-3.4s4.9 1.2 5.5 3.4M12 13.1v7.4"/>',
+  note: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h7"/>',
+  pencil: '<path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14 7l3 3"/>',
+  folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  filecheck: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 14l2.2 2.2L15.5 12"/>',
+  penline: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  star: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  timer: '<circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 2M9.5 2.5h5M12 2.5V5.5"/>',
+  cog: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/>',
+  circuit: '<path d="M3 12h6M9 6v12M14 6v12M14 12h7"/>',
+  drop: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/><path d="M9.5 14.5a2.6 2.6 0 0 0 2.5 2.5"/>',
+  nucleus: '<circle cx="10.5" cy="11" r="2.3"/><circle cx="14" cy="13.2" r="2.3"/><circle cx="11.5" cy="15" r="2.3"/><path d="M4 7a9 9 0 0 1 4-3M20 17a9 9 0 0 1-4 3M18 5a9 9 0 0 1 2.5 4"/>',
+  molecule: '<circle cx="6" cy="17" r="2.5"/><circle cx="18" cy="17" r="2.5"/><circle cx="12" cy="6" r="2.5"/><path d="M10.7 8.2 7.3 14.8M13.3 8.2l3.4 6.6M8.5 17h7"/>',
+  battery: '<rect x="2.5" y="7" width="17" height="10" rx="2"/><path d="M22 10.5v3M9 12h5M11.5 9.5v5"/>',
+  wave: '<path d="M2 12c1.7-7 3.3-7 5 0s3.3 7 5 0 3.3-7 5 0 3.3 7 5 0"/>',
+  expo: '<path d="M3 3v18h18"/><path d="M6 17c6 0 9-3 12-11"/>', logn: '<path d="M3 3v18h18"/><path d="M6 8c1 7 5 9 12 9"/>',
+  seq: '<circle cx="5" cy="18" r="1.6"/><circle cx="10" cy="14" r="1.6"/><circle cx="15" cy="9" r="1.6"/><circle cx="20" cy="5" r="1.6"/><path d="M5 18l5-4 5-5 5-4" stroke-dasharray="2 2"/>',
+  arith: '<path d="M5 7h6M8 4v6M13 7h6M5 18h6M13 15l6 6M19 15l-6 6"/>',
+  dice: '<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="15" r="1" fill="currentColor"/><circle cx="15" cy="15" r="1" fill="currentColor"/>',
+  complex: '<path d="M12 3v18M3 12h18"/><circle cx="17" cy="7" r="1.6" fill="currentColor"/><path d="M12 12l5-5" stroke-dasharray="2 2"/>',
+  dna: '<path d="M7 3c0 5.5 10 5.5 10 11.5S7 20 7 21M17 3c0 5.5-10 5.5-10 11.5S17 20 17 21"/><path d="M9 7h6M9 12h6M9 17h6"/>',
+  puzzle: '<path d="M9 4h3v2.5a1.8 1.8 0 1 0 3 0V4h5v5h-2.5a1.8 1.8 0 1 0 0 3H20v7H4v-6h2.5a1.8 1.8 0 1 0 0-3H4V4z"/>',
+  key: '<circle cx="8" cy="12" r="3.5"/><path d="M11.5 12H21M17 12v3M20 12v2.5"/>',
+  shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 9v6M9 12h6"/>',
+  neuron: '<circle cx="12" cy="12" r="2.6"/><path d="M12 9.4V4.5M14.3 10.6 18.6 8M14.3 13.4 18.6 16M12 14.6v4.9M9.7 13.4 5.4 16M9.7 10.6 5.4 8"/><circle cx="12" cy="3.5" r="1"/><circle cx="19.5" cy="7.5" r="1"/><circle cx="19.5" cy="16.5" r="1"/><circle cx="12" cy="20.5" r="1"/><circle cx="4.5" cy="16.5" r="1"/><circle cx="4.5" cy="7.5" r="1"/>',
+  leaf: '<path d="M5 19C5 10 10 5 20 4c0 10-5 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/>',
+  lungs: '<path d="M12 4v8M12 12c-2 0-3.5 1-4.5 3-1 2-1.5 4-3 4.5C3 20 3 12 6 9c1.5-1.5 4-1 6-1M12 12c2 0 3.5 1 4.5 3 1 2 1.5 4 3 4.5C21 20 21 12 18 9c-1.5-1.5-4-1-6-1"/>',
+  plates: '<path d="M3 13h8l2-2h8M3 17h6l2 2h10"/><path d="M12 3v6M9.5 6.5 12 9l2.5-2.5"/>',
+  family: '<circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><path d="M12 7v4M6 17v-3h12v3"/>',
+  coin: '<circle cx="12" cy="12" r="9"/><path d="M9 15l6-6"/><circle cx="9.5" cy="9.5" r="1"/><circle cx="14.5" cy="14.5" r="1"/>',
+  exchange: '<path d="M3 8h14l-3-3M21 16H7l3 3"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18"/>',
+  planet: '<circle cx="12" cy="12" r="4.5"/><ellipse cx="12" cy="12" rx="10" ry="3.2" transform="rotate(-20 12 12)"/>'
+});
+Object.assign(META, { engineer: ['الهندسة', 'c-orange'] });
+var UNIT_MAP = {
+  kinetics: ['timer', 'c-blue'], mech: ['cog', 'c-orange'], elec: ['circuit', 'c-blue'], ph: ['drop', 'c-teal'],
+  nuclear: ['nucleus', 'c-green'], ester: ['molecule', 'c-purple'], columns: ['battery', 'c-orange'], vibration: ['wave', 'c-blue'],
+  exp: ['expo', 'c-green'], log: ['logn', 'c-teal'], seq: ['seq', 'c-blue'], num: ['arith', 'c-orange'], prob: ['dice', 'c-purple'], cplx: ['complex', 'c-green'],
+  protein_struct: ['dna', 'c-teal'], protein_func: ['puzzle', 'c-blue'], enzyme: ['key', 'c-orange'], immunity: ['shield', 'c-green'],
+  nerves: ['neuron', 'c-purple'], photosynthesis: ['leaf', 'c-green'], respiration: ['lungs', 'c-blue'], tectonics: ['plates', 'c-orange'],
+  meerath: ['family', 'c-green'], riba: ['coin', 'c-orange'], muamalat: ['exchange', 'c-teal'],
+  safety: ['hardhat', 'c-orange'], ethics: ['briefcase', 'c-blue'], astronomy: ['planet', 'c-purple']
+};
+var MINI_MAP = [['📝', 'note', 'c-green'], ['✏', 'pencil', 'c-blue'], ['🗂', 'folder', 'c-orange'], ['📄', 'filecheck', 'c-purple'], ['✍', 'penline', 'c-teal']];
+var LEAD = /^[^\u0600-\u06FFA-Za-z0-9]+/;
+function mk(k, c, extra) { return '<span class="bac-ico ' + c + (extra ? ' ' + extra : '') + '">' + svg(k) + '</span>'; }
+function setIconLabel(el, html, text) {
+  el.innerHTML = html + '<span class="bac-lbl"></span>';
+  el.lastChild.textContent = text;
+}
+function decorateExtras() {
+  document.querySelectorAll('[class*="unit-card"]').forEach(function (b) {
+    if (b.querySelector('.bac-ico')) return;
+    var m = UNIT_MAP[b.dataset.key] || ['book', 'c-green'];
+    var txt = b.textContent.replace(LEAD, '').trim();
+    b.classList.add('bac-unit');
+    setIconLabel(b, mk(m[0], m[1]), txt);
+  });
+  document.querySelectorAll('.mini-card').forEach(function (b) {
+    if (b.querySelector('.bac-ico')) return;
+    var raw = b.textContent.trim(), m = ['book', 'c-green'];
+    for (var i = 0; i < MINI_MAP.length; i++) if (raw.indexOf(MINI_MAP[i][0]) === 0) { m = [MINI_MAP[i][1], MINI_MAP[i][2]]; break; }
+    setIconLabel(b, mk(m[0], m[1]), raw.replace(LEAD, '').trim());
+  });
+  document.querySelectorAll('.topic-card > h2, .card-empty > h2').forEach(function (h) {
+    if (h.querySelector('.bac-ico')) return;
+    var raw = h.textContent.trim();
+    setIconLabel(h, mk(raw.indexOf('⭐') === 0 ? 'star' : 'filecheck', raw.indexOf('⭐') === 0 ? 'c-orange' : 'c-green'), raw.replace(LEAD, '').trim());
+  });
+  /* بطاقات الفصول في صفحات «المواضيع المتنوعة» (T_*): نزيل الإيموجي المتكرر بجانب أيقونة الفيزياء/المادة */
+  document.querySelectorAll('.subjects > .card:not(.topic-card):not(.card-empty) > h2').forEach(function (h) {
+    var last = h.lastChild;
+    if (last && last.nodeType === 3 && /^\s*[^\u0600-\u06FFA-Za-z0-9\s]/.test(last.nodeValue)) last.nodeValue = last.nodeValue.replace(LEAD, '');
+  });
+}
+
 function decorate() {
-  decorateExtra();
   var BR = { math: 'math', science: 'science', technical: 'engineer', economy: 'economy' };
   document.querySelectorAll('[data-branch-key] .bac-card-icon').forEach(function (el) {
     var k = BR[el.parentNode.getAttribute('data-branch-key')] || 'book';
@@ -116,6 +144,12 @@ function decorate() {
     var k = keyFor(h.textContent);
     h.insertAdjacentHTML('afterbegin', badge(k, 'card-sub-ico'));
   });
+  decorateExtras();
+  if (!decorate._mo && window.MutationObserver) {
+    var t;
+    decorate._mo = new MutationObserver(function () { clearTimeout(t); t = setTimeout(decorateExtras, 60); });
+    document.querySelectorAll('[id$="Units"],#tmGrid').forEach(function (c) { decorate._mo.observe(c, { childList: true }); });
+  }
 }
 window.BacIcons = { keyFor: keyFor, svg: svg, badge: badge, label: label, color: color, decorate: decorate };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', decorate); else decorate();

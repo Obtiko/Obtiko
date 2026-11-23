@@ -143,21 +143,59 @@
   }
 
   function ensureFavicon() {
-    if (document.querySelector('link[rel="icon"]')) return;
+    if (!document.querySelector('link[rel="icon"]')) {
+      var icon = document.createElement('link');
+      icon.rel = 'icon';
+      icon.type = 'image/png';
+      icon.setAttribute('sizes', '256x256');
+      icon.href = SITE_ROOT + 'favicon.png?v=2';
+      document.head.appendChild(icon);
 
-    var icon = document.createElement('link');
-    icon.rel = 'icon';
-    icon.type = 'image/png';
-    icon.href = SITE_ROOT + 'favicon.png';
-    document.head.appendChild(icon);
+      var ico = document.createElement('link');
+      ico.rel = 'shortcut icon';
+      ico.href = SITE_ROOT + 'favicon.ico?v=2';
+      document.head.appendChild(ico);
+    }
 
     if (!document.querySelector('link[rel="apple-touch-icon"]')) {
       var apple = document.createElement('link');
       apple.rel = 'apple-touch-icon';
-      apple.href = SITE_ROOT + 'icon-192.png';
+      apple.setAttribute('sizes', '180x180');
+      apple.href = SITE_ROOT + 'apple-touch-icon.png?v=2';
       document.head.appendChild(apple);
     }
+
+    /* بيانات المشاركة الاجتماعية: تُضاف للصفحات التي لا تملك og:image */
+    if (!document.querySelector('meta[property="og:image"]')) {
+      [['property', 'og:image', SITE_ROOT + 'assets/og-cover.png?v=2'],
+       ['name', 'twitter:image', SITE_ROOT + 'assets/og-cover.png?v=2'],
+       ['name', 'theme-color', '#000000']].forEach(function (m) {
+        if (document.querySelector('meta[' + m[0] + '="' + m[1] + '"]')) return;
+        var el = document.createElement('meta');
+        el.setAttribute(m[0], m[1]); el.content = m[2];
+        document.head.appendChild(el);
+      });
+    }
   }
+
+
+  /* ---------------------------------------------------------
+     0د. تحميل طبقتي التصميم مبكرًا (لتفادي وميض الشريط العلوي) + التقاط حدث التثبيت
+     --------------------------------------------------------- */
+  function injectDesignCss() {
+    ['design-v2.css', 'design-v3.css'].forEach(function (n) {
+      if (document.querySelector('link[data-bac-css="' + n + '"]')) return;
+      var l = document.createElement('link');
+      l.rel = 'stylesheet'; l.href = siblingUrl(n); l.setAttribute('data-bac-css', n);
+      document.head.appendChild(l);
+    });
+  }
+  var bacInstallEvt = null;
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); bacInstallEvt = e; });
+  window.addEventListener('appinstalled', function () {
+    bacInstallEvt = null;
+    var b = document.getElementById('pwaInstallBtn'); if (b) b.remove();
+  });
 
   /* ---------------------------------------------------------
      1. الوضع الداكن / الفاتح (Theme)
@@ -174,6 +212,7 @@
   }
   applyStoredTheme();
   safeRun(ensureFavicon, 'أيقونة الموقع (favicon)');
+  safeRun(injectDesignCss, 'طبقات التصميم');
 
   /* صفحات الدروس (L_*): يُفتح القارئ مباشرة، فنخفي قائمة الصور القديمة من البداية
      حتى لا تظهر لحظة قبل القارئ. تُزال الفئة تلقائيًا إن تعذّر فتح القارئ. */
@@ -1469,7 +1508,7 @@
     btn.title = 'مؤقت الدراسة';
     btn.innerHTML =
       '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 2h6"/><path d="M12 2v3"/></svg>' +
-      '<span class="bac-timer-badge" id="bacTimerBadge"></span>';
+      '<span class="bac-btn-label">المؤقت</span><span class="bac-timer-badge" id="bacTimerBadge"></span>';
     navWrap.appendChild(btn);
 
     const widget = document.createElement('div');
@@ -2421,7 +2460,7 @@
     a.className = 'bac-brand';
     a.href = bacNavPathPrefix() + 'index.html';
     a.setAttribute('aria-label', 'Obtiko');
-    a.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="7"/><ellipse cx="20" cy="20" rx="17" ry="6.5" transform="rotate(-25 20 20)"/></svg><span>Obt<b>iko</b></span>';
+    a.innerHTML = '<img class="bac-brand-logo" src="' + bacNavPathPrefix() + 'assets/logo.png" alt="" decoding="async"><span>bt<b>iko</b></span>';
     topBar.insertBefore(a, topBar.firstChild);
   }
 
@@ -2490,13 +2529,90 @@
   }
 
   function initDesignV2() {
-    var l = document.createElement('link');
-    l.rel = 'stylesheet'; l.href = siblingUrl('design-v2.css');
-    document.head.appendChild(l);
+    injectDesignCss();
     loadScriptTag(siblingUrl('icons.js')).then(function () {
       if (window.BacIcons) window.BacIcons.decorate();
       initRecentLessons();
     }).catch(function () {});
+  }
+
+
+  /* ---------------------------------------------------------
+     8ط. أزرار الشريط العلوي: النشاطات + تنزيل/حفظ (تُنشأ مبكرًا لثبات الترتيب)
+     الترتيب يُحدَّد بالـCSS (design-v3.css): ☰ ← الشعار ← المؤقت ← النشاطات ← تنزيل/حفظ
+     --------------------------------------------------------- */
+  var BAC_SVG = {
+    bell: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10.3 21a2 2 0 0 0 3.4 0"/></svg>',
+    save: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>',
+    install: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 20h14"/></svg>'
+  };
+
+  function bacIsStandalone() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+
+  function initTopBarButtons() {
+    var topBar = document.getElementById('topBar');
+    if (!topBar || /admin\.html$/.test(location.pathname)) return;
+    var ownFb = pageManagesOwnFirebase();
+
+    if ((!ownFb || document.querySelector('script[src*="notifications.js"]')) && !document.getElementById('bacNotifBtn')) {
+      var bell = document.createElement('button');
+      bell.type = 'button'; bell.id = 'bacNotifBtn'; bell.className = 'bac-notif-btn';
+      bell.setAttribute('aria-label', 'النشاطات'); bell.title = 'النشاطات';
+      bell.innerHTML = BAC_SVG.bell + '<span class="bac-btn-label">النشاطات</span><span class="bac-notif-badge" id="bacNotifBadge">0</span>';
+      topBar.appendChild(bell);
+    }
+
+    var saveCtx = !!qs('.lessons') || (!!qs('.subjects') && !!qs('.topic-card'));
+    if (!ownFb && saveCtx) {
+      document.body.classList.add('bac-save-page');
+      if (!document.getElementById('bacSlBtn')) {
+        var sv = document.createElement('button');
+        sv.type = 'button'; sv.id = 'bacSlBtn'; sv.className = 'bac-sl-btn bac-save-btn';
+        sv.setAttribute('aria-label', 'حفظ للدراسة لاحقًا'); sv.title = 'حفظ للدراسة لاحقًا';
+        sv.innerHTML = BAC_SVG.save + '<span class="bac-btn-label">حفظ</span>';
+        sv.addEventListener('click', function () {
+          if (!window.BacStudyLater || !window.BacStudyLater.ready) showToast('جارٍ تجهيز حسابك… حاول بعد لحظات');
+        });
+        topBar.appendChild(sv);
+      }
+    }
+
+    if (!bacIsStandalone() && !document.getElementById('pwaInstallBtn')) {
+      var ib = document.createElement('button');
+      ib.type = 'button'; ib.id = 'pwaInstallBtn'; ib.className = 'bac-install-btn';
+      ib.setAttribute('aria-label', 'تنزيل الموقع كتطبيق'); ib.title = 'تنزيل الموقع كتطبيق';
+      ib.innerHTML = BAC_SVG.install + '<span class="bac-btn-label">تنزيل</span>';
+      var seen = false;
+      try { seen = sessionStorage.getItem('obtiko_install_intro') === '1'; sessionStorage.setItem('obtiko_install_intro', '1'); } catch (e) {}
+      if (!seen) {
+        ib.classList.add('bac-intro');
+        setTimeout(function () { ib.classList.remove('bac-intro'); }, 7000);
+      }
+      ib.addEventListener('click', function () {
+        if (bacInstallEvt) {
+          var ev = bacInstallEvt; bacInstallEvt = null; ib.disabled = true;
+          ev.prompt();
+          ev.userChoice.then(function () {}, function () {}).then(function () { ib.disabled = false; });
+          return;
+        }
+        if (/iphone|ipad|ipod/i.test(navigator.userAgent || '')) showToast('لتثبيت الموقع: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»');
+        else showToast('لتثبيت الموقع: افتح قائمة المتصفح ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»');
+      });
+      topBar.appendChild(ib);
+    }
+  }
+
+  function bacEnsureManifestAndSW() {
+    if (!document.querySelector('link[rel="manifest"]')) {
+      var m = document.createElement('link'); m.rel = 'manifest'; m.href = siblingUrl('manifest.json'); document.head.appendChild(m);
+    }
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register(siblingUrl('service-worker.js')).catch(function () {});
+      });
+    }
   }
 
   /* ---------------------------------------------------------
@@ -2522,6 +2638,8 @@
     safeRun(initNavMenu, 'قائمة التنقل');
     safeRun(rebuildNavMenu, 'توحيد قائمة التنقل الجانبية');
     safeRun(ensureNavActions, 'حاوية أزرار الشريط العلوي');
+    safeRun(initTopBarButtons, 'أزرار الشريط: النشاطات وتنزيل/حفظ');
+    safeRun(bacEnsureManifestAndSW, 'تثبيت الموقع (PWA)');
     safeRun(ensureBrand, 'شعار الشريط العلوي');
     safeRun(initRecentLessons, 'آخر الدروس المزارة');
     safeRun(initDesignV2, 'التصميم الجديد والأيقونات');

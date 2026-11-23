@@ -376,6 +376,7 @@ function toggleLesson() {
 
 /* ═══════════ حالة الزر ═══════════ */
 function refreshButton() {
+  notifyChange();
   if (!btnEl || !ctxRef) return;
   var context = getPageContext();
   var isSaved = false;
@@ -390,37 +391,31 @@ function refreshButton() {
   }
   btnEl.classList.toggle('saved', isSaved);
   btnEl.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
+  var lbl = btnEl.querySelector('.bac-btn-label');
+  if (lbl) lbl.textContent = isSaved ? 'محفوظ' : 'حفظ';
 }
+function notifyChange() { try { window.dispatchEvent(new CustomEvent('bac-sl-change')); } catch (e) {} }
 
-/* ═══════════ زر الهيدر ═══════════ */
+/* ═══════════ زر الهيدر («حفظ») ═══════════
+   يحل محل زر «تنزيل» في الشريط العلوي داخل صفحات الدروس والتمارين والمواضيع.
+   يُنشأ مبكرًا من script.js؛ نربطه هنا بالمنطق (أو نُنشئه إن لم يوجد). */
+var BOOKMARK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>';
 function ensureHeaderButton() {
   var context = getPageContext();
-  if (!context || document.getElementById('bacSlBtn')) return;
+  if (!context) return;
   ensureStyles();
 
-  btnEl = document.createElement('button');
-  btnEl.type = 'button';
-  btnEl.id = 'bacSlBtn';
-  btnEl.className = 'bac-sl-btn';
-  btnEl.setAttribute('aria-label', 'الدراسة لاحقًا');
-  btnEl.textContent = '🔖';
-
-  var toggle = findThemeToggle();
-  var topBar = document.getElementById('topBar');
-  if (toggle && toggle.parentNode === topBar) {
-    /* مجموعة واحدة (🔖 + الثيم) حتى لا يتوسط الزر الشريط العلوي */
-    var group = document.createElement('div');
-    group.className = 'bac-sl-group';
-    topBar.insertBefore(group, toggle);
-    group.appendChild(btnEl);
-    group.appendChild(toggle);
-  } else if (toggle && toggle.parentNode) {
-    toggle.parentNode.insertBefore(btnEl, toggle);
-  } else if (topBar) {
-    topBar.appendChild(btnEl);
-  } else {
-    document.body.appendChild(btnEl);
+  btnEl = document.getElementById('bacSlBtn');
+  if (!btnEl) {
+    btnEl = document.createElement('button');
+    btnEl.type = 'button';
+    btnEl.id = 'bacSlBtn';
+    btnEl.className = 'bac-sl-btn bac-save-btn';
+    btnEl.innerHTML = BOOKMARK_SVG + '<span class="bac-btn-label">حفظ</span>';
+    (document.getElementById('topBar') || document.body).appendChild(btnEl);
+    document.body.classList.add('bac-save-page');
   }
+  btnEl.setAttribute('aria-label', 'حفظ للدراسة لاحقًا');
 
   btnEl.addEventListener('click', function () {
     if (context === 'topic') { openTopicPicker(); return; }
@@ -561,6 +556,27 @@ window.BacStudyLater = {
     ensureHeaderButton();
     applyResumeIfNeeded();
     startListener();
+    window.BacStudyLater.ready = true;
+    notifyChange();
+  },
+  /* واجهة للقارئ: هل يمكن الحفظ في هذه الصفحة، وحفظ/إزالة العنصر المفتوح حاليًا */
+  canSave: function () { return !!ctxRef && !!getPageContext(); },
+  isSavedForReader: function (o) {
+    if (!ctxRef) return false;
+    if (getPageContext() === 'topic' && o && o.src) {
+      var opt = collectTopicOptions().filter(function (x) { return x.relUrl === o.src; })[0];
+      if (opt) return saved.has(topicId(opt));
+    }
+    var t = currentLessonTarget();
+    return !t.needUnit && saved.has(t.id);
+  },
+  toggleForReader: function (o) {
+    if (!ctxRef) return Promise.resolve();
+    if (getPageContext() === 'topic' && o && o.src) {
+      var opt = collectTopicOptions().filter(function (x) { return x.relUrl === o.src; })[0];
+      if (opt) return toggleTopic(opt, topicId(opt)).catch(function () {});
+    }
+    return toggleLesson();
   }
 };
 })();
