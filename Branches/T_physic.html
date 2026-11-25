@@ -7,6 +7,25 @@
 <title>المواضيع المتنوعة - الفيزياء - Obtiko</title>
 <link rel="stylesheet" href="../style.css">
 <script src="../script.js"></script>
+<style>
+.tm-other-wrap{max-width:1200px;margin:0 auto 10px;padding:0 30px;text-align:center}
+.tm-other-btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-width:260px;max-width:100%;padding:15px 32px;background:var(--accent);color:#000;font-weight:bold;font-size:16px;font-family:inherit;border:none;border-radius:14px;cursor:pointer;box-shadow:0 8px 24px var(--accent-soft);transition:transform .25s ease,box-shadow .25s ease,background-color .35s ease}
+.tm-other-btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px var(--accent-glow)}
+.tm-other-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.tm-chev{width:9px;height:9px;border-right:2.5px solid currentColor;border-bottom:2.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .3s ease;flex-shrink:0}
+.tm-other-btn[aria-expanded="true"] .tm-chev{transform:rotate(-135deg) translateY(-2px)}
+.tm-other-box[hidden]{display:none}
+.tm-group{margin-top:34px;text-align:right}
+.tm-group-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--accent);font-size:20px;padding:0 0 10px;margin:0 30px;border-bottom:1px dashed var(--empty-border)}
+.tm-group-count{color:var(--text-secondary);font-size:12.5px;font-weight:bold;border:1px solid var(--accent);border-radius:999px;padding:3px 12px}
+.tm-group .subjects{padding-top:18px}
+@media(max-width:480px){
+.tm-other-wrap{padding:0 14px}
+.tm-other-btn{width:100%;min-width:0;padding:14px 18px;font-size:14.5px}
+.tm-group-title{margin:0 14px;font-size:17px}
+}
+</style>
+
 </head>
 
 <body>
@@ -127,6 +146,87 @@ if (c && Object.prototype.hasOwnProperty.call(CHAPTERS, c)) {
             '</div>';
     }
     grid.innerHTML = html;
+
+    /* ── زر «مواضيع الشعب الأخرى»: يعرض ملفات الشعب الأخرى لنفس الفصل (يُبنى عند أول نقرة فقط) ── */
+    (function () {
+        function folderOf(key) { return BRANCHES[key].dir; }
+
+        var curFolder = folderOf(b);
+        var groups = [], idx = {};
+
+        Object.keys(BRANCHES).forEach(function (key) {
+            var br = BRANCHES[key], f = folderOf(key);
+            if (f === curFolder) return;
+
+            var total = br.counts && br.counts[c];
+            if (!total) return;
+
+            if (idx[f] === undefined) {
+                idx[f] = groups.length;
+                groups.push({ folder: f, total: total, labels: [br.label] });
+            } else {
+                groups[idx[f]].labels.push(br.label);
+            }
+        });
+
+        if (!groups.length) return;
+
+        var wrap = document.createElement('div');
+        wrap.className = 'tm-other-wrap';
+        wrap.innerHTML =
+            '<button type="button" class="tm-other-btn" aria-expanded="false" aria-controls="tmOtherBox">' +
+            '<span>مواضيع الشعب الأخرى</span><i class="tm-chev" aria-hidden="true"></i></button>' +
+            '<div class="tm-other-box" id="tmOtherBox" hidden></div>';
+
+        grid.insertAdjacentElement('afterend', wrap);
+
+        var btn = wrap.querySelector('.tm-other-btn');
+        var box = wrap.querySelector('.tm-other-box');
+        var rendered = false;
+
+        function render() {
+            var out = '';
+
+            groups.forEach(function (g) {
+                var title = g.labels.join(' و ');
+                var short = g.labels.map(function (l) {
+                    return l.replace(/^شعبة\s*/, '');
+                }).join(' و ');
+
+                var cards = '';
+
+                for (var i = 1; i <= g.total; i++) {
+                    var file = '(' + i + ').pdf';
+                    var path = 'T_physic/' + chapter.dir + '/' + g.folder + '/' + file;
+
+                    cards +=
+                        '<div class="card topic-card" onclick="window.open(\'' + path + '\', \'_blank\')">' +
+                        '<h2>📄 الموضوع ' + i + ' — ' + short + '</h2>' +
+                        '<button class="topic-download-btn" type="button" onclick="downloadTopic(event, \'' + path + '\', \'' + file + '\')" aria-label="تنزيل الموضوع ' + i + ' — ' + short + '">' +
+                        DL_SVG + '<span>تنزيل الموضوع</span></button></div>';
+                }
+
+                out +=
+                    '<div class="tm-group"><h3 class="tm-group-title">' + title +
+                    '<span class="tm-group-count">' + g.total + ' موضوع</span></h3>' +
+                    '<section class="subjects">' + cards + '</section></div>';
+            });
+
+            box.innerHTML = out;
+            rendered = true;
+        }
+
+        btn.addEventListener('click', function () {
+            var open = btn.getAttribute('aria-expanded') === 'true';
+
+            if (!open && !rendered) render();
+
+            btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+            box.hidden = open;
+
+            if (!open) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    })();
 } else {
     /* ── العرض الأول: بطاقات الفصول الثلاثة ── */
     subEl.textContent = branch.label + ' · اختر الفصل';

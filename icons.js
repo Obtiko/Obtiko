@@ -54,7 +54,10 @@ function badge(k, cls) { return '<span class="bac-ico ' + color(k) + (cls ? ' ' 
 var ST = function (c, s) { return '<text x="12" y="15.6" text-anchor="middle" font-size="' + s + '" font-weight="700" fill="currentColor" stroke="none">' + c + '</text>'; };
 var HAT = '<path d="M7 10.5a5 5 0 0 1 10 0"/><path d="M5 10.5h14v2H5z"/><path d="M12 5.5v5"/>';
 Object.assign(ICONS, {
-  engineer: HAT + '<rect x="4" y="14.5" width="16" height="7" rx="1.2"/><path d="M8 20l3-4 3 4z"/><circle cx="17" cy="18" r="1.3"/>',
+  br_math: '<rect x="4" y="2.5" width="16" height="19" rx="2.5"/><rect x="7.5" y="5.5" width="9" height="4" rx=".8"/><path d="M8 13.5h.01M12 13.5h.01M16 13.5h.01M8 17.5h.01M12 17.5h.01M16 17.5h.01" stroke-width="2.4"/>',
+  br_science: '<path d="M10 2.5v6.6a2 2 0 0 1-.2.9L4.7 19.800A1.600 1.600 0 0 0 6.100 22h11.800a1.600 1.600 0 0 0 1.400-2.200L14.200 10a2 2 0 0 1-.2-.9V2.500M8.500 2.500h7M7.200 15.500h9.600"/><path d="M10.500 18.500h.01M13.500 17.500h.01" stroke-width="2.4"/>',
+  br_economy: '<path d="M3.500 3.500v16a1.500 1.500 0 0 0 1.500 1.500h16"/><path d="M8 17v-4M12.500 17V9M17 17v-7"/><path d="M7 8l4-3.500 3 2.500 5-4.500M16 2.500h3v3"/>',
+  engineer: '<path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5"/><path d="M14 6a6 6 0 0 1 6 6v3"/><path d="M4 15v-3a6 6 0 0 1 6-6"/><rect x="2" y="15" width="20" height="4" rx="1"/>',
   hardhat: HAT + '<path d="M6.5 16.5c.6-2.2 2.6-3.4 5.5-3.4s4.9 1.2 5.5 3.4M12 13.1v7.4"/>',
   note: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h7"/>',
   pencil: '<path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14 7l3 3"/>',
@@ -89,7 +92,7 @@ Object.assign(ICONS, {
   briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18"/>',
   planet: '<circle cx="12" cy="12" r="4.5"/><ellipse cx="12" cy="12" rx="10" ry="3.2" transform="rotate(-20 12 12)"/>'
 });
-Object.assign(META, { engineer: ['الهندسة', 'c-orange'] });
+Object.assign(META, { engineer: ['الهندسة', 'c-orange'], br_math: ['الرياضيات', 'c-green'], br_science: ['العلوم التجريبية', 'c-blue'], br_economy: ['التسيير والاقتصاد', 'c-purple'] });
 var UNIT_MAP = {
   kinetics: ['timer', 'c-blue'], mech: ['cog', 'c-orange'], elec: ['circuit', 'c-blue'], ph: ['drop', 'c-teal'],
   nuclear: ['nucleus', 'c-green'], ester: ['molecule', 'c-purple'], columns: ['battery', 'c-orange'], vibration: ['wave', 'c-blue'],
@@ -133,7 +136,7 @@ function decorateExtras() {
 }
 
 function decorate() {
-  var BR = { math: 'math', science: 'science', technical: 'engineer', economy: 'economy' };
+  var BR = { math: 'br_math', science: 'br_science', technical: 'engineer', economy: 'br_economy' };
   document.querySelectorAll('[data-branch-key] .bac-card-icon').forEach(function (el) {
     var k = BR[el.parentNode.getAttribute('data-branch-key')] || 'book';
     el.className = 'bac-card-icon bac-ico ' + color(k);

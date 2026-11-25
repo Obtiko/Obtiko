@@ -1,0 +1,63 @@
+/* Obtiko — design-v6.css : (تُحمَّل بعد v5 من script.js)
+   1) توازن ألوان الخلفية: أخضر رئيسي + أزرق شبه أساسي + برتقالي بنسبة أقل.
+   2) موجات الخلفية: شفافية أقل وألوان أعمق وأوضح مع بقاء التدرجات ناعمة (الخلفية فقط).
+   3) زر «أصوات الطبيعة» في الشريط العلوي بعد «النشاطات». */
+
+/* ---------- 1) توهج الخلفية ---------- */
+html body::before{
+  background-image:
+    radial-gradient(ellipse 58% 46% at 4% 0%,rgba(26,255,102,.15),transparent 68%),
+    radial-gradient(ellipse 52% 44% at 100% 4%,rgba(56,189,248,.20),transparent 70%),
+    radial-gradient(ellipse 46% 42% at 0% 52%,rgba(56,189,248,.13),transparent 70%),
+    radial-gradient(ellipse 58% 48% at 98% 100%,rgba(56,189,248,.20),transparent 68%),
+    radial-gradient(ellipse 46% 38% at 2% 98%,rgba(26,255,102,.12),transparent 70%),
+    radial-gradient(ellipse 28% 20% at 52% 104%,rgba(255,169,77,.07),transparent 70%),
+    linear-gradient(var(--bg-grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--bg-grid) 1px,transparent 1px);
+  background-size:auto,auto,auto,auto,auto,auto,34px 34px,34px 34px;
+}
+html[data-theme="light"] body::before{
+  background-image:
+    radial-gradient(ellipse 58% 46% at 4% 0%,rgba(40,200,120,.12),transparent 68%),
+    radial-gradient(ellipse 52% 44% at 100% 4%,rgba(56,160,230,.16),transparent 70%),
+    radial-gradient(ellipse 46% 42% at 0% 52%,rgba(56,160,230,.10),transparent 70%),
+    radial-gradient(ellipse 58% 48% at 98% 100%,rgba(56,160,230,.16),transparent 68%),
+    radial-gradient(ellipse 46% 38% at 2% 98%,rgba(40,200,120,.09),transparent 70%),
+    radial-gradient(ellipse 28% 20% at 52% 104%,rgba(255,138,31,.08),transparent 70%);
+  background-size:auto;
+}
+
+/* ---------- 2) الموجات (أعمق وأقل شفافية) ---------- */
+html body::after{
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 460'%3E%3Cdefs%3E%3ClinearGradient id='f' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23065a3a' stop-opacity='.92'/%3E%3Cstop offset='.55' stop-color='%23088a50' stop-opacity='.6'/%3E%3Cstop offset='1' stop-color='%2312c978' stop-opacity='.14'/%3E%3C/linearGradient%3E%3ClinearGradient id='e' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%231aff66' stop-opacity='.95'/%3E%3Cstop offset='1' stop-color='%230a8a52' stop-opacity='.45'/%3E%3C/linearGradient%3E%3ClinearGradient id='t' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%2338bdf8' stop-opacity='.95'/%3E%3Cstop offset='1' stop-color='%2338bdf8' stop-opacity='.3'/%3E%3C/linearGradient%3E%3ClinearGradient id='o' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23ffa94d' stop-opacity='.75'/%3E%3Cstop offset='1' stop-color='%23ffa94d' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cfilter id='s' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='4'/%3E%3C/filter%3E%3C/defs%3E%3Cpath d='M0 0H520C430 90 330 120 230 190 120 265 50 340 0 440Z' fill='url(%23f)'/%3E%3Cpath d='M0 440C50 340 120 265 230 190 330 120 430 90 520 0' fill='none' stroke='url(%23e)' stroke-width='8' opacity='.35' filter='url(%23s)'/%3E%3Cpath d='M0 440C50 340 120 265 230 190 330 120 430 90 520 0' fill='none' stroke='url(%23e)' stroke-width='2.4'/%3E%3Cpath d='M0 372C60 296 140 228 240 165 340 100 420 58 470 0' fill='none' stroke='url(%23t)' stroke-width='2.2'/%3E%3Cpath d='M0 318C52 250 126 192 214 140 306 86 384 48 430 0' fill='none' stroke='url(%23t)' stroke-width='1.4' opacity='.75'/%3E%3Cpath d='M0 268C46 210 112 158 190 112 268 66 332 32 372 0' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-dasharray='1.5 8' opacity='.65'/%3E%3Ccircle cx='240' cy='165' r='3.4' fill='%2338bdf8'/%3E%3Ccircle cx='140' cy='228' r='2.4' fill='%2338bdf8' opacity='.8'/%3E%3Ccircle cx='340' cy='100' r='2.4' fill='%2338bdf8' opacity='.8'/%3E%3Cpath d='M0 458C58 362 130 288 238 214' fill='none' stroke='url(%23o)' stroke-width='1.3'/%3E%3Ccircle cx='238' cy='214' r='2.6' fill='%23ffa94d' opacity='.8'/%3E%3C/svg%3E") left top / min(50vw,700px) auto no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 460'%3E%3Cdefs%3E%3ClinearGradient id='f' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23075f8f' stop-opacity='.92'/%3E%3Cstop offset='.55' stop-color='%230b8cc0' stop-opacity='.6'/%3E%3Cstop offset='1' stop-color='%2338bdf8' stop-opacity='.14'/%3E%3C/linearGradient%3E%3ClinearGradient id='e' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%2338bdf8' stop-opacity='.95'/%3E%3Cstop offset='1' stop-color='%230b86b8' stop-opacity='.45'/%3E%3C/linearGradient%3E%3ClinearGradient id='t' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%231aff66' stop-opacity='.9'/%3E%3Cstop offset='1' stop-color='%231aff66' stop-opacity='.25'/%3E%3C/linearGradient%3E%3ClinearGradient id='o' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23ffa94d' stop-opacity='.75'/%3E%3Cstop offset='1' stop-color='%23ffa94d' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cfilter id='s' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeGaussianBlur stdDeviation='4'/%3E%3C/filter%3E%3C/defs%3E%3Cg transform='rotate(180 350 230)'%3E%3Cpath d='M0 0H520C430 90 330 120 230 190 120 265 50 340 0 440Z' fill='url(%23f)'/%3E%3Cpath d='M0 440C50 340 120 265 230 190 330 120 430 90 520 0' fill='none' stroke='url(%23e)' stroke-width='8' opacity='.35' filter='url(%23s)'/%3E%3Cpath d='M0 440C50 340 120 265 230 190 330 120 430 90 520 0' fill='none' stroke='url(%23e)' stroke-width='2.4'/%3E%3Cpath d='M0 372C60 296 140 228 240 165 340 100 420 58 470 0' fill='none' stroke='url(%23t)' stroke-width='2.2'/%3E%3Cpath d='M0 318C52 250 126 192 214 140 306 86 384 48 430 0' fill='none' stroke='url(%23t)' stroke-width='1.4' opacity='.75'/%3E%3Cpath d='M0 268C46 210 112 158 190 112 268 66 332 32 372 0' fill='none' stroke='%231aff66' stroke-width='2' stroke-linecap='round' stroke-dasharray='1.5 8' opacity='.6'/%3E%3Ccircle cx='240' cy='165' r='3.4' fill='%231aff66'/%3E%3Ccircle cx='140' cy='228' r='2.4' fill='%231aff66' opacity='.8'/%3E%3Ccircle cx='340' cy='100' r='2.4' fill='%231aff66' opacity='.8'/%3E%3Cpath d='M0 458C58 362 130 288 238 214' fill='none' stroke='url(%23o)' stroke-width='1.3'/%3E%3Ccircle cx='238' cy='214' r='2.6' fill='%23ffa94d' opacity='.8'/%3E%3C/g%3E%3C/svg%3E") right bottom / min(50vw,700px) auto no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 260'%3E%3Cdefs%3E%3ClinearGradient id='t' x1='1' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2338bdf8' stop-opacity='.9'/%3E%3Cstop offset='1' stop-color='%2338bdf8' stop-opacity='.2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M400 130C350 118 296 78 262 0' fill='none' stroke='url(%23t)' stroke-width='2'/%3E%3Cpath d='M400 70C372 62 346 36 330 0' fill='none' stroke='url(%23t)' stroke-width='1.2' opacity='.7'/%3E%3Cpath d='M400 190C326 166 252 112 206 0' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-dasharray='1.5 8' opacity='.6'/%3E%3Ccircle cx='325' cy='90' r='3' fill='%2338bdf8'/%3E%3C/svg%3E") right top / min(30vw,400px) auto no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 260'%3E%3Cdefs%3E%3ClinearGradient id='t' x1='1' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%231aff66' stop-opacity='.85'/%3E%3Cstop offset='1' stop-color='%231aff66' stop-opacity='.2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='rotate(180 200 130)'%3E%3Cpath d='M400 130C350 118 296 78 262 0' fill='none' stroke='url(%23t)' stroke-width='2'/%3E%3Cpath d='M400 70C372 62 346 36 330 0' fill='none' stroke='url(%23t)' stroke-width='1.2' opacity='.7'/%3E%3Cpath d='M400 190C326 166 252 112 206 0' fill='none' stroke='%231aff66' stroke-width='2' stroke-linecap='round' stroke-dasharray='1.5 8' opacity='.55'/%3E%3Ccircle cx='325' cy='90' r='3' fill='%231aff66'/%3E%3Cpath d='M400 236C340 214 270 160 228 76' fill='none' stroke='%23ffa94d' stroke-width='1.2' opacity='.65'/%3E%3Ccircle cx='228' cy='76' r='2.4' fill='%23ffa94d' opacity='.8'/%3E%3C/g%3E%3C/svg%3E") left bottom / min(30vw,400px) auto no-repeat;
+  opacity:1;filter:none;
+}
+html[data-theme="light"] body::after{opacity:.8;filter:none}
+@media (max-width:480px){
+  html body::after{background-size:80vw auto,80vw auto,46vw auto,46vw auto;opacity:.92}
+  html[data-theme="light"] body::after{opacity:.75}
+}
+
+/* ---------- 3) زر «أصوات الطبيعة» ---------- */
+html .top-bar .bac-nature-btn{
+  order:5;width:auto;min-width:44px;height:44px;padding:0 13px;gap:8px;margin:0;
+  display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;white-space:nowrap;
+  font-family:inherit;font-size:13px;font-weight:700;border-radius:12px;cursor:pointer;
+  color:var(--blue,#38bdf8);background:var(--track-bg);
+  border:1px solid color-mix(in srgb,var(--blue,#38bdf8) 45%,transparent);
+  transition:transform .3s var(--bac-spring,cubic-bezier(.34,1.56,.64,1)),box-shadow .25s ease,background-color .25s ease;
+}
+html .top-bar .bac-nature-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+html .top-bar .bac-nature-btn:hover{box-shadow:0 0 14px color-mix(in srgb,var(--blue,#38bdf8) 45%,transparent);transform:translateY(-2px)}
+html .top-bar .bac-nature-btn:active{transform:scale(.93);transition-duration:.1s}
+html .top-bar .bac-nature-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+/* إبقاء «تنزيل/حفظ» بعد الزر الجديد */
+html .top-bar #pwaInstallBtn,html .top-bar #bacSlBtn,html .top-bar #bacDlBtn,html .top-bar .bac-sl-btn{order:6}
+html .top-bar .bac-notif-btn{order:4}
+/* النص يظهر على الشاشات العريضة فقط */
+@media (max-width:1100px){html .top-bar .bac-nature-btn .bac-btn-label{display:none}html .top-bar .bac-nature-btn{width:44px;padding:0}}
+@media (max-width:700px){html .top-bar .bac-nature-btn{width:40px;min-width:40px;height:40px}}

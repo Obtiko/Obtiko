@@ -183,7 +183,7 @@
      0د. تحميل طبقتي التصميم مبكرًا (لتفادي وميض الشريط العلوي) + التقاط حدث التثبيت
      --------------------------------------------------------- */
   function injectDesignCss() {
-    ['design-v2.css', 'design-v3.css'].forEach(function (n) {
+    ['design-v2.css', 'design-v3.css', 'design-v5.css', 'design-v6.css'].forEach(function (n) {
       if (document.querySelector('link[data-bac-css="' + n + '"]')) return;
       var l = document.createElement('link');
       l.rel = 'stylesheet'; l.href = siblingUrl(n); l.setAttribute('data-bac-css', n);
@@ -213,6 +213,7 @@
   applyStoredTheme();
   safeRun(ensureFavicon, 'أيقونة الموقع (favicon)');
   safeRun(injectDesignCss, 'طبقات التصميم');
+  safeRun(function () { loadScriptTag(siblingUrl('emoji-icons.js')).catch(function () {}); }, 'أيقونات بدل الإيموجي');
 
   /* صفحات الدروس (L_*): يُفتح القارئ مباشرة، فنخفي قائمة الصور القديمة من البداية
      حتى لا تظهر لحظة قبل القارئ. تُزال الفئة تلقائيًا إن تعذّر فتح القارئ. */
@@ -2544,6 +2545,7 @@
   var BAC_SVG = {
     bell: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10.3 21a2 2 0 0 0 3.4 0"/></svg>',
     save: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>',
+    nature: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 14H7a4 4 0 1 1 .9-7.9A5.5 5.5 0 0 1 18 7.5a3.3 3.3 0 0 1-.5 6.5z"/><path d="M8 17.5l-1 2.5M12 17.5l-1 2.5M16 17.5l-1 2.5"/></svg>',
     install: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 20h14"/></svg>'
   };
 
@@ -2562,6 +2564,18 @@
       bell.setAttribute('aria-label', 'النشاطات'); bell.title = 'النشاطات';
       bell.innerHTML = BAC_SVG.bell + '<span class="bac-btn-label">النشاطات</span><span class="bac-notif-badge" id="bacNotifBadge">0</span>';
       topBar.appendChild(bell);
+    }
+
+    /* زر «أصوات الطبيعة»: مباشرة بعد «النشاطات» (الأصوات ستُضاف لاحقًا) */
+    if (!document.getElementById('bacNatureBtn')) {
+      var nb = document.createElement('button');
+      nb.type = 'button'; nb.id = 'bacNatureBtn'; nb.className = 'bac-nature-btn';
+      nb.setAttribute('aria-label', 'أصوات الطبيعة'); nb.title = 'أصوات الطبيعة';
+      nb.innerHTML = BAC_SVG.nature + '<span class="bac-btn-label">أصوات الطبيعة</span>';
+      nb.addEventListener('click', function () { showToast('قسم «أصوات الطبيعة» قادم قريبًا 🌧️'); });
+      var bellEl = document.getElementById('bacNotifBtn');
+      if (bellEl && bellEl.parentNode === topBar) bellEl.insertAdjacentElement('afterend', nb);
+      else topBar.appendChild(nb);
     }
 
     var saveCtx = !!qs('.lessons') || (!!qs('.subjects') && !!qs('.topic-card'));
